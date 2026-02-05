@@ -3,135 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMPEG Digital Pro | PKM Kiarapedes</title>
+    <title>SIMPEG Digital | PKM Kiarapedes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Memastikan elemen asli Anda tetap terlihat bagus di tema gelap */
+        body { background-color: #020617; color: #f1f5f9; }
+        .glass-panel { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; }
+        input, select { background: rgba(0,0,0,0.2) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; padding: 10px; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { color: #10b981; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .btn-primary { background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: bold; border-radius: 12px; transition: 0.3s; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4); }
+    </style>
 </head>
-<body class="flex">
+<body class="p-4 md:p-8">
 
-    <aside id="sidebar" class="fixed inset-y-0 left-0 bg-slate-900/95 backdrop-blur-xl text-slate-300 flex flex-col p-6 shadow-2xl border-r border-white/10 -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-[1000]">
-        <div class="mb-10 px-2 flex items-center gap-3">
-            <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-slate-900 shadow-lg shadow-emerald-500/20">
-                <i class="fas fa-hospital-user text-xl"></i>
-            </div>
-            <span class="font-black text-xl tracking-tighter text-white uppercase">PKM <span class="text-emerald-500 text-[10px] block tracking-widest font-bold">DIGITAL HUB</span></span>
-        </div>
-
-        <nav class="flex flex-col gap-2 flex-grow">
-            <a href="index.html" class="nav-link"><i class="fas fa-th-large w-5"></i> Dashboard</a>
-            <a href="simpeg.html" id="nav-simpeg" class="nav-link active"><i class="fas fa-user-tie w-5"></i> SIMPEG</a>
-            <a href="e-arsip.html" id="nav-arsip" class="nav-link"><i class="fas fa-box-archive w-5"></i> E-Arsip</a>
-            <a href="analisis.html" id="nav-analisis" class="nav-link"><i class="fas fa-chart-line w-5"></i> Audit Data</a>
-        </nav>
+    <div class="max-w-7xl mx-auto">
         
-        <button onclick="logout()" class="nav-link text-rose-500 mt-auto border-t border-white/5 pt-4"><i class="fas fa-power-off"></i> Logout</button>
-    </aside>
-
-    <main id="mainApp" class="flex-grow lg:ml-[280px] p-4 md:p-8 min-h-screen">
-        
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-            <div class="glass-panel p-6 border-b-2 border-emerald-500">
-                <p class="text-[8px] font-black uppercase text-emerald-500 mb-1">Total Pegawai</p>
-                <h3 id="statTotal" class="text-3xl font-black text-white">0</h3>
+        <header class="glass-panel p-6 mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-black tracking-tighter text-white uppercase">SIMPEG <span class="text-emerald-500 italic">DIGITAL</span></h1>
+                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-[0.3em]">PKM Kiarapedes Digital System</p>
             </div>
-            <div class="glass-panel p-6 border-b-2 border-blue-500">
-                <p class="text-[8px] font-black uppercase text-blue-500 mb-1">Tenaga Medis</p>
-                <h3 id="statMedis" class="text-3xl font-black text-white">0</h3>
+            <div class="text-right">
+                <div id="clock" class="font-bold text-white"></div>
+                <button onclick="window.location.href='index.html'" class="text-[10px] text-emerald-500 font-bold uppercase hover:underline">Kembali ke Menu</button>
             </div>
-            <div class="glass-panel p-6 border-b-2 border-rose-500">
-                <p class="text-[8px] font-black uppercase text-rose-500 mb-1">Perlu Perhatian</p>
-                <h3 id="statAlert" class="text-3xl font-black text-rose-500">0</h3>
-            </div>
-        </div>
+        </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             <div class="lg:col-span-4 no-print">
-                <div class="glass-panel p-8 sticky top-8">
-                    <h3 class="text-xs font-black text-emerald-500 mb-6 uppercase tracking-widest flex items-center gap-2">
-                        <i class="fas fa-user-plus"></i> Registrasi Pegawai
-                    </h3>
+                <div class="glass-panel p-8">
+                    <h3 class="text-sm font-bold text-white mb-6 uppercase"><i class="fas fa-user-plus mr-2 text-emerald-500"></i> Input Pegawai</h3>
                     <form id="pegawaiForm" class="space-y-4">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div id="imagePreview" class="w-12 h-12 rounded-lg bg-white/5 border border-dashed border-white/20 flex items-center justify-center text-white/20">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <input type="file" id="fotoPegawai" accept="image/*" class="text-[10px]">
+                        </div>
                         <input type="text" id="namaPegawai" placeholder="Nama Lengkap" class="w-full" required>
                         <input type="text" id="nipPegawai" placeholder="NIP/NRPTK" class="w-full">
-                        <input type="tel" id="waPegawai" placeholder="No. WhatsApp (62...)" class="w-full">
+                        <input type="tel" id="waPegawai" placeholder="No. WA (62...)" class="w-full">
                         <select id="jabatanPegawai" class="w-full">
                             <option value="Medis">Tenaga Medis</option>
                             <option value="Paramedis">Tenaga Kesehatan</option>
                             <option value="Admin">Administrasi</option>
-                            <option value="Umum">Lainnya</option>
+                            <option value="Umum">Umum</option>
                         </select>
                         <div class="grid grid-cols-2 gap-2">
-                            <div><label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Tgl Lahir</label><input type="date" id="tglLahir" class="w-full" required></div>
-                            <div><label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Deadline SIP</label><input type="date" id="sipDeadline" class="w-full"></div>
+                            <div><label class="text-[9px] text-slate-500">Tgl Lahir</label><input type="date" id="tglLahir" class="w-full" required></div>
+                            <div><label class="text-[9px] text-slate-500">SIP Deadline</label><input type="date" id="sipDeadline" class="w-full"></div>
                         </div>
-                        <button type="submit" class="btn-primary w-full py-4 uppercase text-xs font-black">Simpan ke Cloud</button>
+                        <button type="submit" class="btn-primary w-full py-3">SIMPAN DATA</button>
                     </form>
                 </div>
             </div>
 
-            <div class="lg:col-span-8 space-y-8">
-                <div class="glass-panel p-4 flex gap-4 items-center">
-                    <div class="flex-1 relative">
-                        <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-emerald-500"></i>
-                        <input type="text" id="searchInput" oninput="renderTable()" placeholder="Cari Nama atau NIP..." class="w-full pl-12 pr-6 py-3">
-                    </div>
+            <div class="lg:col-span-8">
+                <div class="glass-panel p-4 mb-6 flex items-center gap-4">
+                    <i class="fas fa-search text-emerald-500 ml-2"></i>
+                    <input type="text" id="searchInput" oninput="renderTable()" placeholder="Cari nama atau NIP..." class="flex-grow bg-transparent border-none outline-none">
                 </div>
 
                 <div class="glass-panel overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead>
-                                <tr>
-                                    <th class="px-6 py-5 text-left">Pegawai</th>
-                                    <th class="px-6 py-5 text-left">Status Adm</th>
-                                    <th class="px-6 py-5 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="pegawaiTableBody">
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <div class="glass-panel p-6">
-                    <h3 class="text-[10px] font-black text-slate-400 mb-4 uppercase tracking-widest">Komposisi SDM</h3>
-                    <div class="h-48 w-full"><canvas id="chartSDM"></canvas></div>
+                    <table id="pegawaiTable">
+                        <thead>
+                            <tr>
+                                <th>Pegawai</th>
+                                <th>Status Adm</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pegawaiTableBody">
+                            </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
-    </main>
 
-    <div id="idCardModal" class="fixed inset-0 z-[1200] bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
-        <div class="glass-panel p-8 max-w-xs w-full relative border-white/20">
-            <button onclick="closeModal('idCardModal')" class="absolute -top-12 right-0 text-white text-3xl"><i class="fas fa-times-circle"></i></button>
-            <div id="idCard" class="bg-gradient-to-br from-emerald-600 to-emerald-900 rounded-3xl p-6 text-white text-center shadow-2xl">
-                <p class="text-[8px] font-black uppercase tracking-widest opacity-80 mb-6">UPTD Puskesmas Kiarapedes</p>
-                <div class="w-24 h-24 mx-auto bg-white rounded-2xl p-1 mb-4">
-                    <img id="printFoto" src="" class="w-full h-full object-cover rounded-xl">
-                </div>
-                <h2 id="printNama" class="text-lg font-black uppercase leading-tight">NAMA</h2>
-                <p id="printJabatan" class="text-emerald-200 text-[10px] font-bold uppercase mb-6">JABATAN</p>
-                <div id="qrcode" class="flex justify-center mb-4 bg-white/10 p-2 rounded-xl"></div>
-                <p id="printNip" class="font-mono text-[10px] opacity-60 italic">NIP. 000</p>
+        </div>
+    </div>
+
+    <div id="idCardModal" class="fixed inset-0 bg-black/90 z-[2000] hidden items-center justify-center">
+        <div class="glass-panel p-8">
+            <div id="idCard" class="bg-emerald-800 p-6 rounded-2xl text-white text-center w-64">
+                <img id="printFoto" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-white/20 object-cover">
+                <h2 id="printNama" class="font-bold uppercase"></h2>
+                <p id="printJabatan" class="text-[10px] opacity-70"></p>
+                <div id="qrcode" class="my-4 flex justify-center bg-white p-2 rounded-lg"></div>
+                <p id="printNip" class="text-[10px] opacity-50"></p>
             </div>
-            <button onclick="window.print()" class="btn-primary w-full mt-6 py-3 uppercase text-[10px] font-black">Cetak Kartu</button>
+            <button onclick="window.print()" class="btn-primary w-full mt-4 py-2">CETAK</button>
+            <button onclick="document.getElementById('idCardModal').classList.replace('flex','hidden')" class="w-full mt-2 text-white/50 text-xs">Tutup</button>
         </div>
     </div>
 
     <script>
-        const _supabase = supabase.createClient('https://vxcgontdprrnotipdstx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4Y2dvbnRkcHJybm90aXBkc3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMDU3NzUsImV4cCI6MjA4NTc4MTc3NX0.LgMMA5ysutL4sgHCDWZea20gvv9hwRQHPAX2BougW1U');
-        
-        let dbPegawai = [];
-        let myChart = null;
+        const SUPABASE_URL = 'https://vxcgontdprrnotipdstx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4Y2dvbnRkcHJybm90aXBkc3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMDU3NzUsImV4cCI6MjA4NTc4MTc3NX0.LgMMA5ysutL4sgHCDWZea20gvv9hwRQHPAX2BougW1U';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        let dbPegawai = [];
+
+        // Logika Load Data Persis Simpeg.txt
         async function loadData() {
-            const { data } = await _supabase.from('pegawai').select('*').order('created_at', { ascending: false });
-            dbPegawai = data || [];
+            const { data, error } = await _supabase.from('pegawai').select('*').order('created_at', { ascending: false });
+            if (error) { console.error(error); return; }
+            dbPegawai = data;
             renderTable();
         }
 
@@ -139,74 +125,65 @@
             const body = document.getElementById('pegawaiTableBody');
             const search = document.getElementById('searchInput').value.toLowerCase();
             const hariIni = new Date();
-            let stats = { total: 0, medis: 0, alert: 0, paramedis: 0, admin: 0, umum: 0 };
             
             body.innerHTML = '';
-            dbPegawai.filter(p => p.nama.toLowerCase().includes(search) || p.nip.includes(search)).forEach(p => {
-                stats.total++;
-                if(p.jabatan === 'Medis') stats.medis++;
-                if(p.jabatan === 'Paramedis') stats.paramedis++;
-                if(p.jabatan === 'Admin') stats.admin++;
-                if(p.jabatan === 'Umum') stats.umum++;
-
-                let alerts = [];
+            dbPegawai.filter(p => p.nama.toLowerCase().includes(search) || (p.nip && p.nip.includes(search))).forEach(p => {
+                let sipAlert = '';
                 if(p.sipDeadline) {
                     let d = new Date(p.sipDeadline);
                     let diff = Math.ceil((d - hariIni) / (1000 * 60 * 60 * 24 * 30.44));
-                    if(diff <= 6) { alerts.push(`SIP ${diff} Bln`); stats.alert++; }
+                    if(diff <= 6) sipAlert = `<span class="text-rose-500 font-bold text-[10px]">[SIP ${diff} BLN]</span>`;
                 }
 
                 body.insertAdjacentHTML('beforeend', `
-                    <tr class="hover:bg-white/5 transition border-b border-white/5">
-                        <td class="px-6 py-4">
-                            <div class="text-white font-bold">${p.nama}</div>
-                            <div class="text-[9px] text-slate-500 uppercase tracking-widest">${p.jabatan} | NIP: ${p.nip}</div>
+                    <tr>
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <img src="${p.foto || 'https://via.placeholder.com/40'}" class="w-10 h-10 rounded-full object-cover">
+                                <div><b class="text-white">${p.nama}</b><br><small class="text-slate-500">${p.jabatan} | NIP: ${p.nip || '-'}</small></div>
+                            </div>
                         </td>
-                        <td class="px-6 py-4">
-                            ${alerts.length > 0 ? `<span class="bg-rose-500/10 text-rose-500 px-2 py-1 rounded text-[9px] font-black border border-rose-500/20 uppercase tracking-tighter"><i class="fab fa-whatsapp mr-1"></i> ${alerts[0]}</span>` : '<span class="text-emerald-500 text-[10px] font-bold tracking-tighter"><i class="fas fa-check-circle"></i> Aman</span>'}
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <button onclick="bukaCetak('${p.id}')" class="text-emerald-500 hover:scale-125 transition-transform mr-4"><i class="fas fa-id-badge text-lg"></i></button>
-                            <button onclick="hapusData('${p.id}', '${p.nama}')" class="text-slate-500 hover:text-rose-500"><i class="fas fa-trash"></i></button>
+                        <td>${sipAlert || '<span class="text-emerald-500 text-[10px]">✔ AMAN</span>'}</td>
+                        <td class="text-center">
+                            <button onclick="bukaCetak('${p.id}')" class="text-emerald-500 mr-3"><i class="fas fa-id-card"></i></button>
+                            <button onclick="hapusData('${p.id}', '${p.nama}')" class="text-slate-500"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                 `);
             });
-
-            document.getElementById('statTotal').innerText = stats.total;
-            document.getElementById('statMedis').innerText = stats.medis;
-            document.getElementById('statAlert').innerText = stats.alert;
-            updateChart(stats);
         }
 
-        function updateChart(stats) {
-            const ctx = document.getElementById('chartSDM').getContext('2d');
-            if(myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Medis', 'Nakes', 'Admin', 'Umum'],
-                    datasets: [{ data: [stats.medis, stats.paramedis, stats.admin, stats.umum], backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#64748b'], borderRadius: 8 }]
-                },
-                options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } } } }
-            });
-        }
-
+        // Simpan Data Asli
         document.getElementById('pegawaiForm').onsubmit = async (e) => {
             e.preventDefault();
+            const file = document.getElementById('fotoPegawai').files[0];
+            let fotoUrl = "";
+
+            if(file) {
+                const fileName = `${Date.now()}-${file.name}`;
+                const { data, error } = await _supabase.storage.from('avatars').upload(fileName, file);
+                if(data) {
+                    const { data: pub } = _supabase.storage.from('avatars').getPublicUrl(fileName);
+                    fotoUrl = pub.publicUrl;
+                }
+            }
+
             const { error } = await _supabase.from('pegawai').insert([{
                 nama: document.getElementById('namaPegawai').value,
                 nip: document.getElementById('nipPegawai').value,
                 wa: document.getElementById('waPegawai').value,
                 jabatan: document.getElementById('jabatanPegawai').value,
                 tglLahir: document.getElementById('tglLahir').value,
-                sipDeadline: document.getElementById('sipDeadline').value
+                sipDeadline: document.getElementById('sipDeadline').value,
+                foto: fotoUrl
             }]);
+
             if(!error) { loadData(); e.target.reset(); }
+            else { alert("Gagal menyimpan!"); }
         };
 
         async function hapusData(id, nama) {
-            if(confirm(`Hapus data ${nama}?`)) {
+            if(confirm(`Hapus ${nama}?`)) {
                 await _supabase.from('pegawai').delete().eq('id', id);
                 loadData();
             }
@@ -223,10 +200,7 @@
             document.getElementById('idCardModal').classList.replace('hidden', 'flex');
         }
 
-        function closeModal(id) { document.getElementById(id).classList.replace('flex', 'hidden'); }
-        function logout() { window.location.href = 'login.html'; }
-        function toggleMenu() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
-
+        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID'); }, 1000);
         loadData();
     </script>
 </body>
