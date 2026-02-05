@@ -7,11 +7,11 @@
 Sistem integrasi layanan kesehatan digital untuk **UPTD Puskesmas Kiarapedes**. Dibangun dengan estetika *Dark Luxury Glassmorphism* yang modern, efisien, dan responsif.
 
 ## 🚀 Fitur Utama
-Sistem ini terdiri dari tiga modul utama yang saling terintegrasi dalam satu portal:
+Sistem ini terdiri dari tiga aplikasi utama yang saling terintegrasi dalam satu portal:
 
-* **SIMPEG Pro (Sistem Informasi Kepegawaian):** Manajemen database pegawai, monitoring SIP/STR, dan analisis beban kerja (Supabase Backend).
-* **E-Arsip Pro:** Digitalisasi surat menyurat, manajemen dokumen akreditasi, dan verifikasi dokumen via QR Code.
-* **Executive Data Intelligence:** Dashboard analisis data PWS (Pemantauan Wilayah Setempat) yang mengintegrasikan data dari **ASIK** dan **e-Puskesmas**.
+* **Kepegawaian Digital (Sistem Informasi Kepegawaian):** Manajemen database pegawai, monitoring SIP/STR, dan analisis beban kerja (Supabase Backend).
+* **Arsip Digital :** Digitalisasi surat menyurat, manajemen dokumen akreditasi, dan verifikasi dokumen via QR Code.
+* **Analisis Data:** Dashboard analisis data PWS (Pemantauan Wilayah Setempat) yang mengintegrasikan data dari **ASIK** dan **e-Puskesmas**.
 
 ## 🛠️ Teknologi yang Digunakan
 - **Frontend:** HTML5, Tailwind CSS, Font Awesome 6.
@@ -28,4 +28,5 @@ Sistem ini terdiri dari tiga modul utama yang saling terintegrasi dalam satu por
 ├── e-arsip.html      # Modul Administrasi & Surat
 ├── analisis.html     # Modul Audit Data ASIK/e-Puskesmas
 ├── style.css         # Framework CSS Glassmorphism Terpusat
+
 └── assets/           # Folder gambar, logo, dan ikon
