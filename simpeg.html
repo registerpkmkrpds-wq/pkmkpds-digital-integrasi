@@ -3,358 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMPEG Digital | PKM Kiarapedes</title>
+    <title>SIMPEG Digital Pro | PKM Kiarapedes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.3s ease; }
-        .dark-theme { background-color: #0f172a; color: #f1f5f9; }
-        .dark-theme .card { background-color: #1e293b; border-color: #334155; }
-        .dark-theme input, .dark-theme select { background-color: #334155; color: white; border-color: #475569; }
-        .card { background: white; border-radius: 2rem; border: 1px solid #e2e8f0; transition: transform 0.2s; }
-        .input-field { width: 100%; padding: 0.75rem 1rem; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; outline: none; font-size: 0.875rem; }
-        .input-field:focus { border-color: #10b981; ring: 2px ring-emerald-500/20; }
-        @media print { .no-print { display: none !important; } #idCard { position: fixed; top: 0; left: 0; width: 100%; } }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body class="flex">
 
-<div id="loginPage" class="fixed inset-0 z-[999] bg-slate-900 flex items-center justify-center p-4">
-    <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-sm text-center">
-        <div class="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
-            <i class="fas fa-user-shield text-3xl"></i>
+    <aside id="sidebar" class="fixed inset-y-0 left-0 bg-slate-900/95 backdrop-blur-xl text-slate-300 flex flex-col p-6 shadow-2xl border-r border-white/10 -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-[1000]">
+        <div class="mb-10 px-2 flex items-center gap-3">
+            <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-slate-900 shadow-lg shadow-emerald-500/20">
+                <i class="fas fa-hospital-user text-xl"></i>
+            </div>
+            <span class="font-black text-xl tracking-tighter text-white uppercase">PKM <span class="text-emerald-500 text-[10px] block tracking-widest font-bold">DIGITAL HUB</span></span>
         </div>
-        <h2 class="text-2xl font-black text-emerald-600 mb-2 uppercase">Portal SIMPEG</h2>
-        <p class="text-slate-400 text-[10px] mb-8 font-bold uppercase tracking-widest">PKM Kiarapedes</p>
-        <div class="space-y-4">
-            <input type="text" id="userInput" placeholder="Username" class="input-field text-center">
-            <input type="password" id="passInput" placeholder="Password" class="input-field text-center">
-            <button onclick="handleLogin()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold uppercase shadow-lg hover:scale-[1.02] transition-all">Masuk Sistem</button>
-        </div>
-    </div>
-</div>
 
-<div id="mainApp" class="hidden">
-    <header class="bg-emerald-700 text-white pt-8 pb-20 shadow-lg no-print">
-        <div class="container mx-auto px-6 flex justify-between items-center mb-8">
-            <div class="flex items-center gap-4">
-                <div class="bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/30 text-2xl">
-                    <i class="fas fa-id-card-clip"></i>
-                </div>
-                <div>
-                    <h1 class="font-black text-xl uppercase leading-none">Manajemen SDM</h1>
-                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-1">UPTD Puskesmas Kiarapedes</p>
-                </div>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="toggleDarkMode()" class="p-3 bg-white/10 rounded-xl hover:bg-white/20 transition"><i id="darkIcon" class="fas fa-moon"></i></button>
-                <button onclick="logout()" class="bg-rose-500 hover:bg-rose-600 px-4 py-2 rounded-xl font-bold text-[10px] uppercase shadow-lg transition">Logout</button>
-            </div>
-        </div>
+        <nav class="flex flex-col gap-2 flex-grow">
+            <a href="index.html" class="nav-link"><i class="fas fa-th-large w-5"></i> Dashboard</a>
+            <a href="simpeg.html" id="nav-simpeg" class="nav-link active"><i class="fas fa-user-tie w-5"></i> SIMPEG</a>
+            <a href="e-arsip.html" id="nav-arsip" class="nav-link"><i class="fas fa-box-archive w-5"></i> E-Arsip</a>
+            <a href="analisis.html" id="nav-analisis" class="nav-link"><i class="fas fa-chart-line w-5"></i> Audit Data</a>
+        </nav>
         
-        <div class="container mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl text-center">
-                <p class="text-[8px] font-black uppercase text-white/60 mb-1">Total Pegawai</p>
-                <h3 id="statTotal" class="text-2xl font-black text-white">0</h3>
-            </div>
-            <div class="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl text-center">
-                <p class="text-[8px] font-black uppercase text-white/60 mb-1">Tenaga Medis</p>
-                <h3 id="statMedis" class="text-2xl font-black text-white">0</h3>
-            </div>
-            <div class="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl text-center border-rose-500/50">
-                <p class="text-[8px] font-black uppercase text-rose-300 mb-1">Perlu Perhatian</p>
-                <h3 id="statAlert" class="text-2xl font-black text-rose-400">0</h3>
-            </div>
-        </div>
-    </header>
+        <button onclick="logout()" class="nav-link text-rose-500 mt-auto border-t border-white/5 pt-4"><i class="fas fa-power-off"></i> Logout</button>
+    </aside>
 
-    <main class="container mx-auto px-6 -mt-10 pb-12">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 no-print">
-            <div class="card p-6 lg:col-span-2">
-                <h3 class="text-[10px] font-black text-slate-400 mb-4 uppercase tracking-widest">Komposisi SDM & Prediksi Pensiun</h3>
-                <div class="h-48 w-full"><canvas id="chartSDM"></canvas></div>
+    <main id="mainApp" class="flex-grow lg:ml-[280px] p-4 md:p-8 min-h-screen">
+        
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+            <div class="glass-panel p-6 border-b-2 border-emerald-500">
+                <p class="text-[8px] font-black uppercase text-emerald-500 mb-1">Total Pegawai</p>
+                <h3 id="statTotal" class="text-3xl font-black text-white">0</h3>
             </div>
-            <div class="card p-6">
-                <h3 class="text-[10px] font-black text-slate-400 mb-4 uppercase tracking-widest">Prediksi Kekosongan (5 Thn)</h3>
-                <div id="pensiunAlertList" class="space-y-2 overflow-y-auto max-h-40">
-                    </div>
+            <div class="glass-panel p-6 border-b-2 border-blue-500">
+                <p class="text-[8px] font-black uppercase text-blue-500 mb-1">Tenaga Medis</p>
+                <h3 id="statMedis" class="text-3xl font-black text-white">0</h3>
+            </div>
+            <div class="glass-panel p-6 border-b-2 border-rose-500">
+                <p class="text-[8px] font-black uppercase text-rose-500 mb-1">Perlu Perhatian</p>
+                <h3 id="statAlert" class="text-3xl font-black text-rose-500">0</h3>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
             <div class="lg:col-span-4 no-print">
-                <div class="card p-8 shadow-xl sticky top-24">
-                    <h3 class="text-[10px] font-black text-emerald-600 mb-6 uppercase tracking-widest flex items-center gap-2">
+                <div class="glass-panel p-8 sticky top-8">
+                    <h3 class="text-xs font-black text-emerald-500 mb-6 uppercase tracking-widest flex items-center gap-2">
                         <i class="fas fa-user-plus"></i> Registrasi Pegawai
                     </h3>
                     <form id="pegawaiForm" class="space-y-4">
-                        <div class="flex items-center gap-4 mb-4">
-                            <div id="imagePreview" class="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center border-2 border-dashed border-slate-300 overflow-hidden">
-                                <i class="fas fa-camera text-slate-400 text-xl"></i>
-                            </div>
-                            <div class="flex-1">
-                                <label class="text-[9px] font-bold text-slate-400 uppercase">Foto Pegawai</label>
-                                <input type="file" id="fotoPegawai" accept="image/*" class="text-[10px] block w-full mt-1">
-                            </div>
-                        </div>
-                        <input type="text" id="namaPegawai" placeholder="Nama Lengkap" class="input-field" required>
-                        <input type="text" id="nipPegawai" placeholder="NIP/NRPTK" class="input-field">
-                        <input type="tel" id="waPegawai" placeholder="No. WhatsApp (62...)" class="input-field">
-                        <select id="jabatanPegawai" class="input-field">
+                        <input type="text" id="namaPegawai" placeholder="Nama Lengkap" class="w-full" required>
+                        <input type="text" id="nipPegawai" placeholder="NIP/NRPTK" class="w-full">
+                        <input type="tel" id="waPegawai" placeholder="No. WhatsApp (62...)" class="w-full">
+                        <select id="jabatanPegawai" class="w-full">
                             <option value="Medis">Tenaga Medis</option>
                             <option value="Paramedis">Tenaga Kesehatan</option>
                             <option value="Admin">Administrasi</option>
                             <option value="Umum">Lainnya</option>
                         </select>
                         <div class="grid grid-cols-2 gap-2">
-                            <div><label class="text-[9px] font-bold text-slate-400 uppercase">Tgl Lahir</label><input type="date" id="tglLahir" class="input-field" required></div>
-                            <div><label class="text-[9px] font-bold text-slate-400 uppercase">Deadline SIP</label><input type="date" id="sipDeadline" class="input-field"></div>
+                            <div><label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Tgl Lahir</label><input type="date" id="tglLahir" class="w-full" required></div>
+                            <div><label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Deadline SIP</label><input type="date" id="sipDeadline" class="w-full"></div>
                         </div>
-                        <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg hover:bg-emerald-700 transition-all">Simpan ke Cloud</button>
+                        <button type="submit" class="btn-primary w-full py-4 uppercase text-xs font-black">Simpan ke Cloud</button>
                     </form>
                 </div>
             </div>
 
             <div class="lg:col-span-8 space-y-8">
-                <div class="card p-4 flex gap-4 items-center no-print">
+                <div class="glass-panel p-4 flex gap-4 items-center">
                     <div class="flex-1 relative">
-                        <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" id="searchInput" oninput="renderTable()" placeholder="Cari Nama atau NIP..." class="w-full pl-12 pr-6 py-3 bg-slate-50 rounded-xl outline-none text-sm border border-slate-200">
+                        <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-emerald-500"></i>
+                        <input type="text" id="searchInput" oninput="renderTable()" placeholder="Cari Nama atau NIP..." class="w-full pl-12 pr-6 py-3">
                     </div>
                 </div>
 
-                <div class="card overflow-hidden shadow-xl no-print">
+                <div class="glass-panel overflow-hidden">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead class="bg-slate-50 text-[10px] text-slate-400 font-black uppercase tracking-widest border-b border-slate-100">
+                        <table class="w-full">
+                            <thead>
                                 <tr>
-                                    <th class="px-6 py-5">Pegawai</th>
-                                    <th class="px-6 py-5">Status Administrasi</th>
+                                    <th class="px-6 py-5 text-left">Pegawai</th>
+                                    <th class="px-6 py-5 text-left">Status Adm</th>
                                     <th class="px-6 py-5 text-center">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody id="pegawaiTableBody" class="divide-y divide-slate-100 text-sm font-semibold"></tbody>
+                            <tbody id="pegawaiTableBody">
+                                </tbody>
                         </table>
                     </div>
                 </div>
-
-                <div class="card p-6 no-print">
-                    <h3 class="text-[10px] font-black text-slate-400 mb-4 uppercase tracking-[0.2em] flex items-center gap-2">
-                        <i class="fas fa-history text-emerald-500"></i> Audit Trail (Log Aktivitas)
-                    </h3>
-                    <div id="activityLog" class="space-y-3 max-h-48 overflow-y-auto">
-                        </div>
+                
+                <div class="glass-panel p-6">
+                    <h3 class="text-[10px] font-black text-slate-400 mb-4 uppercase tracking-widest">Komposisi SDM</h3>
+                    <div class="h-48 w-full"><canvas id="chartSDM"></canvas></div>
                 </div>
             </div>
         </div>
     </main>
-</div>
 
-<div id="idCardModal" class="fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white p-8 rounded-[2.5rem] max-w-xs w-full shadow-2xl relative">
-        <button onclick="closeModal('idCardModal')" class="absolute -top-12 right-0 text-white text-3xl"><i class="fas fa-times-circle"></i></button>
-        <div id="idCard" class="bg-gradient-to-br from-emerald-600 to-emerald-900 rounded-3xl p-6 text-white text-center shadow-2xl">
-            <p class="text-[8px] font-black uppercase tracking-widest opacity-80 mb-6">UPTD Puskesmas Kiarapedes</p>
-            <div class="w-28 h-28 mx-auto bg-white rounded-2xl p-1 mb-4">
-                <img id="printFoto" src="" class="w-full h-full object-cover rounded-xl bg-slate-100">
+    <div id="idCardModal" class="fixed inset-0 z-[1200] bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="glass-panel p-8 max-w-xs w-full relative border-white/20">
+            <button onclick="closeModal('idCardModal')" class="absolute -top-12 right-0 text-white text-3xl"><i class="fas fa-times-circle"></i></button>
+            <div id="idCard" class="bg-gradient-to-br from-emerald-600 to-emerald-900 rounded-3xl p-6 text-white text-center shadow-2xl">
+                <p class="text-[8px] font-black uppercase tracking-widest opacity-80 mb-6">UPTD Puskesmas Kiarapedes</p>
+                <div class="w-24 h-24 mx-auto bg-white rounded-2xl p-1 mb-4">
+                    <img id="printFoto" src="" class="w-full h-full object-cover rounded-xl">
+                </div>
+                <h2 id="printNama" class="text-lg font-black uppercase leading-tight">NAMA</h2>
+                <p id="printJabatan" class="text-emerald-200 text-[10px] font-bold uppercase mb-6">JABATAN</p>
+                <div id="qrcode" class="flex justify-center mb-4 bg-white/10 p-2 rounded-xl"></div>
+                <p id="printNip" class="font-mono text-[10px] opacity-60 italic">NIP. 000</p>
             </div>
-            <h2 id="printNama" class="text-lg font-black uppercase leading-tight">NAMA PEGAWAI</h2>
-            <p id="printJabatan" class="text-emerald-200 text-[10px] font-bold uppercase mb-6 tracking-widest">JABATAN</p>
-            <div id="qrcode" class="flex justify-center mb-4 bg-white/10 p-2 rounded-xl"></div>
-            <p id="printNip" class="font-mono text-xs opacity-60">NIP. 000000000</p>
+            <button onclick="window.print()" class="btn-primary w-full mt-6 py-3 uppercase text-[10px] font-black">Cetak Kartu</button>
         </div>
-        <button onclick="window.print()" class="w-full mt-6 bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition-all uppercase text-xs">Cetak Kartu</button>
     </div>
-</div>
 
-<script>
-    // SUPABASE CONFIG (PASTE KUNCI ANDA DI SINI)
-    const SUPABASE_URL = 'https://vxcgontdprrnotipdstx.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4Y2dvbnRkcHJybm90aXBkc3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMDU3NzUsImV4cCI6MjA4NTc4MTc3NX0.LgMMA5ysutL4sgHCDWZea20gvv9hwRQHPAX2BougW1U';
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <script>
+        const _supabase = supabase.createClient('https://vxcgontdprrnotipdstx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4Y2dvbnRkcHJybm90aXBkc3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMDU3NzUsImV4cCI6MjA4NTc4MTc3NX0.LgMMA5ysutL4sgHCDWZea20gvv9hwRQHPAX2BougW1U');
+        
+        let dbPegawai = [];
+        let myChart = null;
 
-    let dbPegawai = [];
-    let myChart = null;
+        async function loadData() {
+            const { data } = await _supabase.from('pegawai').select('*').order('created_at', { ascending: false });
+            dbPegawai = data || [];
+            renderTable();
+        }
 
-    // LOGIN & AUTH
-    function handleLogin() {
-        const u = document.getElementById('userInput').value;
-        const p = document.getElementById('passInput').value;
-        if(u === 'admin' && p === 'pkp') {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            loadData();
-        } else { alert("Akses Ditolak!"); }
-    }
+        function renderTable() {
+            const body = document.getElementById('pegawaiTableBody');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const hariIni = new Date();
+            let stats = { total: 0, medis: 0, alert: 0, paramedis: 0, admin: 0, umum: 0 };
+            
+            body.innerHTML = '';
+            dbPegawai.filter(p => p.nama.toLowerCase().includes(search) || p.nip.includes(search)).forEach(p => {
+                stats.total++;
+                if(p.jabatan === 'Medis') stats.medis++;
+                if(p.jabatan === 'Paramedis') stats.paramedis++;
+                if(p.jabatan === 'Admin') stats.admin++;
+                if(p.jabatan === 'Umum') stats.umum++;
 
-    async function writeLog(action, detail) {
-        await _supabase.from('activity_logs').insert([{ action, detail, timestamp: new Date().toISOString() }]);
-        renderLogs();
-    }
-
-    async function loadData() {
-        const { data } = await _supabase.from('pegawai').select('*').order('created_at', { ascending: false });
-        dbPegawai = data || [];
-        renderTable();
-        renderLogs();
-    }
-
-    async function renderLogs() {
-        const { data } = await _supabase.from('activity_logs').select('*').order('timestamp', { ascending: false }).limit(5);
-        document.getElementById('activityLog').innerHTML = data.map(l => `
-            <div class="flex justify-between text-[9px] border-b border-slate-50 pb-2">
-                <span class="text-slate-600"><b>[${l.action}]</b> ${l.detail}</span>
-                <span class="text-slate-400">${new Date(l.timestamp).toLocaleTimeString()}</span>
-            </div>
-        `).join('');
-    }
-
-    // RENDER TABLE & ANALYSIS
-    function renderTable() {
-        const body = document.getElementById('pegawaiTableBody');
-        const pList = document.getElementById('pensiunAlertList');
-        const search = document.getElementById('searchInput').value.toLowerCase();
-        const hariIni = new Date();
-        let stats = { total: 0, medis: 0, alert: 0, paramedis: 0, admin: 0, umum: 0 };
-
-        body.innerHTML = ''; pList.innerHTML = '';
-
-        dbPegawai.filter(p => p.nama.toLowerCase().includes(search) || p.nip.includes(search)).forEach(p => {
-            stats.total++;
-            if(p.jabatan === 'Medis') stats.medis++;
-            if(p.jabatan === 'Paramedis') stats.paramedis++;
-            if(p.jabatan === 'Admin') stats.admin++;
-            if(p.jabatan === 'Umum') stats.umum++;
-
-            let alerts = [];
-            // Analisis Pensiun (Medis 60, Non-Medis 58)
-            let lahir = new Date(p.tglLahir);
-            let pTahun = (p.jabatan === 'Medis') ? 60 : 58;
-            let tglPensiun = new Date(lahir.getFullYear() + pTahun, lahir.getMonth(), lahir.getDate());
-            let sisaPensiun = Math.ceil((tglPensiun - hariIni) / (1000 * 60 * 60 * 24 * 365.25));
-
-            if(sisaPensiun <= 5) {
-                pList.insertAdjacentHTML('beforeend', `<div class="p-2 bg-amber-50 text-amber-700 rounded-lg text-[9px] font-bold border-l-4 border-amber-500 italic">⚠️ ${p.nama} (${sisaPensiun} Thn Lagi)</div>`);
-            }
-
-            // Analisis STR/SIP
-            if(p.sipDeadline) {
-                let d = new Date(p.sipDeadline);
-                let diff = Math.ceil((d - hariIni) / (1000 * 60 * 60 * 24 * 30.44));
-                if(diff <= 6) {
-                    alerts.push({msg: `STR/SIP (${diff} Bln)`, color: 'rose'});
-                    stats.alert++;
+                let alerts = [];
+                if(p.sipDeadline) {
+                    let d = new Date(p.sipDeadline);
+                    let diff = Math.ceil((d - hariIni) / (1000 * 60 * 60 * 24 * 30.44));
+                    if(diff <= 6) { alerts.push(`SIP ${diff} Bln`); stats.alert++; }
                 }
+
+                body.insertAdjacentHTML('beforeend', `
+                    <tr class="hover:bg-white/5 transition border-b border-white/5">
+                        <td class="px-6 py-4">
+                            <div class="text-white font-bold">${p.nama}</div>
+                            <div class="text-[9px] text-slate-500 uppercase tracking-widest">${p.jabatan} | NIP: ${p.nip}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            ${alerts.length > 0 ? `<span class="bg-rose-500/10 text-rose-500 px-2 py-1 rounded text-[9px] font-black border border-rose-500/20 uppercase tracking-tighter"><i class="fab fa-whatsapp mr-1"></i> ${alerts[0]}</span>` : '<span class="text-emerald-500 text-[10px] font-bold tracking-tighter"><i class="fas fa-check-circle"></i> Aman</span>'}
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <button onclick="bukaCetak('${p.id}')" class="text-emerald-500 hover:scale-125 transition-transform mr-4"><i class="fas fa-id-badge text-lg"></i></button>
+                            <button onclick="hapusData('${p.id}', '${p.nama}')" class="text-slate-500 hover:text-rose-500"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `);
+            });
+
+            document.getElementById('statTotal').innerText = stats.total;
+            document.getElementById('statMedis').innerText = stats.medis;
+            document.getElementById('statAlert').innerText = stats.alert;
+            updateChart(stats);
+        }
+
+        function updateChart(stats) {
+            const ctx = document.getElementById('chartSDM').getContext('2d');
+            if(myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Medis', 'Nakes', 'Admin', 'Umum'],
+                    datasets: [{ data: [stats.medis, stats.paramedis, stats.admin, stats.umum], backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#64748b'], borderRadius: 8 }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } } } }
+            });
+        }
+
+        document.getElementById('pegawaiForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const { error } = await _supabase.from('pegawai').insert([{
+                nama: document.getElementById('namaPegawai').value,
+                nip: document.getElementById('nipPegawai').value,
+                wa: document.getElementById('waPegawai').value,
+                jabatan: document.getElementById('jabatanPegawai').value,
+                tglLahir: document.getElementById('tglLahir').value,
+                sipDeadline: document.getElementById('sipDeadline').value
+            }]);
+            if(!error) { loadData(); e.target.reset(); }
+        };
+
+        async function hapusData(id, nama) {
+            if(confirm(`Hapus data ${nama}?`)) {
+                await _supabase.from('pegawai').delete().eq('id', id);
+                loadData();
             }
-
-            body.insertAdjacentHTML('beforeend', `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-50">
-                    <td class="px-6 py-4 flex items-center gap-3">
-                        <img src="${p.foto || 'https://via.placeholder.com/40'}" class="w-10 h-10 rounded-full object-cover shadow-sm bg-slate-200">
-                        <div><div class="text-slate-800 font-bold">${p.nama}</div><div class="text-[9px] text-slate-400 uppercase">${p.jabatan} | NIP: ${p.nip}</div></div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex gap-2">
-                            ${alerts.map(a => `<span onclick="kirimWA('${p.wa}', '${p.nama}', '${a.msg}')" class="bg-rose-50 text-rose-600 px-2 py-1 rounded text-[9px] font-black uppercase ring-1 ring-rose-200 cursor-pointer"><i class="fab fa-whatsapp"></i> ${a.msg}</span>`).join('')}
-                            ${alerts.length === 0 ? '<span class="text-emerald-500 text-[10px] font-bold"><i class="fas fa-check-circle"></i> Berkas Aman</span>' : ''}
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                        <button onclick="bukaCetak('${p.id}')" class="text-emerald-500 mr-4"><i class="fas fa-id-badge text-lg"></i></button>
-                        <button onclick="hapusData('${p.id}', '${p.nama}')" class="text-slate-300 hover:text-rose-500"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `);
-        });
-
-        document.getElementById('statTotal').innerText = stats.total;
-        document.getElementById('statMedis').innerText = stats.medis;
-        document.getElementById('statAlert').innerText = stats.alert;
-        updateChart(stats);
-    }
-
-    function updateChart(stats) {
-        const ctx = document.getElementById('chartSDM').getContext('2d');
-        if(myChart) myChart.destroy();
-        myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Medis', 'Nakes', 'Admin', 'Umum'],
-                datasets: [{ data: [stats.medis, stats.paramedis, stats.admin, stats.umum], backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#64748b'], borderRadius: 10 }]
-            },
-            options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-        });
-    }
-
-    // CORE FUNCTIONS
-    document.getElementById('pegawaiForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const file = document.getElementById('fotoPegawai').files[0];
-        let fotoUrl = "";
-
-        if(file) {
-            const fileName = `${Date.now()}-${file.name}`;
-            const { data } = await _supabase.storage.from('avatars').upload(fileName, file);
-            if(data) fotoUrl = _supabase.storage.from('avatars').getPublicUrl(fileName).data.publicUrl;
         }
 
-        const nama = document.getElementById('namaPegawai').value;
-        const { error } = await _supabase.from('pegawai').insert([{
-            nama: nama,
-            nip: document.getElementById('nipPegawai').value,
-            wa: document.getElementById('waPegawai').value,
-            jabatan: document.getElementById('jabatanPegawai').value,
-            tglLahir: document.getElementById('tglLahir').value,
-            sipDeadline: document.getElementById('sipDeadline').value,
-            foto: fotoUrl
-        }]);
-
-        if(!error) {
-            writeLog('TAMBAH', `Pegawai: ${nama}`);
-            loadData(); e.target.reset();
+        function bukaCetak(id) {
+            const p = dbPegawai.find(x => x.id == id);
+            document.getElementById('printNama').innerText = p.nama;
+            document.getElementById('printJabatan').innerText = p.jabatan;
+            document.getElementById('printNip').innerText = `NIP. ${p.nip || '-'}`;
+            document.getElementById('printFoto').src = p.foto || 'https://via.placeholder.com/150';
+            document.getElementById("qrcode").innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), { text: `VERIFIED-${p.nip}`, width: 60, height: 60 });
+            document.getElementById('idCardModal').classList.replace('hidden', 'flex');
         }
-    };
 
-    async function hapusData(id, nama) {
-        if(confirm(`Hapus data ${nama}?`)) {
-            await _supabase.from('pegawai').delete().eq('id', id);
-            writeLog('HAPUS', `Data pegawai: ${nama}`);
-            loadData();
-        }
-    }
+        function closeModal(id) { document.getElementById(id).classList.replace('flex', 'hidden'); }
+        function logout() { window.location.href = 'login.html'; }
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
 
-    function kirimWA(no, nama, msg) {
-        const phone = no.startsWith('0') ? '62' + no.slice(1) : no;
-        const text = `Halo *${nama}*, mengingatkan terkait administrasi *${msg}* Anda di PKM Kiarapedes. Mohon segera ditindaklanjuti.`;
-        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
-    }
-
-    function bukaCetak(id) {
-        const p = dbPegawai.find(x => x.id == id);
-        document.getElementById('printNama').innerText = p.nama;
-        document.getElementById('printJabatan').innerText = p.jabatan;
-        document.getElementById('printNip').innerText = `NIP. ${p.nip || '-'}`;
-        document.getElementById('printFoto').src = p.foto || 'https://via.placeholder.com/150';
-        
-        document.getElementById("qrcode").innerHTML = "";
-        new QRCode(document.getElementById("qrcode"), { text: `VERIFIED-PKM-KRPDS-${p.nip}`, width: 60, height: 60 });
-        
-        document.getElementById('idCardModal').classList.replace('hidden', 'flex');
-    }
-
-    function toggleDarkMode() {
-        const isDark = document.body.classList.toggle('dark-theme');
-        document.getElementById('darkIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-    }
-
-    function closeModal(id) { document.getElementById(id).classList.replace('flex', 'hidden'); }
-    function logout() { location.reload(); }
-</script>
+        loadData();
+    </script>
 </body>
-
 </html>
