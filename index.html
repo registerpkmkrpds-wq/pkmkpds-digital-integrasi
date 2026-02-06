@@ -3,185 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Satu Data | PKM Kiarapedes</title>
+    <title>Sistem Digital Terpadu | PKM Kiarapedes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
         
+        :root {
+            --bg: #020617;
+            --accent: #10b981;
+        }
+
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: #0f172a; 
-            color: white; 
-            overflow-x: hidden;
+            background-color: var(--bg);
             background-image: 
-                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.15) 0px, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%);
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* Dark Glassmorphism Effect */
-        .glass {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 2rem;
-        }
-
-        .glass-card {
-            background: rgba(30, 41, 59, 0.4);
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-card {
+            animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .app-card {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
 
-        .glass-card:hover {
-            background: rgba(30, 41, 59, 0.6);
-            border-color: rgba(16, 185, 129, 0.5);
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+        .app-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
+            transform: translateX(-100%);
+            transition: 0.6s;
         }
 
-        /* Glowing Button */
-        .btn-glow {
-            background: rgba(16, 185, 129, 0.2);
-            border: 1px solid rgba(16, 185, 129, 0.4);
-            color: #10b981;
-            transition: all 0.3s;
+        .app-card:hover::before {
+            transform: translateX(100%);
         }
 
-        .btn-glow:hover {
-            background: #10b981;
-            color: white;
+        .app-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .input-dark {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
+        }
+
+        .input-dark:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+            outline: none;
+        }
+
+        .glow-button {
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .glow-button:hover {
             box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+            background: #059669;
         }
-
-        /* Input Glass */
-        .input-glass {
-            background: rgba(0, 0, 0, 0.2) !important;
-            border: 1px solid rgba(255, 255, 255, 0.05) !important;
-            backdrop-filter: blur(5px);
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade { animation: fadeIn 0.8s ease-out forwards; }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="flex items-center justify-center p-4">
 
-    <div id="loginOverlay" class="fixed inset-0 z-[999] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-6 hidden">
-        <div class="glass p-10 w-full max-w-md text-center animate-fade">
-            <div class="w-20 h-20 bg-emerald-500/20 border border-emerald-500/30 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl">
-                <i class="fas fa-fingerprint text-3xl text-emerald-500"></i>
+    <div id="loginSection" class="w-full max-w-md login-card">
+        <div class="glass-panel p-10 rounded-[3rem] text-center border-t-white/10">
+            <div class="relative inline-block mb-8">
+                <div class="absolute inset-0 bg-emerald-500 blur-2xl opacity-20 animate-pulse"></div>
+                <div class="relative w-20 h-20 bg-emerald-600 rounded-3xl flex items-center justify-center shadow-2xl rotate-3">
+                    <i class="fas fa-shield-halved text-4xl text-white"></i>
+                </div>
             </div>
-            <h2 class="text-2xl font-black mb-1 uppercase tracking-tighter">Portal <span class="text-emerald-500">Privat</span></h2>
-            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.4em] mb-8">Puskesmas Kiarapedes</p>
+            
+            <h1 class="text-3xl font-extrabold tracking-tighter mb-1">PUSKESMAS</h1>
+            <p class="text-emerald-500 text-[11px] font-black uppercase tracking-[0.4em] mb-10">Kiarapedes Digital Center</p>
             
             <div class="space-y-4">
-                <input type="text" id="userInput" placeholder="Username" class="w-full input-glass py-4 px-6 rounded-2xl outline-none focus:border-emerald-500 transition-all font-semibold text-white">
-                <input type="password" id="passInput" placeholder="Password" class="w-full input-glass py-4 px-6 rounded-2xl outline-none focus:border-emerald-500 transition-all font-semibold text-white">
-                <button onclick="portalLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-black uppercase text-xs tracking-widest transition-all shadow-lg shadow-emerald-600/20 active:scale-95">Masuk Sistem</button>
+                <div class="relative text-left">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-4 mb-1 block">Username</label>
+                    <input type="text" id="user" class="input-dark w-full p-4 rounded-2xl text-sm font-semibold" placeholder="Nama pengguna">
+                </div>
+                <div class="relative text-left">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-4 mb-1 block">Password</label>
+                    <input type="password" id="pass" class="input-dark w-full p-4 rounded-2xl text-sm font-semibold" placeholder="••••••••">
+                </div>
+                <button onclick="auth()" class="glow-button w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold uppercase text-xs tracking-widest mt-6 transition-all active:scale-95">
+                    Akses Sistem <i class="fas fa-arrow-right ml-2"></i>
+                </button>
             </div>
+            <p class="mt-8 text-[9px] text-slate-600 uppercase font-bold tracking-widest">v3.0 Production Environment</p>
         </div>
     </div>
 
-    <div id="portalContent" class="container mx-auto px-6 py-12 opacity-0 transition-opacity duration-1000">
-        
-        <nav class="flex justify-between items-center mb-16 glass px-8 py-4">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
-                    <i class="fas fa-th-large text-lg"></i>
-                </div>
-                <div>
-                    <h1 class="font-extrabold text-lg uppercase tracking-tighter">Portal Data</h1>
-                    <span id="userStatus" class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Digital PKM v2.1</span>
+    <div id="hubSection" class="hidden w-full max-w-6xl animate-fade">
+        <header class="flex justify-between items-center mb-16">
+            <div>
+                <h2 class="text-3xl font-black tracking-tighter uppercase">Dashboard <span class="text-emerald-500">Terpadu</span></h2>
+                <div class="flex items-center gap-3 mt-2">
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em]">Sesi Aktif: <span id="activeUser" class="text-white">Admin</span></p>
                 </div>
             </div>
-            <button onclick="portalLogout()" class="btn-glow px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">
-                Logout <i class="fas fa-sign-out-alt ml-2"></i>
+            <button onclick="logout()" class="group flex items-center gap-3 bg-white/5 hover:bg-rose-500/20 px-6 py-3 rounded-2xl transition-all border border-white/5">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-rose-500">Log Out</span>
+                <i class="fas fa-power-off text-rose-500"></i>
             </button>
-        </nav>
-
-        <div class="mb-20 animate-fade">
-            <span class="bg-emerald-500/10 text-emerald-500 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-emerald-500/20">Dashboard Terpadu</span>
-            <h2 class="text-6xl md:text-6xl font-black mt-6 mb-4 tracking-tighter leading-none">
-                Satu Data <br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-500 italic">Puskesmas Kiarapedes</span>
-            </h2>
-            <p class="text-slate-400 max-w-xl text-sm leading-relaxed font-medium">
-                Pusat integrasi data internal. Kelola seluruh aset digital dan SDM melalui sistem keamanan berlapis dalam satu pintu.
-            </p>
-        </div>
+        </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div onclick="window.location.href='e-arsip.html'" class="glass-card p-10 rounded-[2.5rem] cursor-pointer group">
-                <div class="w-14 h-14 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                    <i class="fas fa-folder-open text-2xl"></i>
+            <a href="simpeg.html" class="app-card glass-panel p-10 rounded-[3.5rem] group">
+                <div class="w-14 h-14 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-blue-500 group-hover:text-white transition-all duration-500 shadow-xl shadow-blue-500/10">
+                    <i class="fas fa-user-tie text-2xl"></i>
                 </div>
-                <h3 class="text-2xl font-bold mb-3">Dok E-Arsip</h3>
-                <p class="text-slate-500 text-xs leading-relaxed mb-8">Digitalisasi dokumen kantor, inventaris, dan sinkronisasi laporan otomatis.</p>
-                <div class="text-[10px] font-black uppercase tracking-widest text-emerald-500 flex items-center gap-2">
-                    Buka Aplikasi <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
+                <h3 class="text-xl font-bold mb-3">SIMPEG <span class="text-blue-500">Digital</span></h3>
+                <p class="text-slate-400 text-xs leading-relaxed mb-8">Sistem manajemen kepegawaian, pemantauan masa berlaku STR/SIP, dan kartu ID digital pegawai.</p>
+                <div class="text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-2">
+                    Buka Aplikasi <i class="fas fa-chevron-right text-[8px]"></i>
                 </div>
-            </div>
+            </a>
 
-            <div onclick="window.location.href='simpeg.html'" class="glass-card p-10 rounded-[2.5rem] cursor-pointer group">
-                <div class="w-14 h-14 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-blue-500 group-hover:text-white transition-all">
-                    <i class="fas fa-user-shield text-2xl"></i>
+            <a href="e-arsip.html" class="app-card glass-panel p-10 rounded-[3.5rem] group border-t-emerald-500/20">
+                <div class="w-14 h-14 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500 shadow-xl shadow-emerald-500/10">
+                    <i class="fas fa-box-archive text-2xl"></i>
                 </div>
-                <h3 class="text-2xl font-bold mb-3">SIMPEG</h3>
-                <p class="text-slate-500 text-xs leading-relaxed mb-8">Data kepegawaian, kenaikan pangkat, dan monitoring STR/SIP tenaga kesehatan.</p>
-                <div class="text-[10px] font-black uppercase tracking-widest text-blue-500 flex items-center gap-2">
-                    Buka Aplikasi <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
+                <h3 class="text-xl font-bold mb-3">E-Arsip <span class="text-emerald-500">Pusat</span></h3>
+                <p class="text-slate-400 text-xs leading-relaxed mb-8">Digitalisasi surat menyurat, penomoran agenda otomatis, dan manajemen label QR untuk map fisik.</p>
+                <div class="text-[10px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2">
+                    Buka Aplikasi <i class="fas fa-chevron-right text-[8px]"></i>
                 </div>
-            </div>
+            </a>
 
-            <div onclick="window.location.href='analisis.html'" class="glass-card p-10 rounded-[2.5rem] cursor-pointer group">
-                <div class="w-14 h-14 bg-purple-500/10 text-purple-500 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-purple-500 group-hover:text-white transition-all">
-                    <i class="fas fa-chart-line text-2xl"></i>
+            <a href="analisis-data.html" class="app-card glass-panel p-10 rounded-[3.5rem] group">
+                <div class="w-14 h-14 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-amber-600 group-hover:text-white transition-all duration-500 shadow-xl shadow-amber-500/10">
+                    <i class="fas fa-microscope text-2xl"></i>
                 </div>
-                <h3 class="text-2xl font-bold mb-3">Arstu Data</h3>
-                <p class="text-slate-500 text-xs leading-relaxed mb-8">Visualisasi statistik pelayanan, kunjungan pasien, dan performa program.</p>
-                <div class="text-[10px] font-black uppercase tracking-widest text-purple-500 flex items-center gap-2">
-                    Buka Aplikasi <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
+                <h3 class="text-xl font-bold mb-3">Data <span class="text-amber-500">Analitik</span></h3>
+                <p class="text-slate-400 text-xs leading-relaxed mb-8">Visualisasi data PWS, sinkronisasi data ASIK & EPUS, serta monitoring target bulanan desa.</p>
+                <div class="text-[10px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-2">
+                    Buka Aplikasi <i class="fas fa-chevron-right text-[8px]"></i>
                 </div>
-            </div>
+            </a>
         </div>
+
+        <footer class="mt-20 text-center opacity-30">
+            <p class="text-[10px] font-bold uppercase tracking-[0.5em]">&copy; 2026 Puskesmas Kiarapedes Intelligence Unit</p>
+        </footer>
     </div>
 
     <script>
-        window.onload = function() {
-            const isLogged = localStorage.getItem('pkm_isLoggedIn');
-            const overlay = document.getElementById('loginOverlay');
-            const content = document.getElementById('portalContent');
+        const vault = { 'admin': 'pkp123', 'viewer': 'baca' };
 
-            if (isLogged === 'true') {
-                overlay.classList.add('hidden');
-                content.classList.replace('opacity-0', 'opacity-100');
+        function auth() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            if(vault[u] && vault[u] === p) {
+                localStorage.setItem('pkm_session', 'active');
+                localStorage.setItem('pkm_user', u);
+                entryEffect();
             } else {
-                overlay.classList.remove('hidden');
+                alert("Otoritas ditolak. Periksa kembali kredensial Anda.");
             }
-        };
+        }
 
-        function portalLogin() {
-            const u = document.getElementById('userInput').value;
-            const p = document.getElementById('passInput').value;
+        function entryEffect() {
+            document.getElementById('loginSection').style.opacity = '0';
+            document.getElementById('loginSection').style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('hubSection').classList.remove('hidden');
+                document.getElementById('activeUser').innerText = localStorage.getItem('pkm_user').toUpperCase();
+            }, 400);
+        }
 
-            if(u === 'admin' && p === 'pkp123') {
-                localStorage.setItem('pkm_isLoggedIn', 'true');
+        function logout() {
+            if(confirm("Apakah Anda yakin ingin mengakhiri sesi ini?")) {
+                localStorage.clear();
                 location.reload();
-            } else { alert("Akses Ditolak!"); }
+            }
         }
 
-        function portalLogout() {
-            localStorage.clear();
-            location.reload();
+        window.onload = () => {
+            if(localStorage.getItem('pkm_session') === 'active') {
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('hubSection').classList.remove('hidden');
+                document.getElementById('activeUser').innerText = localStorage.getItem('pkm_user').toUpperCase();
+            }
         }
-        
-        // Handle Enter key for login
-        document.getElementById('passInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') portalLogin();
-        });
     </script>
 </body>
 </html>
+\
