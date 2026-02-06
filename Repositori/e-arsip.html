@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Arsip | PKM Kiarapedes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        :root { --primary: #10b981; --primary-dark: #059669; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; overflow-x: hidden; }
+
+        /* --- ANIMASI LOGIN --- */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .login-bg {
+            background: linear-gradient(-45deg, #0f172a, #1e293b, #065f46, #022c22);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+
+        /* --- UI COMPONENTS --- */
+        .glass-header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        .card-custom { background: white; border-radius: 1.5rem; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); transition: 0.3s; }
+        .input-modern { width: 100%; padding: 0.75rem 1rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; transition: 0.2s; }
+        .input-modern:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+        .nav-pill { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade { animation: fadeIn 0.4s ease forwards; }
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body class="text-slate-900">
+
+<div id="loading" class="hidden fixed inset-0 z-[9999] bg-emerald-600/95 backdrop-blur-md flex flex-col items-center justify-center text-white">
+    <div class="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin mb-4"></div>
+    <p class="font-bold text-xs tracking-[0.3em] uppercase animate-pulse">Sinkronisasi Cloud...</p>
+</div>
+
+<div id="loginPage" class="fixed inset-0 z-[999] login-bg flex items-center justify-center p-4">
+    <div class="glass-card p-8 md:p-12 rounded-[3rem] shadow-2xl w-full max-w-[400px] relative overflow-hidden animate-fade">
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-emerald-500/20 rounded-full blur-2xl"></div>
+        <div class="text-center mb-10 relative">
+            <div class="w-20 h-20 bg-emerald-600 text-white rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-emerald-500/30 rotate-3 hover:rotate-0 transition-transform duration-500">
+                <i class="fas fa-hospital-user text-4xl"></i>
+            </div>
+            <h2 class="text-3xl font-black text-slate-800 tracking-tighter uppercase">E-Arsip <span class="text-emerald-600">Digital</span></h2>
+            <p class="text-slate-400 text-[9px] font-bold uppercase tracking-[0.2em] mt-1">Puskesmas Kiarapedes v2.0</p>
+        </div>
+        <div class="space-y-5 relative">
+            <div class="relative">
+                <input type="text" id="userInput" placeholder="Username" class="input-modern pl-12 border-slate-200" onkeypress="handleEnter(event)">
+                <i class="fas fa-user absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            </div>
+            <div class="relative">
+                <input type="password" id="passInput" placeholder="Password" class="input-modern pl-12 border-slate-200" onkeypress="handleEnter(event)">
+                <i class="fas fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            </div>
+            <button onclick="handleLogin()" class="w-full bg-slate-900 hover:bg-emerald-700 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl transition-all active:scale-95 flex items-center justify-center gap-2 group">
+                Autentikasi Sistem <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="mainApp" class="hidden min-h-screen relative">
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] no-print w-max">
+        <div class="bg-slate-900/90 backdrop-blur-xl p-2 rounded-2xl shadow-2xl border border-white/20 flex gap-2">
+            <button onclick="switchTab('main')" id="btn-main" class="nav-pill px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-600 text-white">
+                <i class="fas fa-table mr-2"></i> Data & Input
+            </button>
+            <button onclick="switchTab('dashboard')" id="btn-dash" class="nav-pill px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white">
+                <i class="fas fa-chart-pie mr-2"></i> Dashboard
+            </button>
+        </div>
+    </div>
+
+    <header class="glass-header text-white pt-8 pb-32 no-print">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h1 class="font-black text-2xl uppercase tracking-tighter flex items-center gap-3">
+                        <i class="fas fa-folder-tree text-emerald-400"></i> Arsip Digital
+                    </h1>
+                    <p id="userLabel" class="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-400 mt-1"></p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="exportToPDF()" class="bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase border border-white/10 transition flex items-center gap-2">
+                        <i class="fas fa-file-pdf"></i> Export
+                    </button>
+                    <button onclick="handleLogout()" class="bg-rose-500 hover:bg-rose-600 w-10 h-10 flex items-center justify-center rounded-xl transition shadow-lg"><i class="fas fa-power-off"></i></button>
+                </div>
+            </div>
+            <div id="statsContainer" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mt-10"></div>
+        </div>
+    </header>
+
+    <main id="mainView" class="container mx-auto px-6 -mt-20 pb-24 animate-fade">
+        <div class="card-custom p-6 mb-8 no-print">
+             <div class="h-[180px] w-full"><canvas id="arsipChart"></canvas></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div id="adminPanel" class="lg:col-span-4 space-y-6 no-print">
+                <div class="card-custom p-8">
+                    <h3 class="text-[10px] font-black text-emerald-600 mb-6 uppercase tracking-widest flex items-center gap-2"><i class="fas fa-plus-circle"></i> Registrasi Arsip</h3>
+                    <form id="docForm" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-2">
+                            <select id="docGroup" class="input-modern"><option value="A">GRUP A</option><option value="B">GRUP B</option><option value="C">GRUP C</option><option value="D">GRUP D</option><option value="E">GRUP E</option><option value="F">GRUP F</option></select>
+                            <select id="docCatType" class="input-modern">
+							<option value="BA">Berita Acara (BA)</option>
+            <option value="SK">Surat Keputusan (SK)</option>
+            <option value="SOP">Prosedur (SOP)</option>
+            <option value="ST">Surat Tugas(ST)</option>
+            <option value="SKT">Surat Keterangan (SKT)</option>
+            <option value="SL">Surat Lainnya (SL)</option>
+            <option value="UND">Undangan (UND)</option>
+            <option value="DB">Dokumen Bukti (DB)</option>
+            <option value="DU">Dokumen Umum (DU)</option>
+            <option value="Vid">Video (Vid)</option>
+			</select>
+                        </div>
+                        <select id="docStatus" class="input-modern">
+                            <option value="Selesai">✅ Selesai</option><option value="Proses">⏳ Proses</option><option value="Penting">🚨 Penting</option>
+                        </select>
+                        <input type="text" id="docName" placeholder="Perihal Dokumen" class="input-modern" required>
+                        <div class="relative"><input type="file" id="fileInput" class="hidden" onchange="updateFileName()"><button type="button" onclick="document.getElementById('fileInput').click()" class="w-full py-3 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl text-slate-500 text-[10px] font-bold uppercase"><i class="fas fa-cloud-upload-alt mr-2"></i> <span id="fileNameDisplay">Pilih Dokumen...</span></button></div>
+                        <input type="url" id="docLink" placeholder="Link Drive" class="input-modern">
+                        <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg hover:bg-emerald-700 transition-all">Simpan Data</button>
+                    </form>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="openModal('agendaModal')" class="bg-blue-600 text-white p-5 rounded-2xl font-bold text-[10px] uppercase shadow-lg flex flex-col items-center gap-3 transition-all active:scale-95"><i class="fas fa-inbox text-2xl"></i> Surat Masuk</button>
+                    <button onclick="openModal('suratKeluarModal')" class="bg-rose-600 text-white p-5 rounded-2xl font-bold text-[10px] uppercase shadow-lg flex flex-col items-center gap-3 transition-all active:scale-95"><i class="fas fa-paper-plane text-2xl"></i> Surat Keluar</button>
+                </div>
+            </div>
+
+            <div id="tableContainer" class="lg:col-span-8 space-y-6">
+                <div class="card-custom p-4 bg-white no-print relative">
+                    <i class="fas fa-search absolute left-8 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="search" oninput="renderTable()" placeholder="Cari arsip..." class="w-full pl-12 pr-6 py-3 bg-slate-50 border-none rounded-xl outline-none font-semibold text-sm">
+                </div>
+                <div class="card-custom overflow-hidden bg-white">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 border-b text-[10px] text-slate-400 font-black uppercase">
+                                <tr><th class="px-6 py-5">No. Arsip</th><th class="px-6 py-5">Detail</th><th class="px-6 py-5 text-center">Status</th><th class="px-6 py-5 text-center">Aksi</th></tr>
+                            </thead>
+                            <tbody id="tableBody" class="divide-y divide-slate-50 text-xs font-semibold"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="dashboardView" class="hidden container mx-auto px-6 -mt-20 pb-32 animate-fade">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="card-custom p-8 bg-emerald-600 text-white text-center">
+                <h4 class="text-[10px] font-black uppercase tracking-widest mb-4 opacity-80">Total Arsip</h4>
+                <div id="dash-total" class="text-6xl font-black">0</div>
+                <p class="text-[9px] mt-4 opacity-60">Sistem PKM Kiarapedes</p>
+            </div>
+            <div class="card-custom p-6 bg-white">
+                <h4 class="text-[10px] font-black uppercase mb-6 text-slate-400">Penyebaran Grup</h4>
+                <div class="h-[220px]"><canvas id="pieChartGrup"></canvas></div>
+            </div>
+            <div class="card-custom p-6 bg-white">
+                <h4 class="text-[10px] font-black uppercase mb-6 text-slate-400">Status</h4>
+                <div class="h-[220px]"><canvas id="barChartStatus"></canvas></div>
+            </div>
+        </div>
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="card-custom p-6 bg-white">
+                <h4 class="text-[10px] font-black uppercase mb-4 text-rose-500">Prioritas Penting (Terbaru)</h4>
+                <div id="dash-list-penting" class="space-y-2"></div>
+            </div>
+            <div class="card-custom p-6 bg-white flex flex-col items-center justify-center text-center opacity-60 italic text-slate-400">
+                <i class="fas fa-check-double text-4xl mb-3"></i>
+                <p class="text-[10px]">Data disinkronisasi secara otomatis ke Google Drive.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="qrModal" class="fixed inset-0 z-[110] bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-[2.5rem] text-center max-w-xs w-full">
+        <div id="qrcode" class="flex justify-center mb-6 p-4 border-4 border-slate-50 rounded-2xl"></div>
+        <p id="qrTitle" class="text-xs font-bold text-slate-800 uppercase mb-6"></p>
+        <button onclick="closeModal('qrModal')" class="w-full bg-slate-100 py-3 rounded-xl font-black text-[10px] uppercase">Tutup</button>
+    </div>
+</div>
+
+<div id="agendaModal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8">
+        <h2 class="font-black text-xs uppercase mb-6 text-blue-600">Surat Masuk</h2>
+        <div class="space-y-3">
+            <input type="text" id="agAsal" placeholder="Asal Surat" class="input-modern">
+            <input type="text" id="agPerihal" placeholder="Perihal" class="input-modern">
+            <input type="url" id="agLink" placeholder="Link Drive" class="input-modern">
+            <div class="flex gap-3 pt-4"><button onclick="closeModal('agendaModal')" class="flex-1 text-[10px] font-bold uppercase text-slate-400">Batal</button><button onclick="saveAgenda()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-[10px] uppercase">Simpan</button></div>
+        </div>
+    </div>
+</div>
+
+<div id="suratKeluarModal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8">
+        <h2 class="font-black text-xs uppercase mb-6 text-rose-600">Surat Keluar</h2>
+        <div class="space-y-3">
+            <select id="skKode" class="input-modern"><option value="ST">ST</option><option value="SK">SK</option><option value="UND">UND</option></select>
+            <input type="text" id="skTujuan" placeholder="Tujuan" class="input-modern">
+            <input type="text" id="skPerihal" placeholder="Perihal" class="input-modern">
+            <div class="flex gap-3 pt-4"><button onclick="closeModal('suratKeluarModal')" class="flex-1 text-[10px] font-bold uppercase text-slate-400">Batal</button><button onclick="saveSuratKeluar()" class="flex-1 py-3 bg-rose-600 text-white rounded-xl font-bold text-[10px] uppercase">Simpan</button></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- KONFIGURASI DAN LOGIKA ---
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyJQo3viQyNmdgOQYS8amOBMrGHjaiZ14v0olGYZx66CB7OKq7ZVSmUZnn5dvsIr9wKGg/exec"; 
+    const CONFIG = { instansi: "PKM-KRPDS", tahun: "2026" };
+    let db = [];
+    let role = 'viewer';
+    let myChart = null, pieChart = null, barChart = null;
+
+    // FUNGSI BARU: Cek login saat halaman pertama kali dimuat
+    window.onload = function() {
+        const savedRole = localStorage.getItem('pkm_role');
+        const isLogged = localStorage.getItem('pkm_isLoggedIn');
+
+        if (isLogged === 'true' && savedRole) {
+            role = savedRole;
+            applyLoginState(); // Langsung masuk ke aplikasi
+        }
+    };
+
+    function showLoading(s) { document.getElementById('loading').classList.toggle('hidden', !s); }
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function handleEnter(e) { if (e.key === "Enter") handleLogin(); }
+    function updateFileName() { const f = document.getElementById('fileInput').files[0]; document.getElementById('fileNameDisplay').innerText = f ? f.name : "Pilih Dokumen..."; }
+
+    function handleLogin() {
+        const u = document.getElementById('userInput').value, p = document.getElementById('passInput').value;
+        
+        if(u === 'admin' && p === 'pkp123') role = 'admin';
+        else if(u === 'viewer' && p === 'baca') role = 'viewer';
+        else { alert("Akses Ditolak!"); return; }
+
+        // SIMPAN STATUS KE LOCAL STORAGE
+        localStorage.setItem('pkm_isLoggedIn', 'true');
+        localStorage.setItem('pkm_role', role);
+        
+        applyLoginState();
+    }
+
+    // Fungsi untuk menerapkan tampilan aplikasi setelah login/refresh
+    function applyLoginState() {
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+        document.getElementById('userLabel').innerText = `Role: ${role.toUpperCase()}`;
+        
+        if(role === 'viewer') {
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.getElementById('tableContainer').classList.replace('lg:col-span-8', 'lg:col-span-12');
+        }
+        loadFromCloud(); // Ambil data dari Google Sheet
+    }
+
+    // FUNGSI LOGOUT (Dipicu tombol Power)
+    function handleLogout() {
+        if(confirm("Apakah Anda ingin keluar sistem?")) {
+            localStorage.clear(); // Hapus semua memori login
+            location.reload();    // Kembali ke halaman login
+        }
+    }
+
+    async function loadFromCloud() {
+        showLoading(true);
+        try { const res = await fetch(WEB_APP_URL); db = await res.json(); renderTable(); } catch (e) { console.error(e); }
+        showLoading(false);
+    }
+
+    async function syncToCloud() {
+        showLoading(true);
+        try { await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "saveAll", db: db }) }); updateStats(); renderChart(); } catch (e) { console.error(e); }
+        setTimeout(() => showLoading(false), 800);
+    }
+
+    // --- NAVIGASI TAB ---
+    function switchTab(tab) {
+        const m = document.getElementById('mainView'), d = document.getElementById('dashboardView');
+        const bm = document.getElementById('btn-main'), bd = document.getElementById('btn-dash');
+        if (tab === 'dashboard') {
+            m.classList.add('hidden'); d.classList.remove('hidden');
+            bd.className = "nav-pill px-6 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-lg";
+            bm.className = "nav-pill px-6 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white";
+            initDashboardCharts();
+        } else {
+            d.classList.add('hidden'); m.classList.remove('hidden');
+            bm.className = "nav-pill px-6 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-lg";
+            bd.className = "nav-pill px-6 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white";
+        }
+    }
+
+    function initDashboardCharts() {
+        document.getElementById('dash-total').innerText = db.length;
+        const gData = ['A','B','C','D','E','F'].map(k => db.filter(i => i.k === k).length);
+        const sData = ['Selesai','Proses','Penting'].map(s => db.filter(i => i.status === s).length);
+        const listPenting = db.filter(i => i.status === 'Penting').slice(0,5);
+        document.getElementById('dash-list-penting').innerHTML = listPenting.map(i => `<div class="p-3 bg-rose-50 rounded-xl text-[10px] font-bold text-rose-700 flex justify-between border border-rose-100"><span>${i.n}</span><span>${i.t}</span></div>`).join('');
+        
+        if(pieChart) pieChart.destroy(); if(barChart) barChart.destroy();
+        pieChart = new Chart(document.getElementById('pieChartGrup'), { type: 'doughnut', data: { labels: ['A','B','C','D','E','F'], datasets: [{ data: gData, backgroundColor: ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899'] }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } } } });
+        barChart = new Chart(document.getElementById('barChartStatus'), { type: 'bar', data: { labels: ['Selesai','Proses','Penting'], datasets: [{ data: sData, backgroundColor: ['#3b82f6','#f59e0b','#ef4444'] }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+    }
+
+    // --- RENDERING TABEL ---
+    function renderTable() {
+        const b = document.getElementById('tableBody');
+        const s = document.getElementById('search').value.toLowerCase();
+        b.innerHTML = db.filter(i => i.n.toLowerCase().includes(s) || i.formatNo.toLowerCase().includes(s)).map(i => {
+            const hasL = i.l && i.l.trim() !== "", st = i.status === 'Selesai' ? 'bg-blue-50 text-blue-600' : i.status === 'Penting' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600';
+            return `<tr class="hover:bg-slate-50 border-l-4 ${i.k==='A'?'border-blue-500':'border-emerald-500'}"><td class="px-6 py-4 font-mono text-slate-400">${i.formatNo}</td><td class="px-6 py-4"><div class="font-bold text-slate-800 uppercase">${i.n}</div><div class="text-[9px] text-slate-400 mt-1">${i.t} | GRUP: ${i.k}</div></td><td class="px-6 py-4 text-center"><span class="text-[9px] font-black px-3 py-1 rounded-full uppercase ${st}">${(i.status||'Selesai').toUpperCase()}</span></td><td class="px-6 py-4 flex justify-center gap-2">${hasL?`<a href="${i.l}" target="_blank" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg"><i class="fas fa-eye text-[10px]"></i></a>`:''}${hasL?`<button onclick="showQR('${i.l}','${i.n}')" class="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg"><i class="fas fa-qrcode text-[10px]"></i></button>`:''}${role==='admin'?`<button onclick="delData(${i.id})" class="w-8 h-8 flex items-center justify-center bg-rose-50 text-rose-400 rounded-lg"><i class="fas fa-trash-can text-[10px]"></i></button>`:''}</td></tr>`;
+        }).join('');
+        updateStats(); renderChart();
+    }
+
+    function renderChart() {
+        const ctx = document.getElementById('arsipChart').getContext('2d');
+        let mon = new Array(12).fill(0); db.forEach(i => { const m = parseInt(i.t.split('/')[1])-1; if(m>=0) mon[m]++; });
+        if(myChart) myChart.destroy();
+        myChart = new Chart(ctx, { type: 'line', data: { labels: ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"], datasets: [{ data: mon, borderColor: '#10b981', tension: 0.4, fill: true, backgroundColor: 'rgba(16, 185, 129, 0.05)' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+    }
+
+    function showQR(l, t) { document.getElementById("qrcode").innerHTML = ""; new QRCode(document.getElementById("qrcode"), { text: l, width: 140, height: 140 }); document.getElementById('qrTitle').innerText = t; openModal('qrModal'); }
+
+    document.getElementById('docForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const nextNo = (db.length === 0) ? 1 : Math.max(...db.map(x => parseInt(x.noRaw))) + 1;
+        const k = document.getElementById('docCatType').value;
+        db.unshift({ id: Date.now(), noRaw: nextNo, formatNo: `${nextNo.toString().padStart(3,'0')}/${k}/${CONFIG.instansi}/${CONFIG.tahun}`, n: document.getElementById('docName').value, k: document.getElementById('docGroup').value, l: document.getElementById('docLink').value, status: document.getElementById('docStatus').value, t: new Date().toLocaleDateString('id-ID') });
+        renderTable(); await syncToCloud(); e.target.reset();
+    };
+
+    async function saveAgenda() {
+        const nextNo = (db.length === 0) ? 1 : Math.max(...db.map(x => parseInt(x.noRaw))) + 1;
+        db.unshift({ id: Date.now(), noRaw: nextNo, formatNo: `${nextNo.toString().padStart(3,'0')}/SM/${CONFIG.instansi}/${CONFIG.tahun}`, n: `[MASUK] ${document.getElementById('agAsal').value} - ${document.getElementById('agPerihal').value}`, k: 'A', l: document.getElementById('agLink').value, status: 'Selesai', t: new Date().toLocaleDateString('id-ID') });
+        renderTable(); closeModal('agendaModal'); await syncToCloud();
+    }
+
+    async function saveSuratKeluar() {
+        const nextNo = (db.length === 0) ? 1 : Math.max(...db.map(x => parseInt(x.noRaw))) + 1;
+        const k = document.getElementById('skKode').value;
+        db.unshift({ id: Date.now(), noRaw: nextNo, formatNo: `${nextNo.toString().padStart(3,'0')}/${k}/${CONFIG.instansi}/${CONFIG.tahun}`, n: `[KELUAR] ${k} - ${document.getElementById('skTujuan').value}`, k: 'A', l: '', status: 'Selesai', t: new Date().toLocaleDateString('id-ID') });
+        renderTable(); closeModal('suratKeluarModal'); await syncToCloud();
+    }
+
+    function updateStats() {
+        const cats = ['TOTAL', 'A', 'B', 'C', 'D', 'E', 'F'];
+        document.getElementById('statsContainer').innerHTML = cats.map(k => {
+            const val = k === 'TOTAL' ? db.length : db.filter(i => i.k === k).length;
+            return `<div class="bg-white/10 border border-white/10 p-4 rounded-2xl text-center backdrop-blur-md"><div class="text-[8px] font-black uppercase text-white/50 mb-1">${k}</div><div class="text-xl font-black text-white">${val}</div></div>`;
+        }).join('');
+    }
+
+    async function delData(id) { if(confirm("Hapus?")) { db = db.filter(i => i.id !== id); renderTable(); await syncToCloud(); } }
+
+    function exportToPDF() {
+        const { jsPDF } = window.jspdf; const doc = new jsPDF();
+        doc.text("LAPORAN ARSIP PKM KIARAPEDES", 14, 20);
+        doc.autoTable({ startY: 30, head: [['KODE', 'PERIHAL', 'STATUS', 'TGL']], body: db.map(i => [i.formatNo, i.n, i.status, i.t]) });
+        doc.save('Arsip_PKM.pdf');
+    }
+</script>
+</body>
+</html>
