@@ -145,49 +145,57 @@
         }
 
         // FUNGSI SIMPAN DENGAN AUTO-FOLDER
-        document.getElementById('pegawaiForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btnSimpan');
-            const btnText = document.getElementById('btnText');
-            const loader = document.getElementById('btnLoader');
+       document.getElementById('pegawaiForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnSimpan');
+    
+    // Ambil data dan Rapikan (Trim & Uppercase)
+    const id = document.getElementById('editId').value;
+    const nama = document.getElementById('namaPegawai').value.toUpperCase().trim();
+    const nip = document.getElementById('nipPegawai').value.replace(/\s/g, ''); // Hapus spasi jika ada
+    let drive = document.getElementById('linkDrive').value;
 
-            // Start Loading
-            btn.disabled = true;
-            btnText.innerText = "Memproses Folder...";
-            loader.classList.remove('hidden');
+    // Validasi NIP Standar (18 Digit)
+    if (nip.length !== 18 && !confirm("NIP biasanya 18 digit. Lanjutkan simpan?")) {
+        return;
+    }
 
-            const nama = document.getElementById('namaPegawai').value;
-            const nip = document.getElementById('nipPegawai').value;
+    btn.innerText = "Processing...";
+    btn.disabled = true;
 
-            try {
-                // 1. Panggil GAS untuk buat folder otomatis
-                const res = await fetch(`${GAS_URL}?nama=${encodeURIComponent(nama)}&nip=${encodeURIComponent(nip)}`);
-                const driveLink = await res.text();
+    try {
+        // Jika Link Drive Kosong & Tidak sedang Edit -> Buat Otomatis via GAS
+        if(!drive && !id) {
+            const res = await fetch(`${GAS_URL}?nama=${encodeURIComponent(nama)}&nip=${encodeURIComponent(nip)}`);
+            drive = await res.text();
+        }
 
-                // 2. Simpan ke Supabase
-                const { error } = await _supabase.from('pegawai').insert([{
-                    nama: nama,
-                    nip: nip,
-                    jabatan: document.getElementById('jabatanPegawai').value,
-                    golongan: document.getElementById('golonganPegawai').value,
-                    tmt_kgb: document.getElementById('tmtKgb').value,
-                    exp_sip: document.getElementById('expSip').value,
-                    link_drive: driveLink
-                }]);
-
-                if (error) throw error;
-                alert('Berhasil! Data tersimpan dan folder Drive telah dibuat.');
-                e.target.reset();
-                loadData();
-            } catch (err) {
-                console.error(err);
-                alert('Gagal memproses data. Cek koneksi atau konfigurasi GAS/Supabase.');
-            } finally {
-                btn.disabled = false;
-                btnText.innerText = "Simpan & Buat Folder";
-                loader.classList.add('hidden');
-            }
+        const payload = {
+            nama, nip, 
+            jabatan: document.getElementById('jabatanPegawai').value,
+            golongan: document.getElementById('golonganPegawai').value,
+            tmt_kgb: document.getElementById('tmtKgb').value,
+            exp_sip: document.getElementById('expSip').value,
+            link_drive: drive
         };
+
+        if(id) {
+            await _supabase.from('pegawai').update(payload).eq('id', id);
+        } else {
+            await _supabase.from('pegawai').insert([payload]);
+        }
+
+        alert('Data Berhasil Disinkronkan!');
+        resetForm();
+        loadData();
+    } catch (err) {
+        alert('Gagal: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "SIMPAN DATA";
+    }
+};
+        
         // FUNGSI EXPORT EXCEL DENGAN STATUS MONITORING (FIXED & ENHANCED)
 function downloadBatchReport() {
     if (dbPegawai.length === 0) {
