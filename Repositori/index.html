@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satu Data | PKM Kiarapedes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; color: white; overflow-x: hidden; }
+        
+        .hero-gradient {
+            background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.1), transparent),
+                        radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.1), transparent);
+        }
+
+        .app-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .app-card:hover {
+            transform: translateY(-12px);
+            background: rgba(30, 41, 59, 0.8);
+            border-color: #10b981;
+            box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.2);
+        }
+
+        .login-glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .animate-pulse-soft { animation: pulse-soft 3s infinite; }
+    </style>
+</head>
+<body class="min-h-screen hero-gradient">
+
+    <div id="loginOverlay" class="fixed inset-0 z-[999] bg-slate-950 flex items-center justify-center p-6 hidden">
+        <div class="login-glass p-10 rounded-[3rem] w-full max-w-md text-center">
+            <div class="w-20 h-20 bg-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-emerald-500/40">
+                <i class="fas fa-shield-halved text-3xl"></i>
+            </div>
+            <h2 class="text-2xl font-black mb-2 uppercase tracking-tighter">Gateway <span class="text-emerald-500">Satu Data</span></h2>
+            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] mb-8">Puskesmas Kiarapedes</p>
+            
+            <div class="space-y-4">
+                <input type="text" id="userInput" placeholder="Username" class="w-full bg-white/5 border border-white/10 py-4 px-6 rounded-2xl outline-none focus:border-emerald-500 transition-all font-semibold text-sm">
+                <input type="password" id="passInput" placeholder="Password" class="w-full bg-white/5 border border-white/10 py-4 px-6 rounded-2xl outline-none focus:border-emerald-500 transition-all font-semibold text-sm">
+                <button onclick="portalLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-black uppercase text-xs tracking-widest transition-all shadow-lg shadow-emerald-600/20">Buka Akses Sistem</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="portalContent" class="container mx-auto px-6 py-12 opacity-0 transition-opacity duration-1000">
+        <nav class="flex justify-between items-center mb-20">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-layer-group text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg uppercase tracking-tighter">Portal Sentral</h1>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                        <span id="userStatus" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-emerald-500">Admin Online</span>
+                    </div>
+                </div>
+            </div>
+            <button onclick="portalLogout()" class="bg-white/5 hover:bg-rose-500/20 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/10 transition-all">
+                Keluar <i class="fas fa-power-off ml-2"></i>
+            </button>
+        </nav>
+
+        <div class="mb-16">
+            <h2 class="text-5xl md:text-7xl font-black mb-6 tracking-tighter leading-none">
+                Selamat Datang di <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-500">Satu Data Puskesmas Kiarapedes</span>
+            </h2>
+            <p class="text-slate-400 max-w-xl text-sm leading-relaxed font-medium italic">
+                Akses cepat ke seluruh layanan manajemen internal Puskesmas Kiarapedes dalam satu sesi terintegrasi.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <a href="e-arsip.html" class="app-card p-10 rounded-[3rem] group">
+                <div class="w-14 h-14 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-box-archive text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-3">E-Arsip</h3>
+                <p class="text-slate-400 text-xs leading-relaxed mb-8">Digitalisasi dokumen, QR-Inventory, dan sinkronisasi laporan otomatis.</p>
+                <div class="inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500">
+                    Masuk Aplikasi <i class="fas fa-chevron-right text-[8px]"></i>
+                </div>
+            </a>
+
+            <a href="simpeg.html" class="app-card p-10 rounded-[3rem] group">
+                <div class="w-14 h-14 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-user-tie text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-3">SIMPEG</h3>
+                <p class="text-slate-400 text-xs leading-relaxed mb-8">Database kepegawaian, kenaikan pangkat, dan profil SDM terpusat.</p>
+                <div class="inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-blue-500">
+                    Masuk Aplikasi <i class="fas fa-chevron-right text-[8px]"></i>
+                </div>
+            </a>
+
+            <a href="analisis-data.html" class="app-card p-10 rounded-[3rem] group">
+                <div class="w-14 h-14 bg-purple-500/10 text-purple-500 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-chart-pie text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-3">Analisis</h3>
+                <p class="text-slate-400 text-xs leading-relaxed mb-8">Visualisasi data layanan, statistik kunjungan, dan grafik performa.</p>
+                <div class="inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-purple-500">
+                    Masuk Aplikasi <i class="fas fa-chevron-right text-[8px]"></i>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // FUNGSI SSO: Cek status saat halaman dibuka
+        window.onload = function() {
+            const isLogged = localStorage.getItem('pkm_isLoggedIn');
+            const overlay = document.getElementById('loginOverlay');
+            const content = document.getElementById('portalContent');
+
+            if (isLogged === 'true') {
+                overlay.classList.add('hidden');
+                content.classList.remove('opacity-0');
+                document.getElementById('userStatus').innerText = (localStorage.getItem('pkm_role') || 'User') + " Online";
+            } else {
+                overlay.classList.remove('hidden');
+            }
+        };
+
+        function portalLogin() {
+            const u = document.getElementById('userInput').value;
+            const p = document.getElementById('passInput').value;
+
+            // Logika login disamakan dengan e-arsip
+            let role = '';
+            if(u === 'admin' && p === 'pkp123') role = 'admin';
+            else if(u === 'viewer' && p === 'baca') role = 'viewer';
+            else { alert("Username/Password Salah!"); return; }
+
+            localStorage.setItem('pkm_isLoggedIn', 'true');
+            localStorage.setItem('pkm_role', role);
+            
+            // Animasi transisi masuk
+            document.getElementById('loginOverlay').classList.add('hidden');
+            document.getElementById('portalContent').classList.remove('opacity-0');
+            location.reload(); // Refresh untuk memastikan state tersimpan
+        }
+
+        function portalLogout() {
+            if(confirm("Keluar dari seluruh ekosistem Satu Data?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
