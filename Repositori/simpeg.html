@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMPEG Digital | PKM Kiarapedes</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        body { background-color: #020617; color: #f1f5f9; font-family: 'Inter', sans-serif; }
+        .glass-panel { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; }
+        input, select { background: rgba(0,0,0,0.2) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; padding: 10px; border-radius: 10px; outline: none; }
+        input:focus { border-color: #10b981 !important; }
+        th { color: #10b981; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; }
+        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .btn-primary { background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: bold; border-radius: 12px; transition: 0.3s; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4); }
+        
+        /* Login Overlay */
+        #loginOverlay { background: radial-gradient(circle at top left, #064e3b, #020617); z-index: 9999; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div id="loginOverlay" class="fixed inset-0 flex items-center justify-center p-4">
+        <div class="glass-panel p-8 w-full max-w-md shadow-2xl border-emerald-500/30">
+            <div class="text-center mb-8">
+                <div class="bg-emerald-500 w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg">
+                    <i class="fas fa-hospital-user text-white text-3xl"></i>
+                </div>
+                <h1 class="text-2xl font-black text-white uppercase">SIMPEG <span class="text-emerald-500 italic">DIGITAL</span></h1>
+                <p class="text-[10px] text-slate-400 font-bold tracking-[0.3em]">ADMIN LOGIN</p>
+            </div>
+            <form id="loginForm" class="space-y-4">
+                <input type="text" id="userInp" placeholder="Username" class="w-full" required>
+                <input type="password" id="passInp" placeholder="Password" class="w-full" required>
+                <button type="submit" class="btn-primary w-full py-3 mt-2">MASUK KE SISTEM</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="mainApp" class="max-w-7xl mx-auto hidden">
+        
+        <header class="glass-panel p-6 mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-black tracking-tighter text-white uppercase">SIMPEG <span class="text-emerald-500 italic">DIGITAL</span></h1>
+                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-[0.3em]">PKM Kiarapedes System</p>
+            </div>
+            <div class="text-right flex items-center gap-6">
+                <div class="hidden md:block">
+                    <div id="clock" class="font-bold text-white text-xl"></div>
+                    <p id="dateText" class="text-[10px] text-emerald-500 uppercase"></p>
+                </div>
+                <button onclick="logout()" class="bg-rose-500/10 text-rose-500 p-3 rounded-xl hover:bg-rose-500 hover:text-white transition">
+                    <i class="fas fa-power-off"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+            <div class="glass-panel p-6 flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] text-slate-500 uppercase font-bold">Total Pegawai</p>
+                    <h2 id="stat-total" class="text-4xl font-black text-white">0</h2>
+                </div>
+                <div class="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                    <i class="fas fa-users text-emerald-500"></i>
+                </div>
+            </div>
+            <div class="glass-panel p-6 flex items-center justify-between border-l-4 border-rose-500">
+                <div>
+                    <p class="text-[10px] text-slate-500 uppercase font-bold">SIP Deadline</p>
+                    <h2 id="stat-warning" class="text-4xl font-black text-rose-500">0</h2>
+                </div>
+                <div class="w-12 h-12 bg-rose-500/10 rounded-full flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-rose-500"></i>
+                </div>
+            </div>
+            <div class="lg:col-span-2 glass-panel p-6">
+                <p class="text-[10px] text-slate-500 uppercase font-bold mb-2">Distribusi Jabatan (Klik untuk Filter)</p>
+                <div class="h-16">
+                    <canvas id="chartJabatan"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-4 no-print">
+                <div class="glass-panel p-8 sticky top-8">
+                    <h3 class="text-sm font-bold text-white mb-6 uppercase flex items-center gap-2">
+                        <span class="w-2 h-6 bg-emerald-500 rounded-full"></span> Input Pegawai
+                    </h3>
+                    <form id="pegawaiForm" class="space-y-4">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div id="imagePreview" class="w-16 h-16 rounded-xl bg-white/5 border-2 border-dashed border-white/20 flex items-center justify-center text-white/20 overflow-hidden">
+                                <i class="fas fa-camera text-xl"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <label class="text-[10px] text-slate-500 block mb-1">Foto Pegawai</label>
+                                <input type="file" id="fotoPegawai" accept="image/*" class="text-[10px] w-full">
+                            </div>
+                        </div>
+                        <input type="text" id="namaPegawai" placeholder="Nama Lengkap" class="w-full" required>
+                        <input type="text" id="nipPegawai" placeholder="NIP/NRPTK" class="w-full">
+                        <input type="tel" id="waPegawai" placeholder="628123xxx" class="w-full">
+                        <select id="jabatanPegawai" class="w-full">
+                            <option value="Medis">Tenaga Medis</option>
+                            <option value="Paramedis">Tenaga Kesehatan</option>
+                            <option value="Admin">Administrasi</option>
+                            <option value="Umum">Umum</option>
+                        </select>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="text-[9px] text-slate-500">Tgl Lahir</label><input type="date" id="tglLahir" class="w-full" required></div>
+                            <div><label class="text-[9px] text-slate-500">SIP Berlaku</label><input type="date" id="sipDeadline" class="w-full"></div>
+                        </div>
+                        <button type="submit" class="btn-primary w-full py-4 shadow-lg shadow-emerald-900/40">SIMPAN DATA</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-8">
+                <div class="glass-panel p-4 mb-6 flex flex-wrap gap-4 items-center justify-between">
+                    <div class="flex items-center gap-4 flex-grow max-w-md">
+                        <i class="fas fa-search text-emerald-500 ml-2"></i>
+                        <input type="text" id="searchInput" oninput="renderTable(activeFilter)" placeholder="Cari nama atau NIP..." class="w-full !bg-transparent border-none">
+                    </div>
+                    <button onclick="exportToExcel()" class="bg-emerald-600/20 text-emerald-500 border border-emerald-500/30 px-4 py-2 rounded-xl text-xs font-bold hover:bg-emerald-500 hover:text-white transition flex items-center gap-2">
+                        <i class="fas fa-file-excel"></i> EXPORT EXCEL
+                    </button>
+                </div>
+
+                <div class="glass-panel overflow-hidden">
+                    <table class="w-full">
+                        <thead>
+                            <tr>
+                                <th>Pegawai</th>
+                                <th>Status Administrasi</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pegawaiTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="idCardModal" class="fixed inset-0 bg-black/90 z-[2000] hidden items-center justify-center p-4">
+        <div class="glass-panel p-8 flex flex-col items-center">
+            <div id="idCard" class="bg-gradient-to-br from-emerald-800 to-emerald-950 p-8 rounded-[30px] text-white text-center w-72 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
+                <img id="printFoto" class="w-24 h-24 rounded-2xl mx-auto mb-4 border-2 border-emerald-400/30 object-cover shadow-lg relative z-10">
+                <h2 id="printNama" class="font-black uppercase tracking-tight leading-tight mb-1 relative z-10"></h2>
+                <p id="printJabatan" class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mb-4"></p>
+                <div class="bg-white p-2 rounded-2xl inline-block mb-4 shadow-inner">
+                    <div id="qrcode"></div>
+                </div>
+                <p id="printNip" class="text-[10px] opacity-50 font-mono"></p>
+                <div class="mt-4 pt-4 border-t border-white/10">
+                    <p class="text-[8px] uppercase tracking-[0.2em] opacity-40">PKM Kiarapedes Digital</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 w-full mt-6">
+                <button onclick="window.print()" class="btn-primary py-3 text-xs">PRINT</button>
+                <button onclick="downloadCard()" class="bg-blue-600 text-white font-bold rounded-xl py-3 text-xs">UNDUH JPG</button>
+            </div>
+            <button onclick="document.getElementById('idCardModal').classList.replace('flex','hidden')" class="mt-4 text-slate-500 text-[10px] uppercase font-bold tracking-widest">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        // CONFIG
+        const SUPABASE_URL = 'https://vxcgontdprrnotipdstx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4Y2dvbnRkcHJybm90aXBkc3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMDU3NzUsImV4cCI6MjA4NTc4MTc3NX0.LgMMA5ysutL4sgHCDWZea20gvv9hwRQHPAX2BougW1U';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let dbPegawai = [];
+        let activeFilter = null;
+        let jabatanChart;
+
+        // AUTH LOGIC
+        document.getElementById('loginForm').onsubmit = (e) => {
+            e.preventDefault();
+            if(document.getElementById('userInp').value === 'admin' && document.getElementById('passInp').value === 'pkm2026') {
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                loadData();
+            } else { alert("Login Salah!"); }
+        };
+
+        function logout() { location.reload(); }
+
+        // DATA LOGIC
+        async function loadData() {
+            const { data, error } = await _supabase.from('pegawai').select('*').order('created_at', { ascending: false });
+            if (error) return;
+            dbPegawai = data;
+            renderTable();
+            updateDashboard();
+        }
+
+        function renderTable(filterJabatan = null) {
+            activeFilter = filterJabatan;
+            const body = document.getElementById('pegawaiTableBody');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const hariIni = new Date();
+            
+            body.innerHTML = '';
+            let filtered = dbPegawai.filter(p => 
+                (p.nama.toLowerCase().includes(search) || (p.nip && p.nip.includes(search))) &&
+                (!filterJabatan || p.jabatan === filterJabatan)
+            );
+
+            filtered.forEach(p => {
+                let sipAlert = '<span class="text-emerald-500 text-[10px]">✔ AMAN</span>';
+                if(p.sipDeadline) {
+                    let diff = Math.ceil((new Date(p.sipDeadline) - hariIni) / (1000 * 60 * 60 * 24 * 30.44));
+                    if(diff <= 6) sipAlert = `<span class="text-rose-500 font-bold text-[10px] animate-pulse"><i class="fas fa-clock mr-1"></i>SIP ${diff} BLN</span>`;
+                }
+
+                body.insertAdjacentHTML('beforeend', `
+                    <tr class="hover:bg-white/5 transition">
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <img src="${p.foto || 'https://via.placeholder.com/40'}" class="w-10 h-10 rounded-xl object-cover">
+                                <div><b class="text-white text-sm">${p.nama}</b><br><small class="text-slate-500 uppercase text-[9px]">${p.jabatan} | NIP: ${p.nip || '-'}</small></div>
+                            </div>
+                        </td>
+                        <td>${sipAlert}</td>
+                        <td class="text-center">
+                            <button onclick="bukaCetak('${p.id}')" class="text-emerald-500 mr-4 hover:scale-125 transition inline-block"><i class="fas fa-id-card"></i></button>
+                            <button onclick="hapusData('${p.id}', '${p.nama}')" class="text-slate-600 hover:text-rose-500 transition inline-block"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+
+        // CHART & DASHBOARD
+        function updateDashboard() {
+            const counts = { Medis: 0, Paramedis: 0, Admin: 0, Umum: 0 };
+            let warningSip = 0;
+            const hariIni = new Date();
+
+            dbPegawai.forEach(p => {
+                if(counts[p.jabatan] !== undefined) counts[p.jabatan]++;
+                if(p.sipDeadline) {
+                    let diff = (new Date(p.sipDeadline) - hariIni) / (1000 * 60 * 60 * 24 * 30.44);
+                    if(diff <= 6 && diff > 0) warningSip++;
+                }
+            });
+
+            document.getElementById('stat-total').innerText = dbPegawai.length;
+            document.getElementById('stat-warning').innerText = warningSip;
+
+            const ctx = document.getElementById('chartJabatan').getContext('2d');
+            if(jabatanChart) jabatanChart.destroy();
+            jabatanChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(counts),
+                    datasets: [{
+                        data: Object.values(counts),
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#6366f1'],
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { display: false }, y: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } } },
+                    onClick: (e, item) => { if(item[0]) renderTable(Object.keys(counts)[item[0].index]); }
+                }
+            });
+        }
+
+        // FEATURES
+        async function exportToExcel() {
+            const data = dbPegawai.map(p => ({ Nama: p.nama, NIP: p.nip, Jabatan: p.jabatan, WhatsApp: p.wa, SIP_Deadline: p.sipDeadline }));
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Pegawai");
+            XLSX.writeFile(wb, "LAPORAN_SIMPEG_KIARAPEDES.xlsx");
+        }
+
+        async function downloadCard() {
+            const canvas = await html2canvas(document.getElementById('idCard'), { scale: 2, useCORS: true });
+            const link = document.createElement('a');
+            link.download = `ID_CARD_${document.getElementById('printNama').innerText}.jpg`;
+            link.href = canvas.toDataURL('image/jpeg');
+            link.click();
+        }
+
+        function bukaCetak(id) {
+            const p = dbPegawai.find(x => x.id == id);
+            document.getElementById('printNama').innerText = p.nama;
+            document.getElementById('printJabatan').innerText = p.jabatan;
+            document.getElementById('printNip').innerText = `ID: ${p.nip || '-'}`;
+            document.getElementById('printFoto').src = p.foto || 'https://via.placeholder.com/150';
+            document.getElementById("qrcode").innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), { text: `VERIF-${p.id}`, width: 60, height: 60 });
+            document.getElementById('idCardModal').classList.replace('hidden', 'flex');
+        }
+
+        // FORM HANDLER
+        document.getElementById('pegawaiForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const file = document.getElementById('fotoPegawai').files[0];
+            let fotoUrl = "";
+            if(file) {
+                const fileName = `${Date.now()}-${file.name}`;
+                const { data } = await _supabase.storage.from('avatars').upload(fileName, file);
+                if(data) fotoUrl = _supabase.storage.from('avatars').getPublicUrl(fileName).data.publicUrl;
+            }
+
+            await _supabase.from('pegawai').insert([{
+                nama: document.getElementById('namaPegawai').value,
+                nip: document.getElementById('nipPegawai').value,
+                wa: document.getElementById('waPegawai').value,
+                jabatan: document.getElementById('jabatanPegawai').value,
+                tglLahir: document.getElementById('tglLahir').value,
+                sipDeadline: document.getElementById('sipDeadline').value,
+                foto: fotoUrl
+            }]);
+            e.target.reset(); loadData();
+        };
+
+        // IMAGE PREVIEW
+        document.getElementById('fotoPegawai').onchange = function() {
+            const [file] = this.files;
+            if (file) document.getElementById('imagePreview').innerHTML = `<img src="${URL.createObjectURL(file)}" class="w-full h-full object-cover">`;
+        };
+
+        // UTILS
+        setInterval(() => { 
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID'); 
+            document.getElementById('dateText').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }, 1000);
+    </script>
+</body>
+</html>
