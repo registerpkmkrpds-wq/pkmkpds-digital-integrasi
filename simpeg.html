@@ -188,6 +188,64 @@
                 loader.classList.add('hidden');
             }
         };
+        // FUNGSI EXPORT EXCEL DENGAN STATUS MONITORING (FIXED & ENHANCED)
+function downloadBatchReport() {
+    if (dbPegawai.length === 0) {
+        alert("Tidak ada data untuk diekspor.");
+        return;
+    }
+
+    // Menyusun data yang akan diekspor
+    const dataEksport = dbPegawai.map(p => {
+        // Logika Status SIP untuk Excel
+        let statusSIP = "TIDAK ADA DATA";
+        if (p.exp_sip) {
+            const diff = (new Date(p.exp_sip) - new Date()) / (1000 * 60 * 60 * 24 * 30.44);
+            if (diff < 0) statusSIP = "EXPIRED";
+            else if (diff <= 6) statusSIP = "KRITIS (SEGERA URUS)";
+            else statusSIP = "AKTIF";
+        }
+
+        return {
+            'Nama Pegawai': p.nama,
+            'NIP': p.nip,
+            'Jabatan': p.jabatan,
+            'Golongan': p.golongan,
+            'TMT KGB': p.tmt_kgb,
+            'SIP Expired': p.exp_sip || '-',
+            'Status SIP': statusSIP, // Kolom Tambahan Baru
+            'Estimasi Pensiun': hitungPensiun(p.nip),
+            'Link Arsip Digital': p.link_drive
+        };
+    });
+
+    // Proses Pembuatan Sheet menggunakan library XLSX
+    try {
+        const worksheet = XLSX.utils.json_to_sheet(dataEksport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Data_Pegawai");
+
+        // Pengaturan lebar kolom otomatis (opsional)
+        worksheet['!cols'] = [
+            { wch: 30 }, // Nama
+            { wch: 20 }, // NIP
+            { wch: 15 }, // Jabatan
+            { wch: 10 }, // Golongan
+            { wch: 12 }, // TMT KGB
+            { wch: 12 }, // SIP Exp
+            { wch: 20 }, // Status SIP
+            { wch: 15 }, // Pensiun
+            { wch: 50 }  // Link Drive
+        ];
+
+        // Menghasilkan File Excel
+        const tgl = new Date().toLocaleDateString('id-ID').replace(/\//g, '-');
+        XLSX.writeFile(workbook, `REKAP_SIMPEG_KIARAPEDES_${tgl}.xlsx`);
+    } catch (err) {
+        console.error("Gagal Export:", err);
+        alert("Terjadi kesalahan saat membuat file Excel.");
+    }
+}
     </script>
 </body>
 </html>
