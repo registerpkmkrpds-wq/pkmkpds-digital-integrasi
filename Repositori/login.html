@@ -1,1 +1,45 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | PKM Kiarapedes Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="flex items-center justify-center min-h-screen">
+    <div class="glass-panel p-10 w-full max-w-md fade-in">
+        <div class="text-center mb-8">
+            <h2 class="text-2xl font-black text-white uppercase tracking-tighter">Secure Login</h2>
+            <p class="text-slate-400 text-xs mt-2 uppercase tracking-widest">Akses Khusus Internal</p>
+        </div>
+        
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="text-[10px] font-bold text-emerald-500 uppercase ml-2">Email Staff</label>
+                <input type="email" id="email" class="w-full mt-1" required>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-emerald-500 uppercase ml-2">Password</label>
+                <input type="password" id="password" class="w-full mt-1" required>
+            </div>
+            <button type="submit" class="btn-primary w-full mt-6 py-4">Masuk ke Sistem</button>
+        </form>
+    </div>
 
+    <script>
+        const _supabase = supabase.createClient('https://vxcgontdprrnotipdstx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4Y2dvbnRkcHJybm90aXBkc3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMDU3NzUsImV4cCI6MjA4NTc4MTc3NX0.LgMMA5ysutL4sgHCDWZea20gvv9hwRQHPAX2BougW1U');
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const { data, error } = await _supabase.auth.signInWithPassword({
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+            });
+
+            if (error) alert("Gagal Login: " + error.message);
+            else window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
