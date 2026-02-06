@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Finance Intelligence | PKM Kiarapedes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: #f8fafc; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .glass-card { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; transition: 0.3s; }
+        .glass-card:hover { border-color: rgba(16, 185, 129, 0.3); }
+        input { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 0.75rem; padding: 0.5rem 0.75rem; color: white; outline: none; transition: 0.2s; }
+        input:focus { border-color: #10b981 !important; background: rgba(16, 185, 129, 0.05) !important; }
+        label { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body class="p-4 md:p-8 pb-32">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+            <div>
+                <h1 class="text-3xl font-black tracking-tighter uppercase italic">Strategic <span class="text-emerald-500">Financial</span></h1>
+                <p class="text-[9px] font-bold opacity-50 tracking-[0.4em] uppercase">Puskesmas Expenditure Audit System</p>
+            </div>
+            <div class="flex gap-4">
+                <div class="glass-card px-4 py-2 flex items-center gap-3">
+                    <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <p id="clock" class="text-[10px] font-black mono opacity-80"></p>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <div class="lg:col-span-4 space-y-6">
+                <div class="glass-card p-6 border-l-4 border-blue-500">
+                    <label>Pagu Anggaran Tahunan</label>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold opacity-30">Rp</span>
+                        <input type="number" id="pagu" oninput="updateAll()" class="w-full mono font-bold text-lg" placeholder="Total Dana">
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-[10px] font-black mb-6 text-emerald-500 tracking-widest uppercase">Distribusi Belanja Real</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label>Gaji & Insentif (UKM/UKP)</label>
+                            <input type="number" class="category-input w-full mono text-sm" oninput="updateAll()" placeholder="0">
+                        </div>
+                        <div>
+                            <label>Obat & Alkes</label>
+                            <input type="number" class="category-input w-full mono text-sm" oninput="updateAll()" placeholder="0">
+                        </div>
+                        <div>
+                            <label>Transport & Perjalanan Dinas</label>
+                            <input type="number" class="category-input w-full mono text-sm" oninput="updateAll()" placeholder="0">
+                        </div>
+                        <div>
+                            <label>Operasional (Listrik, Air, ATK)</label>
+                            <input type="number" class="category-input w-full mono text-sm" oninput="updateAll()" placeholder="0">
+                        </div>
+                        <div>
+                            <label>Lain-lain</label>
+                            <input type="number" class="category-input w-full mono text-sm" oninput="updateAll()" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 border-l-4 border-purple-500">
+                    <label>Total Kunjungan Pasien</label>
+                    <input type="number" id="pasien" oninput="updateAll()" class="w-full mono font-bold text-lg text-purple-400" placeholder="Jumlah Pasien">
+                </div>
+            </div>
+
+            <div class="lg:col-span-8 space-y-8">
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="glass-card p-6 text-center">
+                        <p class="text-[9px] font-black opacity-50 uppercase mb-2">Total Realisasi</p>
+                        <h2 id="totalRealisasi" class="text-xl font-black mono">Rp 0</h2>
+                    </div>
+                    <div class="glass-card p-6 text-center">
+                        <p class="text-[9px] font-black opacity-50 uppercase mb-2">Unit Cost / Pasien</p>
+                        <h2 id="unitCost" class="text-xl font-black mono text-emerald-400">Rp 0</h2>
+                    </div>
+                    <div class="glass-card p-6 text-center">
+                        <p class="text-[9px] font-black opacity-50 uppercase mb-2">Sisa Pagu</p>
+                        <h2 id="sisaDana" class="text-xl font-black mono text-rose-400">Rp 0</h2>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-card p-8">
+                        <p class="text-[9px] font-black opacity-50 uppercase mb-6 tracking-widest">Komposisi Pengeluaran</p>
+                        <div class="h-60"><canvas id="distChart"></canvas></div>
+                    </div>
+                    <div class="glass-card p-8">
+                        <p class="text-[9px] font-black opacity-50 uppercase mb-6 tracking-widest">Penyerapan Anggaran (%)</p>
+                        <div class="flex flex-col items-center justify-center h-60">
+                            <h2 id="pctSerap" class="text-6xl font-black mono tracking-tighter text-emerald-500">0%</h2>
+                            <p class="text-[10px] font-bold opacity-40 mt-2">DARI TOTAL PAGU</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 border-l-8 border-emerald-500 bg-emerald-500/5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fas fa-microchip text-emerald-500 animate-pulse"></i>
+                        <h3 class="text-[10px] font-black text-emerald-500 uppercase">AI Finance Advisor</h3>
+                    </div>
+                    <p id="aiAdvice" class="text-sm font-medium leading-relaxed italic opacity-80">
+                        Sistem siap melakukan audit. Masukkan data keuangan untuk melihat efisiensi belanja Puskesmas...
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-sm px-4">
+        <div class="bg-slate-900/90 backdrop-blur-2xl border border-white/10 p-2 rounded-2xl flex items-center justify-around shadow-2xl">
+            <a href="analisis_data.html" class="p-3 text-slate-500 hover:text-emerald-400 transition-all"><i class="fas fa-chart-pie"></i></a>
+            <div class="p-3 text-emerald-400 bg-emerald-500/10 rounded-xl shadow-inner"><i class="fas fa-wallet"></i></div>
+            <a href="simpeg.html" class="p-3 text-slate-500 hover:text-emerald-400 transition-all"><i class="fas fa-user-shield"></i></a>
+        </div>
+    </div>
+
+    <script>
+        let distChart = null;
+        const labels = ["Gaji/Insentif", "Obat/Alkes", "Transport", "Operasional", "Lain-lain"];
+
+        function updateAll() {
+            const pagu = parseFloat(document.getElementById('pagu').value) || 0;
+            const pasien = parseFloat(document.getElementById('pasien').value) || 0;
+            const inputs = document.querySelectorAll('.category-input');
+            
+            let totalRealisasi = 0;
+            let dataValues = [];
+            
+            inputs.forEach(input => {
+                const val = parseFloat(input.value) || 0;
+                totalRealisasi += val;
+                dataValues.push(val);
+            });
+
+            const sisa = pagu - totalRealisasi;
+            const persen = pagu > 0 ? (totalRealisasi / pagu) * 100 : 0;
+            const unitCost = pasien > 0 ? (totalRealisasi / pasien) : 0;
+
+            // UI Update
+            document.getElementById('totalRealisasi').innerText = "Rp " + totalRealisasi.toLocaleString('id-ID');
+            document.getElementById('sisaDana').innerText = "Rp " + sisa.toLocaleString('id-ID');
+            document.getElementById('unitCost').innerText = "Rp " + Math.round(unitCost).toLocaleString('id-ID');
+            document.getElementById('pctSerap').innerText = Math.round(persen) + "%";
+
+            // Chart Update
+            updateChart(dataValues);
+
+            // AI Logic
+            const month = new Date().getMonth() + 1;
+            const target = (month / 12) * 100;
+            let advice = `Analisis Bulan ke-${month}: `;
+
+            if (persen > target + 10) {
+                advice += `Laju belanja terlalu agresif (${persen.toFixed(1)}%). Segera evaluasi biaya operasional agar pagu tidak kritis di triwulan terakhir. `;
+            } else if (persen < target - 15) {
+                advice += `Penyerapan sangat rendah. Segera cairkan dana untuk kegiatan pelayanan agar target kinerja Puskesmas tercapai. `;
+            } else {
+                advice += `Penyerapan anggaran ideal dan stabil. `;
+            }
+
+            // Detect High Cost
+            const maxIdx = dataValues.indexOf(Math.max(...dataValues));
+            if (totalRealisasi > 0) {
+                advice += `Pengeluaran terbesar ada pada ${labels[maxIdx]}. Pastikan biaya ini memberikan dampak langsung pada mutu pelayanan.`;
+            }
+
+            document.getElementById('aiAdvice').innerText = advice;
+        }
+
+        function updateChart(data) {
+            const ctx = document.getElementById('distChart').getContext('2d');
+            if(distChart) distChart.destroy();
+            distChart = new Chart(ctx, {
+                type: 'polarArea',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.6)', 
+                            'rgba(6, 182, 212, 0.6)', 
+                            'rgba(245, 158, 11, 0.6)', 
+                            'rgba(139, 92, 246, 0.6)', 
+                            'rgba(100, 116, 139, 0.6)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: { r: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false } } },
+                    plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 9 }, usePointStyle: true } } }
+                }
+            });
+        }
+
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID') + " | " + now.toLocaleDateString('id-ID');
+        }, 1000);
+        updateChart([0,0,0,0,0]);
+    </script>
+</body>
+</html>
