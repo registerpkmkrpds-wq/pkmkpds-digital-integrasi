@@ -174,40 +174,78 @@
             });
         }
 
-        document.getElementById('pegawaiForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btnSimpan');
-            const fileInput = document.getElementById('uploadFoto');
-            const urlInput = document.getElementById('fotoUrlInput').value;
-            const id = document.getElementById('editId').value;
-            const status = document.querySelector('input[name="statusPegawai"]:checked').value;
-            const nip = document.getElementById('nipPegawai').value;
-            const nama = document.getElementById('namaPegawai').value.toUpperCase();
-            let drive = document.getElementById('linkDrive').value;
+    document.getElementById('pegawaiForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnSimpan');
+    const fileInput = document.getElementById('uploadFoto');
+    const urlInput = document.getElementById('fotoUrlInput').value;
+    const id = document.getElementById('editId').value;
+    
+    // Ambil Status
+    const statusRadio = document.querySelector('input[name="statusPegawai"]:checked');
+    if (!statusRadio) { alert("Pilih status pegawai (PNS/PPPK/PARUH)!"); return; }
+    const status = statusRadio.value;
+    
+    const nip = document.getElementById('nipPegawai').value;
+    const nama = document.getElementById('namaPegawai').value.toUpperCase();
+    let drive = document.getElementById('linkDrive').value;
 
-            btn.disabled = true; btn.innerText = "Processing...";
+    btn.disabled = true; 
+    btn.innerText = "Sedang Memproses...";
 
+    try {
+        // 1. PROSES FOTO
+        let finalFoto = urlInput;
+        if (fileInput.files[0]) {
+            finalFoto = await uploadKeStorage(fileInput.files[0]);
+        }
+
+        // 2. PROSES GOOGLE DRIVE (Jika data baru dan link drive kosong)
+        if (!drive && !id) {
             try {
-                let finalFoto = urlInput;
-                if (fileInput.files[0]) finalFoto = await uploadKeStorage(fileInput.files[0]);
-
-                if(!drive && !id) {
-                    const res = await fetch(`${GAS_URL}?nama=${encodeURIComponent(nama)}&nip=${nip}&status=${status}`);
-                    drive = await res.text();
+                const response = await fetch(`${GAS_URL}?nama=${encodeURIComponent(nama)}&nip=${nip}&status=${status}`);
+                if (response.ok) {
+                    drive = await response.text();
                 }
+            } catch (fError) {
+                console.error("Gagal membuat folder Drive:", fError);
+                // Tetap lanjut simpan ke database meskipun Drive gagal
+                drive = "Link Drive Gagal Dibuat";
+            }
+        }
 
-                const payload = {
-                    nama, nip, jabatan: document.getElementById('jabatanPegawai').value,
-                    golongan: document.getElementById('golonganPegawai').value,
-                    tmt_kgb: document.getElementById('tmtKgb').value,
-                    exp_sip: document.getElementById('expSip').value,
-                    link_drive: drive, status_pegawai: status, foto_url: finalFoto
-                };
-
-                id ? await _supabase.from('pegawai').update(payload).eq('id', id) : await _supabase.from('pegawai').insert([payload]);
-                resetForm(); loadData();
-            } catch (err) { alert(err.message); } finally { btn.disabled = false; btn.innerText = "SIMPAN DATA"; }
+        // 3. PROSES SIMPAN KE SUPABASE
+        const payload = {
+            nama, nip, 
+            jabatan: document.getElementById('jabatanPegawai').value,
+            golongan: document.getElementById('golonganPegawai').value,
+            tmt_kgb: document.getElementById('tmtKgb').value,
+            exp_sip: document.getElementById('expSip').value,
+            link_drive: drive, 
+            status_pegawai: status, 
+            foto_url: finalFoto
         };
+
+        let result;
+        if (id) {
+            result = await _supabase.from('pegawai').update(payload).eq('id', id);
+        } else {
+            result = await _supabase.from('pegawai').insert([payload]);
+        }
+
+        if (result.error) throw result.error;
+
+        alert("Data Berhasil Disimpan!");
+        resetForm(); 
+        loadData();
+    } catch (err) {
+        console.error("Error Detail:", err);
+        alert("Gagal menyimpan: " + (err.message || "Cek Console Browser"));
+    } finally {
+        btn.disabled = false; 
+        btn.innerText = "SIMPAN DATA";
+    }
+};
 
         async function hapusPegawai(id, fotoUrl) {
             if(confirm("Hapus data & foto?")) {
