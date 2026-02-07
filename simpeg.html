@@ -166,7 +166,7 @@
     <script>
         const SUPABASE_URL = 'https://vxcgontdprrnotipdstx.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4Y2dvbnRkcHJybm90aXBkc3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMDU3NzUsImV4cCI6MjA4NTc4MTc3NX0.LgMMA5ysutL4sgHCDWZea20gvv9hwRQHPAX2BougW1U';
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbzw5g8wf0MIynvuefd702r0OBi1Nz2E5aYP_LnwA0H2timcgO4weG6p9qtQoPsI8mHtlg/exec"; // <--- GANTI DENGAN URL DEPLOY GAS ANDA
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbyZ5R2Zxp8WN1v8qAO4ytXPhHWQjUOUAw6VGr9A0FRAtKdYXArf9LDjj6XhahT0nqgoJg/exec"; // <--- GANTI DENGAN URL DEPLOY GAS ANDA
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let dbPegawai = [];
         let currentFilter = 'ALL';
@@ -267,47 +267,44 @@
         }
 
         document.getElementById('pegawaiForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btnSimpan');
-            const idVal = document.getElementById('editId').value;
-            const nama = document.getElementById('namaPegawai').value.toUpperCase();
-            const nip = document.getElementById('nipPegawai').value;
-            const status = document.querySelector('input[name="statusPegawai"]:checked').value;
-            let driveLink = document.getElementById('linkDrive').value;
+    e.preventDefault();
+    const btn = document.getElementById('btnSimpan');
+    const idVal = document.getElementById('editId').value;
+    const namaInput = document.getElementById('namaPegawai').value.toUpperCase();
+    const nipInput = document.getElementById('nipPegawai').value;
+    
+    // Ambil status dari radio button yang terpilih
+    const statusInput = document.querySelector('input[name="statusPegawai"]:checked').value;
+    
+    let driveLink = document.getElementById('linkDrive').value;
 
-            btn.disabled = true; btn.innerText = "Processing Folder...";
+    btn.disabled = true;
+    btn.innerText = "Memproses Folder...";
 
-            try {
-                // AUTO FOLDER VIA GAS
-                if (!idVal && !driveLink && GAS_URL !== "URL_WEB_APP_GAS_ANDA") {
-                    const resGas = await fetch(GAS_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ nama: nama, nip: nip, status: status })
-                    });
-                    const resJson = await resGas.json();
-                    if (resJson.status === "success") driveLink = resJson.link;
-                }
+    try {
+        // Hanya buat folder jika data BARU (bukan edit) dan LINK KOSONG
+        if (!idVal && !driveLink) {
+            const resGas = await fetch(GAS_URL, {
+                method: 'POST',
+                // Pastikan NAMA KEY di sini (nama, nip, status) SAMA dengan di GAS
+                body: JSON.stringify({ 
+                    nama: namaInput, 
+                    nip: nipInput, 
+                    status: statusInput 
+                })
+            });
+            
+            const resJson = await resGas.json();
+            if (resJson.status === "success") {
+                driveLink = resJson.link;
+                document.getElementById('linkDrive').value = driveLink; // Isi otomatis ke input
+            } else {
+                throw new Error(resJson.message);
+            }
+        }
 
-                btn.innerText = "Uploading Data...";
-                const fileInput = document.getElementById('uploadFoto');
-                let finalFoto = "";
-                if (fileInput.files[0]) {
-                    finalFoto = await uploadKeStorage(fileInput.files[0]);
-                } else if (idVal) {
-                    finalFoto = dbPegawai.find(x => String(x.id) === String(idVal)).foto_url;
-                }
-
-                const payload = {
-                    nama: nama, nip: nip, status_pegawai: status,
-                    jabatan: document.getElementById('jabatanPegawai').value,
-                    golongan: document.getElementById('golonganPegawai').value,
-                    tmt_kgb: document.getElementById('tmtKgb').value,
-                    tmt_pangkat: document.getElementById('tmtPangkat').value,
-                    exp_sip: document.getElementById('expSip').value,
-                    link_drive: driveLink,
-                    foto_url: finalFoto
-                };
-
+        // ... Lanjutkan proses simpan ke Supabase seperti biasa ...
+        // Gunakan variabel namaInput, nipInput, statusInput, dan driveLink yang baru
                 const res = idVal ? await _supabase.from('pegawai').update(payload).eq('id', idVal) : await _supabase.from('pegawai').insert([payload]);
                 if (res.error) throw res.error;
                 
