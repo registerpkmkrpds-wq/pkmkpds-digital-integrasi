@@ -115,7 +115,7 @@
     <script>
         const SUPABASE_URL = 'https://vxcgontdprrnotipdstx.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4Y2dvbnRkcHJybm90aXBkc3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMDU3NzUsImV4cCI6MjA4NTc4MTc3NX0.LgMMA5ysutL4sgHCDWZea20gvv9hwRQHPAX2BougW1U';
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwO8_r8qaEMprg0k5jwnYiOFUwbfyWF0THVLbv-VjEREift6vE75FyIGerd_3xF8mzfCw/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxL8L1nyRG0k5GGtmLqNEepFFXdFFoLUbFL2eMo1EIhNawzWDP53jZt1Biz7jBh03ywoA/exec';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let dbPegawai = [];
         let currentFilter = 'ALL';
@@ -222,24 +222,29 @@
         }
 
         function isiFormEdit(id) {
-            const p = dbPegawai.find(x => x.id == id);
-            document.getElementById('editId').value = p.id;
-            document.getElementById('namaPegawai').value = p.nama;
-            document.getElementById('nipPegawai').value = p.nip;
-            document.getElementById('golonganPegawai').value = p.golongan;
-            document.getElementById('jabatanPegawai').value = p.jabatan;
-            document.getElementById('tmtKgb').value = p.tmt_kgb;
-            document.getElementById('expSip').value = p.exp_sip;
-            document.getElementById('linkDrive').value = p.link_drive;
-            document.getElementById('fotoUrlInput').value = p.foto_url;
-            document.querySelector(`input[name="statusPegawai"][value="${p.status_pegawai}"]`).checked = true;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+    const p = dbPegawai.find(x => x.id == id);
+    if (!p) return;
 
-        function resetForm() { document.getElementById('pegawaiForm').reset(); document.getElementById('editId').value = ""; document.getElementById('fileName').innerText = "Upload Foto"; }
-        function setFilter(t) { currentFilter = t; renderTable(); }
-        function cetakQR(id) { const p = dbPegawai.find(x => x.id == id); document.getElementById('lNama').innerText = p.nama; document.getElementById('lNip').innerText = p.nip; document.getElementById('qrcode').innerHTML = ""; new QRCode(document.getElementById("qrcode"), { text: p.link_drive, width: 150, height: 150 }); setTimeout(() => window.print(), 500); }
-        document.getElementById('uploadFoto').onchange = (e) => document.getElementById('fileName').innerText = e.target.files[0].name;
-    </script>
+    document.getElementById('editId').value = p.id;
+    document.getElementById('namaPegawai').value = p.nama;
+    document.getElementById('nipPegawai').value = p.nip;
+    document.getElementById('golonganPegawai').value = p.golongan;
+    document.getElementById('jabatanPegawai').value = p.jabatan;
+    document.getElementById('tmtKgb').value = p.tmt_kgb;
+    document.getElementById('expSip').value = p.exp_sip;
+    document.getElementById('linkDrive').value = p.link_drive;
+    document.getElementById('fotoUrlInput').value = p.foto_url || "";
+
+    // PERBAIKAN DI SINI:
+    const radioStatus = document.querySelector(`input[name="statusPegawai"][value="${p.status_pegawai}"]`);
+    if (radioStatus) {
+        radioStatus.checked = true;
+    } else {
+        // Jika status di DB tidak cocok dengan radio button, default ke PNS atau biarkan kosong
+        console.warn("Status tidak cocok dengan pilihan yang ada:", p.status_pegawai);
+    }
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 </body>
 </html>
