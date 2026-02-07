@@ -23,13 +23,20 @@
 <body class="p-4 md:p-8" onload="loadData()">
 
     <nav class="max-w-7xl mx-auto glass rounded-3xl mb-8 px-6 py-5 no-print flex flex-col md:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-            <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-lg"><i class="fas fa-id-card text-white text-2xl"></i></div>
-            <div>
-                <h1 class="text-base font-black uppercase tracking-tighter">SIMPEG <span class="text-emerald-500">KIARAPEDES</span></h1>
-                <p class="text-[8px] text-slate-500 font-bold tracking-widest uppercase">Manajemen SDM * Data & Informasi</p>
+        <div class="flex items-center gap-5 w-full md:w-auto">
+            <div class="w-11 h-11 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-lg"><i class="fas fa-id-card text-white text-xl"></i></div>
+            
+            <a href="index.html" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
+                <i class="fas fa-th-large text-[10px] text-emerald-500"></i>
+                <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Menu Utama</span>
+            </a>
+
+            <div class="hidden sm:block">
+                <h1 class="text-sm font-black uppercase tracking-tighter leading-none text-white">SIMPEG <span class="text-emerald-500">KIARAPEDES</span></h1>
+                <p class="text-[7px] text-slate-500 font-bold tracking-widest uppercase mt-1">Management System v13.8</p>
             </div>
         </div>
+        
         <div class="flex flex-wrap gap-2">
             <button onclick="setFilter('ALL')" id="fAll" class="px-4 py-1.5 rounded-full text-[9px] font-black bg-emerald-500 text-white transition">SEMUA</button>
             <button onclick="setFilter('PNS')" id="fPns" class="px-4 py-1.5 rounded-full text-[9px] font-black border border-emerald-500/50 text-emerald-400">PNS</button>
@@ -116,17 +123,20 @@
         const SUPABASE_URL = 'https://vxcgontdprrnotipdstx.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4Y2dvbnRkcHJybm90aXBkc3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMDU3NzUsImV4cCI6MjA4NTc4MTc3NX0.LgMMA5ysutL4sgHCDWZea20gvv9hwRQHPAX2BougW1U';
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbxL8L1nyRG0k5GGtmLqNEepFFXdFFoLUbFL2eMo1EIhNawzWDP53jZt1Biz7jBh03ywoA/exec';
+        
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let dbPegawai = [];
         let currentFilter = 'ALL';
 
         async function loadData() {
-            const { data } = await _supabase.from('pegawai').select('*').order('nama');
-            dbPegawai = data || [];
-            renderTable();
+            try {
+                const { data, error } = await _supabase.from('pegawai').select('*').order('nama');
+                if (error) throw error;
+                dbPegawai = data || [];
+                renderTable();
+            } catch (err) { console.error("Load Error:", err); }
         }
 
-        // --- FUNGSI UPLOAD STORAGE ---
         async function uploadKeStorage(file) {
             const fileExt = file.name.split('.').pop();
             const fileName = `${Date.now()}.${fileExt}`;
@@ -139,10 +149,11 @@
         function renderTable() {
             const body = document.getElementById('pegawaiTableBody');
             const search = document.getElementById('searchInput').value.toLowerCase();
+            if(!body) return;
             body.innerHTML = '';
 
             dbPegawai.filter(p => {
-                const matchS = p.nama.toLowerCase().includes(search) || p.nip.includes(search);
+                const matchS = (p.nama || "").toLowerCase().includes(search) || (p.nip || "").includes(search);
                 const matchF = (currentFilter === 'ALL' || p.status_pegawai === currentFilter);
                 return matchS && matchF;
             }).forEach(p => {
@@ -163,7 +174,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="p-5 text-right flex justify-end gap-1.5 pt-6">
+                        <td class="p-5 text-right flex justify-end gap-1.5">
                             <button onclick="cetakQR('${p.id}')" class="w-8 h-8 bg-blue-500/10 text-blue-400 rounded-lg"><i class="fas fa-qrcode"></i></button>
                             <button onclick="isiFormEdit('${p.id}')" class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-lg"><i class="fas fa-edit"></i></button>
                             <button onclick="hapusPegawai('${p.id}', '${p.foto_url}')" class="w-8 h-8 bg-rose-500/10 text-rose-400 rounded-lg"><i class="fas fa-trash"></i></button>
@@ -174,82 +185,43 @@
             });
         }
 
-    document.getElementById('pegawaiForm').onsubmit = async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('btnSimpan');
-    const fileInput = document.getElementById('uploadFoto');
-    const urlInput = document.getElementById('fotoUrlInput').value;
-    const id = document.getElementById('editId').value;
-    
-    // Ambil Status
-    const statusRadio = document.querySelector('input[name="statusPegawai"]:checked');
-    if (!statusRadio) { alert("Pilih status pegawai (PNS/PPPK/PARUH)!"); return; }
-    const status = statusRadio.value;
-    
-    const nip = document.getElementById('nipPegawai').value;
-    const nama = document.getElementById('namaPegawai').value.toUpperCase();
-    let drive = document.getElementById('linkDrive').value;
+        document.getElementById('pegawaiForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSimpan');
+            const fileInput = document.getElementById('uploadFoto');
+            const urlInput = document.getElementById('fotoUrlInput').value;
+            const id = document.getElementById('editId').value;
+            const status = document.querySelector('input[name="statusPegawai"]:checked').value;
+            const nip = document.getElementById('nipPegawai').value;
+            const nama = document.getElementById('namaPegawai').value.toUpperCase();
+            let drive = document.getElementById('linkDrive').value;
 
-    btn.disabled = true; 
-    btn.innerText = "Sedang Memproses...";
+            btn.disabled = true; btn.innerText = "Processing...";
 
-    try {
-        // 1. PROSES FOTO
-        let finalFoto = urlInput;
-        if (fileInput.files[0]) {
-            finalFoto = await uploadKeStorage(fileInput.files[0]);
-        }
-
-        // 2. PROSES GOOGLE DRIVE (Jika data baru dan link drive kosong)
-        if (!drive && !id) {
             try {
-                const response = await fetch(`${GAS_URL}?nama=${encodeURIComponent(nama)}&nip=${nip}&status=${status}`);
-                if (response.ok) {
-                    drive = await response.text();
+                let finalFoto = urlInput;
+                if (fileInput.files[0]) finalFoto = await uploadKeStorage(fileInput.files[0]);
+
+                if(!drive && !id) {
+                    const res = await fetch(`${GAS_URL}?nama=${encodeURIComponent(nama)}&nip=${nip}&status=${status}`);
+                    drive = await res.text();
                 }
-            } catch (fError) {
-                console.error("Gagal membuat folder Drive:", fError);
-                // Tetap lanjut simpan ke database meskipun Drive gagal
-                drive = "Link Drive Gagal Dibuat";
-            }
-        }
 
-        // 3. PROSES SIMPAN KE SUPABASE
-        const payload = {
-            nama, nip, 
-            jabatan: document.getElementById('jabatanPegawai').value,
-            golongan: document.getElementById('golonganPegawai').value,
-            tmt_kgb: document.getElementById('tmtKgb').value,
-            exp_sip: document.getElementById('expSip').value,
-            link_drive: drive, 
-            status_pegawai: status, 
-            foto_url: finalFoto
+                const payload = {
+                    nama, nip, jabatan: document.getElementById('jabatanPegawai').value,
+                    golongan: document.getElementById('golonganPegawai').value,
+                    tmt_kgb: document.getElementById('tmtKgb').value,
+                    exp_sip: document.getElementById('expSip').value,
+                    link_drive: drive, status_pegawai: status, foto_url: finalFoto
+                };
+
+                id ? await _supabase.from('pegawai').update(payload).eq('id', id) : await _supabase.from('pegawai').insert([payload]);
+                resetForm(); loadData();
+            } catch (err) { alert(err.message); } finally { btn.disabled = false; btn.innerText = "SIMPAN DATA"; }
         };
-
-        let result;
-        if (id) {
-            result = await _supabase.from('pegawai').update(payload).eq('id', id);
-        } else {
-            result = await _supabase.from('pegawai').insert([payload]);
-        }
-
-        if (result.error) throw result.error;
-
-        alert("Data Berhasil Disimpan!");
-        resetForm(); 
-        loadData();
-    } catch (err) {
-        console.error("Error Detail:", err);
-        alert("Gagal menyimpan: " + (err.message || "Cek Console Browser"));
-    } finally {
-        btn.disabled = false; 
-        btn.innerText = "SIMPAN DATA";
-    }
-};
 
         async function hapusPegawai(id, fotoUrl) {
             if(confirm("Hapus data & foto?")) {
-                // Hapus Foto dari Storage jika itu link Supabase
                 if(fotoUrl && fotoUrl.includes('foto-pegawai')) {
                     const fileName = fotoUrl.split('/').pop();
                     await _supabase.storage.from('foto-pegawai').remove([fileName]);
@@ -260,30 +232,45 @@
         }
 
         function isiFormEdit(id) {
-    const p = dbPegawai.find(x => x.id == id);
-    if (!p) return;
+            const p = dbPegawai.find(x => x.id == id);
+            if (!p) return;
+            document.getElementById('editId').value = p.id;
+            document.getElementById('namaPegawai').value = p.nama;
+            document.getElementById('nipPegawai').value = p.nip;
+            document.getElementById('golonganPegawai').value = p.golongan;
+            document.getElementById('jabatanPegawai').value = p.jabatan;
+            document.getElementById('tmtKgb').value = p.tmt_kgb;
+            document.getElementById('expSip').value = p.exp_sip;
+            document.getElementById('linkDrive').value = p.link_drive;
+            document.getElementById('fotoUrlInput').value = p.foto_url || "";
+            const rd = document.querySelector(`input[name="statusPegawai"][value="${p.status_pegawai}"]`);
+            if(rd) rd.checked = true;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
-    document.getElementById('editId').value = p.id;
-    document.getElementById('namaPegawai').value = p.nama;
-    document.getElementById('nipPegawai').value = p.nip;
-    document.getElementById('golonganPegawai').value = p.golongan;
-    document.getElementById('jabatanPegawai').value = p.jabatan;
-    document.getElementById('tmtKgb').value = p.tmt_kgb;
-    document.getElementById('expSip').value = p.exp_sip;
-    document.getElementById('linkDrive').value = p.link_drive;
-    document.getElementById('fotoUrlInput').value = p.foto_url || "";
+        function resetForm() { 
+            document.getElementById('pegawaiForm').reset(); 
+            document.getElementById('editId').value = ""; 
+            document.getElementById('fileName').innerText = "Upload Foto"; 
+        }
 
-    // PERBAIKAN DI SINI:
-    const radioStatus = document.querySelector(`input[name="statusPegawai"][value="${p.status_pegawai}"]`);
-    if (radioStatus) {
-        radioStatus.checked = true;
-    } else {
-        // Jika status di DB tidak cocok dengan radio button, default ke PNS atau biarkan kosong
-        console.warn("Status tidak cocok dengan pilihan yang ada:", p.status_pegawai);
-    }
-    
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-</script>
+        function setFilter(t) { 
+            currentFilter = t; 
+            renderTable(); 
+        }
+
+        function cetakQR(id) { 
+            const p = dbPegawai.find(x => x.id == id); 
+            document.getElementById('lNama').innerText = p.nama; 
+            document.getElementById('lNip').innerText = p.nip; 
+            document.getElementById('qrcode').innerHTML = ""; 
+            new QRCode(document.getElementById("qrcode"), { text: p.link_drive, width: 150, height: 150 }); 
+            setTimeout(() => window.print(), 500); 
+        }
+
+        document.getElementById('uploadFoto').onchange = (e) => {
+            if(e.target.files.length > 0) document.getElementById('fileName').innerText = e.target.files[0].name;
+        };
+    </script>
 </body>
 </html>
