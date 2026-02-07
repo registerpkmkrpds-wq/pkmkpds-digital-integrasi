@@ -190,7 +190,7 @@
             const btn = document.getElementById('btnSimpan');
             const fileInput = document.getElementById('uploadFoto');
             const urlInput = document.getElementById('fotoUrlInput').value;
-            const id = document.getElementById('editId').value;
+            const idVal = document.getElementById('editId').value; // Menggunakan variabel lokal agar jelas
             const status = document.querySelector('input[name="statusPegawai"]:checked').value;
             const nip = document.getElementById('nipPegawai').value;
             const nama = document.getElementById('namaPegawai').value.toUpperCase();
@@ -202,7 +202,8 @@
                 let finalFoto = urlInput;
                 if (fileInput.files[0]) finalFoto = await uploadKeStorage(fileInput.files[0]);
 
-                if(!drive && !id) {
+                // Jika data baru (tidak ada ID) dan link drive kosong, panggil GAS
+                if(!drive && !idVal) {
                     const res = await fetch(`${GAS_URL}?nama=${encodeURIComponent(nama)}&nip=${nip}&status=${status}`);
                     drive = await res.text();
                 }
@@ -215,25 +216,47 @@
                     link_drive: drive, status_pegawai: status, foto_url: finalFoto
                 };
 
-                id ? await _supabase.from('pegawai').update(payload).eq('id', id) : await _supabase.from('pegawai').insert([payload]);
-                resetForm(); loadData();
-            } catch (err) { alert(err.message); } finally { btn.disabled = false; btn.innerText = "SIMPAN DATA"; }
+                let result;
+                // LOGIKA KRUSIAL UNTUK UUID:
+                if (idVal && idVal.length > 5) {
+                    // Jika sedang EDIT (ID tidak kosong)
+                    result = await _supabase.from('pegawai').update(payload).eq('id', idVal);
+                } else {
+                    // Jika TAMBAH BARU (ID kosong), biarkan Supabase membuatkan UUID otomatis
+                    result = await _supabase.from('pegawai').insert([payload]);
+                }
+
+                if (result.error) throw result.error;
+
+                alert("Data Berhasil Disimpan!");
+                resetForm(); 
+                loadData();
+            } catch (err) { 
+                console.error(err);
+                alert("Gagal menyimpan: " + err.message); 
+            } finally { 
+                btn.disabled = false; btn.innerText = "SIMPAN DATA"; 
+            }
         };
 
         async function hapusPegawai(id, fotoUrl) {
             if(confirm("Hapus data & foto?")) {
-                if(fotoUrl && fotoUrl.includes('foto-pegawai')) {
-                    const fileName = fotoUrl.split('/').pop();
-                    await _supabase.storage.from('foto-pegawai').remove([fileName]);
-                }
-                await _supabase.from('pegawai').delete().eq('id', id);
-                loadData();
+                try {
+                    if(fotoUrl && fotoUrl.includes('foto-pegawai')) {
+                        const fileName = fotoUrl.split('/').pop();
+                        await _supabase.storage.from('foto-pegawai').remove([fileName]);
+                    }
+                    await _supabase.from('pegawai').delete().eq('id', id);
+                    loadData();
+                } catch (err) { alert("Gagal menghapus: " + err.message); }
             }
         }
 
         function isiFormEdit(id) {
-            const p = dbPegawai.find(x => x.id == id);
+            // Gunakan find dengan perbandingan string
+            const p = dbPegawai.find(x => String(x.id) === String(id));
             if (!p) return;
+            
             document.getElementById('editId').value = p.id;
             document.getElementById('namaPegawai').value = p.nama;
             document.getElementById('nipPegawai').value = p.nip;
@@ -243,8 +266,11 @@
             document.getElementById('expSip').value = p.exp_sip;
             document.getElementById('linkDrive').value = p.link_drive;
             document.getElementById('fotoUrlInput').value = p.foto_url || "";
+            
             const rd = document.querySelector(`input[name="statusPegawai"][value="${p.status_pegawai}"]`);
             if(rd) rd.checked = true;
+            
+            document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit mr-2"></i>Edit Data Pegawai';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -252,6 +278,7 @@
             document.getElementById('pegawaiForm').reset(); 
             document.getElementById('editId').value = ""; 
             document.getElementById('fileName').innerText = "Upload Foto"; 
+            document.getElementById('formTitle').innerHTML = '<i class="fas fa-user-plus mr-2"></i>Data Pegawai';
         }
 
         function setFilter(t) { 
@@ -260,7 +287,8 @@
         }
 
         function cetakQR(id) { 
-            const p = dbPegawai.find(x => x.id == id); 
+            const p = dbPegawai.find(x => String(x.id) === String(id)); 
+            if(!p) return;
             document.getElementById('lNama').innerText = p.nama; 
             document.getElementById('lNip').innerText = p.nip; 
             document.getElementById('qrcode').innerHTML = ""; 
