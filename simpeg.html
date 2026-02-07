@@ -254,10 +254,21 @@
             btn.disabled = true; btn.innerText = "Processing...";
 
             try {
-                if(!drive && !id) {
-                    const res = await fetch(`${GAS_URL}?nama=${encodeURIComponent(nama)}&nip=${encodeURIComponent(nip)}&paruh=${isParuh}`);
-                    drive = await res.text();
-                }
+               // Di dalam pegawaiForm.onsubmit...
+if(!drive && !id) {
+    btn.innerText = "Creating Drive...";
+    // Pastikan nama parameter (nama, nip, paruh) SAMA dengan di Kode.gs
+    const urlAkses = `${GAS_URL}?nama=${encodeURIComponent(nama)}&nip=${encodeURIComponent(nip)}&paruh=${isParuh}`;
+    
+    const res = await fetch(urlAkses);
+    drive = await res.text();
+    
+    if (drive.includes("Error")) {
+        alert("Gagal membuat folder: " + drive);
+        btn.disabled = false;
+        return;
+    }
+}
 
                 const payload = {
                     nama, nip,
