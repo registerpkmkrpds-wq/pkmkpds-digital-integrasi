@@ -60,16 +60,11 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div class="lg:col-span-4 space-y-4">
                 <div id="alertSip" class="hidden p-4 bg-rose-500/20 border border-rose-500/40 rounded-3xl">
-                    <h4 class="text-[9px] font-black text-rose-400 uppercase mb-2 flex items-center gap-2">
-                        <i class="fas fa-exclamation-triangle animate-pulse"></i> SIP EXPIRED
-                    </h4>
+                    <h4 class="text-[9px] font-black text-rose-400 uppercase mb-2 flex items-center gap-2"><i class="fas fa-exclamation-triangle animate-pulse"></i> SIP EXPIRED</h4>
                     <ul id="listSip" class="text-[9px] text-slate-300 space-y-2"></ul>
                 </div>
-
                 <div id="alertKepegawaian" class="hidden p-4 bg-amber-500/20 border border-amber-500/40 rounded-3xl">
-                    <h4 class="text-[9px] font-black text-amber-400 uppercase mb-2 flex items-center gap-2">
-                        <i class="fas fa-bell"></i> USULAN KGB / PANGKAT
-                    </h4>
+                    <h4 class="text-[9px] font-black text-amber-400 uppercase mb-2 flex items-center gap-2"><i class="fas fa-bell"></i> USULAN KGB / PANGKAT</h4>
                     <ul id="listKepegawaian" class="text-[9px] text-slate-300 space-y-2"></ul>
                 </div>
 
@@ -78,20 +73,19 @@
                     <form id="pegawaiForm" class="space-y-3">
                         <input type="hidden" id="editId">
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-[10px] text-white-500 font-bold uppercase ml-1"><i class="fas fa-user-tag mr-1 text-emerald-500"></i> Nama & Gelar</label>
-                                <input type="text" id="namaPegawai" class="w-full p-2.5 rounded-xl outline-none" required oninput="this.value = this.value.toUpperCase()">
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-white-500 font-bold uppercase ml-1"><i class="fas fa-id-card mr-1 text-emerald-500"></i> NIP *(18 Digit)</label>
-                                <input type="text" id="nipPegawai" maxlength="18" class="w-full p-2.5 rounded-xl outline-none" required>
-                            </div>
-                        </div>
+                        <div>
+            <label class="text-[10px] text-white font-bold uppercase ml-1"><i class="fas fa-user-tag mr-1 text-emerald-500"></i> Nama & Gelar Lengkap</label>
+            <input type="text" id="namaPegawai" class="w-full p-2 rounded-xl outline-none" placeholder="Nama Lengkap & Gelar " required oninput="this.value = this.value.toUpperCase()">
+        </div>
+
+        <div>
+            <label class="text-[10px] text-white font-bold uppercase ml-1"><i class="fas fa-id-card mr-1 text-emerald-500"></i> NIP (18 Digit Tanpa Spasi)</label>
+            <input type="text" id="nipPegawai" maxlength="18" class="w-full p-2 rounded-xl outline-none" placeholder="1989xxxxxxxxxxxxxx" required>
+        </div>
 
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="text-[10px] text-white-500 font-bold uppercase ml-1"><i class="fas fa-briefcase mr-1 text-blue-400"></i> Jabatan</label>
+                                <label class="text-[10px] text-white font-bold uppercase ml-1"><i class="fas fa-briefcase mr-1 text-blue-400"></i> Jabatan</label>
                                 <select id="jabatanPegawai" class="w-full p-2.5 rounded-xl text-blue-400">
                                     <option value="Medis">Medis</option>
                                     <option value="Paramedis">Paramedis</option>
@@ -99,7 +93,7 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="text-[10px] text-white-500 font-bold uppercase ml-1"><i class="fas fa-layer-group mr-1 text-blue-400"></i> Golongan</label>
+                                <label class="text-[10px] text-white font-bold uppercase ml-1"><i class="fas fa-layer-group mr-1 text-blue-400"></i> Golongan</label>
                                 <input type="text" id="golonganPegawai" placeholder="IV/a" class="w-full p-2.5 rounded-xl">
                             </div>
                         </div>
@@ -136,11 +130,11 @@
 
                         <div class="relative">
                             <i class="fab fa-google-drive absolute left-3 top-3.5 text-blue-400 text-[8px]"></i>
-                            <input type="url" id="linkDrive" placeholder="Link Google Drive" class="w-full p-2.5 pl-8 rounded-xl bg-transparent border border-white/10 text-white outline-none">
+                            <input type="url" id="linkDrive" placeholder="Link Google Drive (Auto-generate if empty)" class="w-full p-2.5 pl-8 rounded-xl bg-transparent border border-white/10 text-white outline-none">
                         </div>
                         
                         <div class="flex gap-2">
-                            <button type="submit" id="btnSimpan" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-3.5 rounded-xl font-black text-[10px] text-white transition-all"><i class="fas fa-save mr-2"></i>SIMPAN</button>
+                            <button type="submit" id="btnSimpan" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-3.5 rounded-xl font-black text-[10px] text-white transition-all"><i class="fas fa-save mr-2"></i>SIMPAN DATA</button>
                             <button type="button" onclick="resetForm()" class="bg-slate-800 px-5 rounded-xl hover:bg-slate-700 transition"><i class="fas fa-redo"></i></button>
                         </div>
                     </form>
@@ -172,6 +166,7 @@
     <script>
         const SUPABASE_URL = 'https://vxcgontdprrnotipdstx.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4Y2dvbnRkcHJybm90aXBkc3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMDU3NzUsImV4cCI6MjA4NTc4MTc3NX0.LgMMA5ysutL4sgHCDWZea20gvv9hwRQHPAX2BougW1U';
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzw5g8wf0MIynvuefd702r0OBi1Nz2E5aYP_LnwA0H2timcgO4weG6p9qtQoPsI8mHtlg/exec"; // <--- GANTI DENGAN URL DEPLOY GAS ANDA
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let dbPegawai = [];
         let currentFilter = 'ALL';
@@ -190,7 +185,6 @@
             if (!nip || nip.length < 8) return { sisaTahun: 99, pensiunDate: "-" };
             const thn = parseInt(nip.substring(0, 4));
             const bln = parseInt(nip.substring(4, 6));
-            const tgl = parseInt(nip.substring(6, 8));
             const pensiunDate = new Date(thn + 58, bln, 1);
             const sisaTahun = Math.floor((pensiunDate - new Date()) / (1000 * 60 * 60 * 24 * 365));
             return { sisaTahun, pensiunDate: pensiunDate.toISOString().split('T')[0] };
@@ -221,7 +215,6 @@
                 
                 let rowStyle = "";
                 let badges = "";
-
                 if (p.exp_sip && new Date(p.exp_sip) < hariIni) { rowStyle = "expired-blink"; badges += "🔴 SIP EXP "; }
                 if (hariIni >= kgbNext) { rowStyle = "kgb-warning"; badges += "🟢 KGB "; }
                 if (hariIni >= pktNext) { rowStyle = "pangkat-warning"; badges += "🔵 PKT "; }
@@ -267,48 +260,36 @@
             });
 
             document.getElementById('alertSip').classList.toggle('hidden', expSip.length === 0);
-            listSip.innerHTML = expSip.map(p => `
-                <li class="flex items-center gap-2 bg-rose-500/10 p-2 rounded-lg border border-rose-500/20">
-                    <i class="fas fa-user-clock text-rose-400"></i>
-                    <span><b>${p.nama}</b> <span class="opacity-60">(Exp: ${p.exp_sip})</span></span>
-                </li>`).join('');
+            listSip.innerHTML = expSip.map(p => `<li class="flex items-center gap-2 bg-rose-500/10 p-2 rounded-lg border border-rose-500/20"><i class="fas fa-user-clock text-rose-400"></i><span><b>${p.nama}</b> <span class="opacity-60">(Exp: ${p.exp_sip})</span></span></li>`).join('');
 
             document.getElementById('alertKepegawaian').classList.toggle('hidden', expKepeg.length === 0);
-            listKepeg.innerHTML = expKepeg.map(p => `
-                <li class="flex items-center gap-2 bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
-                    <i class="fas fa-file-invoice text-amber-400"></i>
-                    <span><b>${p.nama}</b> <span class="opacity-60">(Cek KGB/PKT)</span></span>
-                </li>`).join('');
-        }
-
-        function setFilter(status) {
-            const buttons = document.querySelectorAll('.filter-btn');
-            buttons.forEach(btn => {
-                btn.classList.remove('bg-emerald-500', 'bg-blue-500', 'bg-amber-500', 'bg-slate-700', 'text-white');
-                btn.classList.add('text-slate-400');
-            });
-
-            const activeBtn = document.getElementById(`btn-${status}`);
-            activeBtn.classList.remove('text-slate-400');
-            activeBtn.classList.add('text-white');
-
-            if (status === 'ALL') activeBtn.classList.add('bg-slate-700');
-            else if (status === 'PNS') activeBtn.classList.add('bg-emerald-500');
-            else if (status === 'PPPK') activeBtn.classList.add('bg-blue-500');
-            else if (status === 'PARUH') activeBtn.classList.add('bg-amber-500');
-
-            currentFilter = status;
-            renderTable();
+            listKepeg.innerHTML = expKepeg.map(p => `<li class="flex items-center gap-2 bg-amber-500/10 p-2 rounded-lg border border-amber-500/20"><i class="fas fa-file-invoice text-amber-400"></i><span><b>${p.nama}</b> <span class="opacity-60">(Cek Usulan)</span></span></li>`).join('');
         }
 
         document.getElementById('pegawaiForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSimpan');
             const idVal = document.getElementById('editId').value;
-            const fileInput = document.getElementById('uploadFoto');
-            btn.disabled = true; btn.innerText = "Processing...";
-            
+            const nama = document.getElementById('namaPegawai').value.toUpperCase();
+            const nip = document.getElementById('nipPegawai').value;
+            const status = document.querySelector('input[name="statusPegawai"]:checked').value;
+            let driveLink = document.getElementById('linkDrive').value;
+
+            btn.disabled = true; btn.innerText = "Processing Folder...";
+
             try {
+                // AUTO FOLDER VIA GAS
+                if (!idVal && !driveLink && GAS_URL !== "URL_WEB_APP_GAS_ANDA") {
+                    const resGas = await fetch(GAS_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ nama: nama, nip: nip, status: status })
+                    });
+                    const resJson = await resGas.json();
+                    if (resJson.status === "success") driveLink = resJson.link;
+                }
+
+                btn.innerText = "Uploading Data...";
+                const fileInput = document.getElementById('uploadFoto');
                 let finalFoto = "";
                 if (fileInput.files[0]) {
                     finalFoto = await uploadKeStorage(fileInput.files[0]);
@@ -317,49 +298,46 @@
                 }
 
                 const payload = {
-                    nama: document.getElementById('namaPegawai').value.toUpperCase(),
-                    nip: document.getElementById('nipPegawai').value,
+                    nama: nama, nip: nip, status_pegawai: status,
                     jabatan: document.getElementById('jabatanPegawai').value,
                     golongan: document.getElementById('golonganPegawai').value,
                     tmt_kgb: document.getElementById('tmtKgb').value,
                     tmt_pangkat: document.getElementById('tmtPangkat').value,
                     exp_sip: document.getElementById('expSip').value,
-                    link_drive: document.getElementById('linkDrive').value,
-                    status_pegawai: document.querySelector('input[name="statusPegawai"]:checked').value,
+                    link_drive: driveLink,
                     foto_url: finalFoto
                 };
 
                 const res = idVal ? await _supabase.from('pegawai').update(payload).eq('id', idVal) : await _supabase.from('pegawai').insert([payload]);
                 if (res.error) throw res.error;
+                
                 resetForm(); loadData();
-            } catch (err) { alert(err.message); } finally { btn.disabled = false; btn.innerText = "SIMPAN"; }
+                alert(idVal ? "Data diperbarui!" : "Data & Folder berhasil dibuat!");
+            } catch (err) { alert(err.message); } finally { btn.disabled = false; btn.innerText = "SIMPAN DATA"; }
         };
 
         function isiFormEdit(id) {
             const p = dbPegawai.find(x => String(x.id) === String(id));
             if (!p) return;
-            
             document.getElementById('editId').value = p.id;
             document.getElementById('namaPegawai').value = p.nama;
             document.getElementById('nipPegawai').value = p.nip;
             document.getElementById('tmtKgb').value = p.tmt_kgb;
             document.getElementById('tmtPangkat').value = p.tmt_pangkat;
-            document.getElementById('expSip').value = p.exp_sip || ""; // Aman dari null
+            document.getElementById('expSip').value = p.exp_sip || "";
             document.getElementById('golonganPegawai').value = p.golongan;
-            document.getElementById('linkDrive').value = p.link_drive;
+            document.getElementById('linkDrive').value = p.link_drive || "";
             document.getElementById('jabatanPegawai').value = p.jabatan;
-            
             const radio = document.querySelector(`input[name="statusPegawai"][value="${p.status_pegawai}"]`);
             if (radio) radio.checked = true;
-            
             document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit mr-2 text-amber-500"></i> Edit Data Pegawai';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function resetForm() { 
-            document.getElementById('pegawaiForm').reset(); 
-            document.getElementById('editId').value = ""; 
-            document.getElementById('fileName').innerText = "Upload Foto"; 
+        function resetForm() {
+            document.getElementById('pegawaiForm').reset();
+            document.getElementById('editId').value = "";
+            document.getElementById('fileName').innerText = "Upload Foto";
             document.getElementById('formTitle').innerHTML = '<i class="fas fa-user-plus mr-2 text-emerald-500"></i> Form Data Pegawai';
         }
 
@@ -370,15 +348,30 @@
             }
         }
 
+        function setFilter(status) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-500', 'bg-blue-500', 'bg-amber-500', 'bg-slate-700', 'text-white');
+                btn.classList.add('text-slate-400');
+            });
+            const activeBtn = document.getElementById(`btn-${status}`);
+            activeBtn.classList.remove('text-slate-400');
+            activeBtn.classList.add('text-white');
+            if (status === 'ALL') activeBtn.classList.add('bg-slate-700');
+            else if (status === 'PNS') activeBtn.classList.add('bg-emerald-500');
+            else if (status === 'PPPK') activeBtn.classList.add('bg-blue-500');
+            else if (status === 'PARUH') activeBtn.classList.add('bg-amber-500');
+            currentFilter = status;
+            renderTable();
+        }
+
         function eksporExcel() {
             const data = dbPegawai.map((p, i) => ({
-                "NO": i+1, "NAMA": p.nama, "NIP": p.nip, "GOL": p.golongan, "JABATAN": p.jabatan,
-                "TMT KGB": p.tmt_kgb, "TMT PKT": p.tmt_pangkat, "EXP SIP": p.exp_sip
+                "NO": i+1, "NAMA": p.nama, "NIP": p.nip, "STATUS": p.status_pegawai, "GOL": p.golongan, "JABATAN": p.jabatan, "TMT KGB": p.tmt_kgb, "TMT PKT": p.tmt_pangkat, "EXP SIP": p.exp_sip
             }));
             const ws = XLSX.utils.json_to_sheet(data);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "SIMPEG");
-            XLSX.writeFile(wb, `SIMPEG_PKM_${new Date().getFullYear()}.xlsx`);
+            XLSX.writeFile(wb, `SIMPEG_KIARAPEDES_${new Date().getFullYear()}.xlsx`);
         }
 
         function cetakQR(id) {
@@ -386,13 +379,11 @@
             document.getElementById('lNama').innerText = p.nama;
             document.getElementById('lNip').innerText = p.nip;
             document.getElementById('qrcode').innerHTML = "";
-            new QRCode(document.getElementById("qrcode"), { text: p.link_drive || "no-link", width: 120, height: 120 });
+            new QRCode(document.getElementById("qrcode"), { text: p.link_drive || "No Link", width: 120, height: 120 });
             setTimeout(() => window.print(), 500);
         }
 
-        function bukaMasterDrive() {
-            window.open("https://drive.google.com/drive/folders/1ySkc7E-QwANEb65tKnDGcMLqFSGqR6Gp", "_blank");
-        }
+        function bukaMasterDrive() { window.open("https://drive.google.com/drive/folders/1ySkc7E-QwANEb65tKnDGcMLqFSGqR6Gp", "_blank"); }
     </script>
 </body>
 </html>
