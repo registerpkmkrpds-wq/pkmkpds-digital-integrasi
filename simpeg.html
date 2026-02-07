@@ -76,19 +76,19 @@
                         <input type="hidden" id="editId">
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div><label class="text-[10px] text-white-500 font-bold uppercase ml-1">Nama Lengkap</label><input type="text" id="namaPegawai" class="w-full p-2.5 rounded-xl outline-none" required oninput="this.value = this.value.toUpperCase()"></div>
-                            <div><label class="text-[10px] text-white-500 font-bold uppercase ml-1">NIP (18 Digit)</label><input type="text" id="nipPegawai" maxlength="18" class="w-full p-2.5 rounded-xl outline-none" required></div>
+                            <div><label class="text-[10px] text-white-500 font-bold uppercase ml-1">Nama Lengkap & Gelar</label><input type="text" id="namaPegawai" class="w-full p-2.5 rounded-xl outline-none" required oninput="this.value = this.value.toUpperCase()"></div>
+                            <div><label class="text-[10px] text-white-500 font-bold uppercase ml-1">NIP *(18 Digit)</label><input type="text" id="nipPegawai" maxlength="18" class="w-full p-2.5 rounded-xl outline-none" required></div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
-                            <div><label class="text-[10px] text-slate-500 font-bold uppercase ml-1">Jabatan</label><select id="jabatanPegawai" class="w-full p-2.5 rounded-xl text-blue-400"><option value="Medis">Medis</option><option value="Paramedis">Paramedis</option><option value="Administrasi">Administrasi</option></select></div>
-                            <div><label class="text-[10px] text-slate-500 font-bold uppercase ml-1">Golongan</label><input type="text" id="golonganPegawai" placeholder="IV/a" class="w-full p-2.5 rounded-xl"></div>
+                            <div><label class="text-[10px] text-white-500 font-bold uppercase ml-1">Jabatan</label><select id="jabatanPegawai" class="w-full p-2.5 rounded-xl text-blue-400"><option value="Medis">Medis</option><option value="Paramedis">Paramedis</option><option value="Administrasi">Administrasi</option></select></div>
+                            <div><label class="text-[10px] text-white-500 font-bold uppercase ml-1">Golongan</label><input type="text" id="golonganPegawai" placeholder="IV/a" class="w-full p-2.5 rounded-xl"></div>
                         </div>
 
                         <div class="p-2.5 bg-white/5 rounded-xl border border-white/10 flex flex-wrap gap-x-4">
                             <label class="text-[9px] font-bold text-emerald-400 flex items-center gap-1.5"><input type="radio" name="statusPegawai" value="PNS" checked> PNS</label>
-                            <label class="text-[9px] font-bold text-amber-400 flex items-center gap-1.5"><input type="radio" name="statusPegawai" value="PPPK"> PPPK</label>
-                            <label class="text-[9px] font-bold text-purple-400 flex items-center gap-1.5"><input type="radio" name="statusPegawai" value="PARUH"> P3K PARUH</label>
+                            <label class="text-[9px] font-bold text-blue-400 flex items-center gap-1.5"><input type="radio" name="statusPegawai" value="PPPK"> PPPK</label>
+                            <label class="text-[9px] font-bold text-yellow-400 flex items-center gap-1.5"><input type="radio" name="statusPegawai" value="PARUH"> P3K PARUH</label>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
@@ -101,7 +101,7 @@
                         <div>
                             <input type="file" id="uploadFoto" accept="image/*" class="hidden" onchange="document.getElementById('fileName').innerText = this.files[0].name">
                             <label for="uploadFoto" class="flex items-center justify-between p-2.5 rounded-xl border border-dashed border-white/20 bg-white/5 cursor-pointer">
-                                <span class="text-[9px] text-slate-400 font-bold ml-2" id="fileName">Ambil/Pilih Foto...</span>
+                                <span class="text-[9px] text-slate-400 font-bold ml-2" id="fileName">Upload Foto...</span>
                                 <i class="fas fa-camera text-emerald-500 mr-2"></i>
                             </label>
                         </div>
