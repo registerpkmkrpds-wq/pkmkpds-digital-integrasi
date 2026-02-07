@@ -25,6 +25,7 @@
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         @media print { body * { visibility: hidden; } #labelMapArea, #labelMapArea * { visibility: visible; } #labelMapArea { position: absolute; left: 0; top: 0; width: 100%; display: block !important; } }
         #labelMapArea { display: none; }
+        
     </style>
 </head>
 <body class="p-4 md:p-8" onload="loadData()">
@@ -39,13 +40,13 @@
         </div>
         
         <div class="flex flex-wrap items-center gap-3">
-            <div id="filterContainer" class="flex gap-2 p-1 bg-white/5 rounded-full border border-white/10">
-                <button onclick="setFilter('ALL')" data-f="ALL" class="filter-btn px-4 py-1.5 rounded-full text-[9px] font-black bg-emerald-500 text-white transition">SEMUA</button>
-                <button onclick="setFilter('PNS')" data-f="PNS" class="filter-btn px-4 py-1.5 rounded-full text-[9px] font-black text-slate-400 hover:text-white transition">PNS</button>
-                <button onclick="setFilter('PPPK')" data-f="PPPK" class="filter-btn px-4 py-1.5 rounded-full text-[9px] font-black text-slate-400 hover:text-white transition">PPPK</button>
-                <button onclick="setFilter('PARUH')" data-f="PARUH" class="filter-btn px-4 py-1.5 rounded-full text-[9px] font-black text-slate-400 hover:text-white transition">P3K PARUH</button>
-            </div>
-            
+    <div id="filterContainer" class="flex gap-2 p-1 bg-white/5 rounded-full border border-white/10">
+        <button onclick="setFilter('ALL')" id="btn-ALL" class="filter-btn px-4 py-1.5 rounded-full text-[9px] font-black transition-all bg-slate-700 text-white">SEMUA</button>
+        <button onclick="setFilter('PNS')" id="btn-PNS" class="filter-btn px-4 py-1.5 rounded-full text-[9px] font-black text-slate-400 hover:text-white transition-all">PNS</button>
+        <button onclick="setFilter('PPPK')" id="btn-PPPK" class="filter-btn px-4 py-1.5 rounded-full text-[9px] font-black text-slate-400 hover:text-white transition-all">PPPK</button>
+        <button onclick="setFilter('PARUH')" id="btn-PARUH" class="filter-btn px-4 py-1.5 rounded-full text-[9px] font-black text-slate-400 hover:text-white transition-all">P3K PARUH</button>
+    </div>
+</div>
              <div class="flex flex-wrap items-center gap-3">
             <button onclick="bukaMasterDrive()" class="px-5 py-2.5 rounded-2xl bg-slate-700 hover:bg-slate-600 text-white text-[9px] font-black shadow-lg transition-all">
                 <i class="fab fa-google-drive mr-2 text-amber-400"></i>FILE PEGAWAI
@@ -71,48 +72,69 @@
                 </div>
 
                 <div class="glass p-5 rounded-3xl border-t border-white/10 shadow-2xl">
-                    <h3 id="formTitle" class="text-[10px] font-black uppercase text-emerald-500 mb-4"><i class="fas fa-user-plus mr-2"></i>Data Pegawai</h3>
+                    <h3 id="formTitle" class="text-[10px] font-black uppercase text-emerald-500 mb-4"><i class="fas fa-user-plus mr-2"></i> Form Data Pegawai</h3>
                     <form id="pegawaiForm" class="space-y-3">
                         <input type="hidden" id="editId">
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div><label class="text-[10px] text-white-500 font-bold uppercase ml-1">Nama Lengkap & Gelar</label><input type="text" id="namaPegawai" class="w-full p-2.5 rounded-xl outline-none" required oninput="this.value = this.value.toUpperCase()"></div>
-                            <div><label class="text-[10px] text-white-500 font-bold uppercase ml-1">NIP *(18 Digit)</label><input type="text" id="nipPegawai" maxlength="18" class="w-full p-2.5 rounded-xl outline-none" required></div>
-                        </div>
+            <div>
+                <label class="text-[10px] text-white-500 font-bold uppercase ml-1"><i class="fas fa-user-tag mr-1 text-emerald-500"></i> Nama & Gelar</label>
+                <input type="text" id="namaPegawai" class="w-full p-2.5 rounded-xl outline-none" required oninput="this.value = this.value.toUpperCase()">
+            </div>
+            <div>
+                <label class="text-[10px] text-white-500 font-bold uppercase ml-1"><i class="fas fa-id-card mr-1 text-emerald-500"></i> NIP *(18 Digit)</label>
+                <input type="text" id="nipPegawai" maxlength="18" class="w-full p-2.5 rounded-xl outline-none" required>
+            </div>
+        </div>
 
                         <div class="grid grid-cols-2 gap-3">
-                            <div><label class="text-[10px] text-white-500 font-bold uppercase ml-1">Jabatan</label><select id="jabatanPegawai" class="w-full p-2.5 rounded-xl text-blue-400"><option value="Medis">Medis</option><option value="Paramedis">Paramedis</option><option value="Administrasi">Administrasi</option></select></div>
-                            <div><label class="text-[10px] text-white-500 font-bold uppercase ml-1">Golongan</label><input type="text" id="golonganPegawai" placeholder="IV/a" class="w-full p-2.5 rounded-xl"></div>
-                        </div>
+            <div>
+                <label class="text-[10px] text-white-500 font-bold uppercase ml-1"><i class="fas fa-briefcase mr-1 text-blue-400"></i> Jabatan</label>
+                <select id="jabatanPegawai" class="w-full p-2.5 rounded-xl text-blue-400">
+                    <option value="Medis">Medis</option>
+                    <option value="Paramedis">Paramedis</option>
+                    <option value="Administrasi">Administrasi</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-[10px] text-white-500 font-bold uppercase ml-1"><i class="fas fa-layer-group mr-1 text-blue-400"></i> Golongan</label>
+                <input type="text" id="golonganPegawai" placeholder="IV/a" class="w-full p-2.5 rounded-xl">
+            </div>
+        </div>
 
                         <div class="p-2.5 bg-white/5 rounded-xl border border-white/10 flex flex-wrap gap-x-4">
-                            <label class="text-[9px] font-bold text-emerald-400 flex items-center gap-1.5"><input type="radio" name="statusPegawai" value="PNS" checked> PNS</label>
-                            <label class="text-[9px] font-bold text-blue-400 flex items-center gap-1.5"><input type="radio" name="statusPegawai" value="PPPK"> PPPK</label>
-                            <label class="text-[9px] font-bold text-yellow-400 flex items-center gap-1.5"><input type="radio" name="statusPegawai" value="PARUH"> P3K PARUH</label>
+                            <label class="text-[10px] font-bold text-emerald-400 flex items-center gap-1.5"><input type="radio" name="statusPegawai" value="PNS" checked> PNS</label>
+                            <label class="text-[10px] font-bold text-blue-400 flex items-center gap-1.5"><input type="radio" name="statusPegawai" value="PPPK"> PPPK</label>
+                            <label class="text-[10px] font-bold text-yellow-400 flex items-center gap-1.5"><input type="radio" name="statusPegawai" value="PARUH"> P3K PARUH</label>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3">
-                            <div><label class="text-[8px] text-emerald-500 font-black uppercase">TMT KGB</label><input type="date" id="tmtKgb" class="w-full p-2.5 rounded-xl" required></div>
-                            <div><label class="text-[8px] text-blue-400 font-black uppercase">TMT Pangkat</label><input type="date" id="tmtPangkat" class="w-full p-2.5 rounded-xl" required></div>
-                        </div>
-
-                        <div><label class="text-[8px] text-rose-400 font-black uppercase">SIP Expired</label><input type="date" id="expSip" class="w-full p-2.5 rounded-xl"></div>
+                        <div>
+                <label class="text-[10px] text-emerald-500 font-black uppercase"><i class="fas fa-calendar-alt mr-1"></i> TMT KGB</label>
+                <input type="date" id="tmtKgb" class="w-full p-2.5 rounded-xl" required>
+            </div>
+            <div>
+                <label class="text-[10px] text-blue-400 font-black uppercase"><i class="fas fa-calendar-check mr-1"></i> TMT Pangkat</label>
+                <input type="date" id="tmtPangkat" class="w-full p-2.5 rounded-xl" required>
+            </div>
 
                         <div>
                             <input type="file" id="uploadFoto" accept="image/*" class="hidden" onchange="document.getElementById('fileName').innerText = this.files[0].name">
                             <label for="uploadFoto" class="flex items-center justify-between p-2.5 rounded-xl border border-dashed border-white/20 bg-white/5 cursor-pointer">
-                                <span class="text-[9px] text-slate-400 font-bold ml-2" id="fileName">Upload Foto...</span>
+                                <span class="text-[9px] text-slate-400 font-bold ml-2" id="fileName">Upload Foto</span>
                                 <i class="fas fa-camera text-emerald-500 mr-2"></i>
                             </label>
                         </div>
 
-                        <input type="url" id="linkDrive" placeholder="Link Google Drive" class="w-full p-2.5 rounded-xl">
+                        <div class="relative">
+            <i class="fab fa-google-drive absolute left-3 top-3.5 text-blue-400 text-[8px]"></i>
+            <input type="url" id="linkDrive" placeholder="Link Google Drive" class="w-full p-2.5 pl-8 rounded-xl bg-transparent border border-white/10 text-white outline-none">
+        </div>
                         
                         <div class="flex gap-2">
-                            <button type="submit" id="btnSimpan" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-3.5 rounded-xl font-black text-[10px]">SIMPAN DATA</button>
-                            <button type="button" onclick="resetForm()" class="bg-slate-800 px-5 rounded-xl hover:bg-slate-700 transition"><i class="fas fa-redo"></i></button>
-                        </div>
-                    </form>
+            <button type="submit" id="btnSimpan" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-3.5 rounded-xl font-black text-[10px] text-white transition-all"><i class="fas fa-save mr-2"></i>SIMPAN</button>
+            <button type="button" onclick="resetForm()" class="bg-slate-800 px-5 rounded-xl hover:bg-slate-700 transition"><i class="fas fa-redo"></i></button>
+                   </div>
+                   </form>
                 </div>
             </div>
 
@@ -215,7 +237,7 @@
                 let badges = "";
 
                 if (p.exp_sip && new Date(p.exp_sip) < hariIni) { rowStyle = "expired-blink"; badges += "🔴 SIP EXP "; }
-                if (hariIni >= kgbNext) { rowStyle = "kgb-warning"; badges += "🟢 KGB "; }
+                if (hariIni >= kgbNext) { rowStyle = "kgb-warning"; badges += "🟢 Kenaikan Gaji Berkala "; }
                 if (hariIni >= pktNext) { rowStyle = "pangkat-warning"; badges += "🔵 PKT "; }
                 if (dataPensiun.sisaTahun <= 1) rowStyle = "pensiun-warning";
 
@@ -361,6 +383,35 @@
      function bukaMasterDrive() {
             window.open("https://drive.google.com/drive/folders/1ySkc7E-QwANEb65tKnDGcMLqFSGqR6Gp",target="blank");
         }
+        function setFilter(status) {
+    // 1. Ambil semua tombol filter
+    const buttons = document.querySelectorAll('.filter-btn');
+    
+    // 2. Reset semua tombol ke tampilan default (Abu-abu/Gelap)
+    buttons.forEach(btn => {
+        btn.classList.remove('bg-emerald-500', 'bg-blue-500', 'bg-amber-500', 'bg-slate-700', 'text-white');
+        btn.classList.add('text-slate-400');
+    });
+
+    // 3. Berikan warna spesifik ke tombol yang diklik
+    const activeBtn = document.getElementById(`btn-${status}`);
+    activeBtn.classList.remove('text-slate-400');
+    activeBtn.classList.add('text-white');
+
+    if (status === 'ALL') {
+        activeBtn.classList.add('bg-slate-700'); // Abu-abu gelap untuk "Semua"
+    } else if (status === 'PNS') {
+        activeBtn.classList.add('bg-emerald-500'); // Hijau
+    } else if (status === 'PPPK') {
+        activeBtn.classList.add('bg-blue-500'); // Biru
+    } else if (status === 'PARUH') {
+        activeBtn.classList.add('bg-amber-500'); // Kuning/Amber
+    }
+
+    console.log("Filtering by:", status); 
+    currentFilter = status; // Simpan status filter global jika ada
+    renderTable(); // Panggil fungsi render ulang tabel Anda
+}
     </script>
 </body>
 </html>
