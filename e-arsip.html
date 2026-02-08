@@ -10,7 +10,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         :root { --primary: #10b981; }
@@ -27,28 +26,26 @@
 </head>
 <body class="text-slate-900">
     
-  <a href="index.html" class="flex flex-col items-center gap-1 group text-slate-500 hover:text-emerald-400 transition-all">
-            <i class="fas fa-home text-[14px]"></i>
-            <span class="text-[8px] font-bold uppercase tracking-tighter">Kembali ke Menu</span>
-        </a>
-<div class="fixed top-4 left-1/2 -translate-x-1/2 z-[1000] no-print w-full max-w-md px-4">
-    <div class="bg-slate-900/90 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-full flex items-center justify-between shadow-2xl">
-      
-</div>
-</div>
-
 <div id="loading" class="hidden fixed inset-0 z-[9999] bg-emerald-600/95 backdrop-blur-md flex flex-col items-center justify-center text-white">
     <div class="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin mb-4"></div>
     <p class="font-bold text-xs tracking-[0.3em] uppercase animate-pulse">Sinkronisasi Cloud...</p>
 </div>
 
-<div id="mainApp" class="min-h-screen relative">
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] no-print w-max">
-        <div class="bg-slate-900/90 backdrop-blur-xl p-2 rounded-2xl shadow-2xl border border-white/20 flex gap-2">
-            <button onclick="switchTab('main')" id="btn-main" class="nav-pill px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-600 text-white">
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] no-print w-max">
+        <div class="bg-slate-900/90 backdrop-blur-xl p-2 rounded-2xl shadow-2xl border border-white/20 flex items-center gap-2">
+            
+            <a href="index.html" class="nav-pill px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-emerald-400 transition-all flex items-center gap-2">
+                <i class="fas fa-home"></i>
+                <span class="hidden md:inline">Menu Utama</span>
+            </a>
+
+            <div class="w-[1px] h-4 bg-white/10 mx-1"></div>
+
+            <button onclick="switchTab('main')" id="btn-main" class="nav-pill px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-600 text-white shadow-lg shadow-emerald-900/20">
                 <i class="fas fa-table mr-2"></i> Data & Input
             </button>
-            <button onclick="switchTab('dashboard')" id="btn-dash" class="nav-pill px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white">
+            
+            <button onclick="switchTab('dashboard')" id="btn-dash" class="nav-pill px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-all">
                 <i class="fas fa-chart-pie mr-2"></i> Dashboard
             </button>
         </div>
