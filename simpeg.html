@@ -33,7 +33,7 @@
             <div class="w-11 h-11 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-lg"><i class="fas fa-id-card text-white text-xl"></i></div>
             <div>
                 <h1 class="text-sm font-black uppercase tracking-tighter text-white">SIMPEG <span class="text-emerald-500">PKM KIARAPEDES</span></h1>
-                <p class="text-[8px] text-slate-500 font-bold tracking-widest italic">Manajemen SDM * Data & Informasi</p>
+                <p class="text-[8px] text-slate-500 font-bold tracking-widest italic">Manajemen SDM @ Data & Informasi</p>
             </div>
         </div>
         
@@ -266,77 +266,90 @@
             listKepeg.innerHTML = expKepeg.map(p => `<li class="flex items-center gap-2 bg-amber-500/10 p-2 rounded-lg border border-amber-500/20"><i class="fas fa-file-invoice text-amber-400"></i><span><b>${p.nama}</b> <span class="opacity-60">(Cek Usulan)</span></span></li>`).join('');
         }
 
-        document.getElementById('pegawaiForm').onsubmit = async (e) => {
+    document.getElementById('pegawaiForm').onsubmit = async (e) => {
     e.preventDefault();
     const btn = document.getElementById('btnSimpan');
     const idVal = document.getElementById('editId').value;
+    
+    // 1. Ambil nilai dari input form
     const namaInput = document.getElementById('namaPegawai').value.toUpperCase();
     const nipInput = document.getElementById('nipPegawai').value;
-    
-    // Ambil status dari radio button yang terpilih
     const statusInput = document.querySelector('input[name="statusPegawai"]:checked').value;
-    
+    const jabatanInput = document.getElementById('jabatanPegawai').value;
+    const golonganInput = document.getElementById('golonganPegawai').value;
+    const tmtKgbInput = document.getElementById('tmtKgb').value;
+    const tmtPangkatInput = document.getElementById('tmtPangkat').value;
+    const expSipInput = document.getElementById('expSip').value;
     let driveLink = document.getElementById('linkDrive').value;
 
     btn.disabled = true;
     btn.innerText = "Memproses Folder...";
 
     try {
-        // Hanya buat folder jika data BARU (bukan edit) dan LINK KOSONG
+        // 2. Buat folder otomatis jika data BARU & LINK KOSONG
         if (!idVal && !driveLink) {
             const resGas = await fetch(GAS_URL, {
                 method: 'POST',
-                // Pastikan NAMA KEY di sini (nama, nip, status) SAMA dengan di GAS
                 body: JSON.stringify({ 
                     nama: namaInput, 
                     nip: nipInput, 
                     status: statusInput 
                 })
             });
-            
             const resJson = await resGas.json();
             if (resJson.status === "success") {
                 driveLink = resJson.link;
-                document.getElementById('linkDrive').value = driveLink; // Isi otomatis ke input
-            } else {
-                throw new Error(resJson.message);
             }
         }
 
-        // ... Lanjutkan proses simpan ke Supabase seperti biasa ...
-        // Gunakan variabel namaInput, nipInput, statusInput, dan driveLink yang baru
-                const res = idVal ? await _supabase.from('pegawai').update(payload).eq('id', idVal) : await _supabase.from('pegawai').insert([payload]);
-                if (res.error) throw res.error;
-                
-                resetForm(); loadData();
-                alert(idVal ? "Data diperbarui!" : "Data & Folder berhasil dibuat!");
-            } catch (err) { alert(err.message); } finally { btn.disabled = false; btn.innerText = "SIMPAN DATA"; }
+        // 3. Proses Foto
+        btn.innerText = "Mengunggah Data...";
+        const fileInput = document.getElementById('uploadFoto');
+        let finalFoto = "";
+        
+        if (fileInput.files[0]) {
+            // Jika ada file baru, upload
+            finalFoto = await uploadKeStorage(fileInput.files[0]);
+        } else if (idVal) {
+            // Jika edit dan tidak ada file baru, ambil foto lama dari database
+            const dataLama = dbPegawai.find(x => String(x.id) === String(idVal));
+            finalFoto = dataLama ? dataLama.foto_url : "";
+        }
+
+        // 4. DEFINISI PAYLOAD (Data untuk Supabase)
+        // Bagian ini yang sebelumnya hilang/menyebabkan error
+        const payload = {
+            nama: namaInput,
+            nip: nipInput,
+            status_pegawai: statusInput,
+            jabatan: jabatanInput,
+            golongan: golonganInput,
+            tmt_kgb: tmtKgbInput,
+            tmt_pangkat: tmtPangkatInput,
+            exp_sip: expSipInput,
+            link_drive: driveLink,
+            foto_url: finalFoto
         };
 
-        function isiFormEdit(id) {
-            const p = dbPegawai.find(x => String(x.id) === String(id));
-            if (!p) return;
-            document.getElementById('editId').value = p.id;
-            document.getElementById('namaPegawai').value = p.nama;
-            document.getElementById('nipPegawai').value = p.nip;
-            document.getElementById('tmtKgb').value = p.tmt_kgb;
-            document.getElementById('tmtPangkat').value = p.tmt_pangkat;
-            document.getElementById('expSip').value = p.exp_sip || "";
-            document.getElementById('golonganPegawai').value = p.golongan;
-            document.getElementById('linkDrive').value = p.link_drive || "";
-            document.getElementById('jabatanPegawai').value = p.jabatan;
-            const radio = document.querySelector(`input[name="statusPegawai"][value="${p.status_pegawai}"]`);
-            if (radio) radio.checked = true;
-            document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit mr-2 text-amber-500"></i> Edit Data Pegawai';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        // 5. Simpan ke Supabase
+        const res = idVal 
+            ? await _supabase.from('pegawai').update(payload).eq('id', idVal) 
+            : await _supabase.from('pegawai').insert([payload]);
+        
+        if (res.error) throw res.error;
+        
+        resetForm(); 
+        await loadData();
+        alert(idVal ? "Data diperbarui!" : "Data & Folder berhasil dibuat!");
 
-        function resetForm() {
-            document.getElementById('pegawaiForm').reset();
-            document.getElementById('editId').value = "";
-            document.getElementById('fileName').innerText = "Upload Foto";
-            document.getElementById('formTitle').innerHTML = '<i class="fas fa-user-plus mr-2 text-emerald-500"></i> Form Data Pegawai';
-        }
+    } catch (err) { 
+        console.error(err);
+        alert("Error: " + err.message); 
+    } finally { 
+        btn.disabled = false; 
+        btn.innerText = "SIMPAN DATA"; 
+    }
+};
 
         async function hapusPegawai(id, fotoUrl) {
             if(confirm("Hapus data?")) {
