@@ -266,9 +266,21 @@
                             </div>
                         </td>
                         <td class="p-4 text-right flex justify-end gap-1.5">
-                            <button onclick="cetakQR('${p.id}')" class="w-8 h-8 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white transition"><i class="fas fa-qrcode text-xs"></i></button>
-                            <button onclick="isiFormEdit('${p.id}')" class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-lg hover:bg-amber-500 hover:text-white transition"><i class="fas fa-edit text-xs"></i></button>
-                            <button onclick="hapusPegawai('${p.id}')" class="w-8 h-8 bg-rose-500/10 text-rose-400 rounded-lg hover:bg-rose-500 hover:text-white transition"><i class="fas fa-trash text-xs"></i></button>
+                            <button onclick="window.open('${p.link_drive}', '_blank')" 
+                                    class="w-8 h-8 ${p.link_drive ? 'bg-amber-500/10 text-amber-500' : 'bg-slate-500/10 text-slate-500 cursor-not-allowed'} rounded-lg hover:bg-amber-500 hover:text-white transition"
+                                    ${!p.link_drive ? 'disabled' : ''} title="Buka Folder">
+                                <i class="fab fa-google-drive text-xs"></i>
+                            </button>
+
+                            <button onclick="copyToClipboard('${p.link_drive}')" 
+                                    class="w-8 h-8 ${p.link_drive ? 'bg-slate-500/10 text-slate-300' : 'bg-slate-500/10 text-slate-500 cursor-not-allowed'} rounded-lg hover:bg-slate-500 hover:text-white transition"
+                                    ${!p.link_drive ? 'disabled' : ''} title="Salin Link">
+                                <i class="fas fa-copy text-xs"></i>
+                            </button>
+
+                            <button onclick="cetakQR('${p.id}')" class="w-8 h-8 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white transition" title="Cetak QR"><i class="fas fa-qrcode text-xs"></i></button>
+                            <button onclick="isiFormEdit('${p.id}')" class="w-8 h-8 bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500 hover:text-white transition" title="Edit"><i class="fas fa-edit text-xs"></i></button>
+                            <button onclick="hapusPegawai('${p.id}')" class="w-8 h-8 bg-rose-500/10 text-rose-400 rounded-lg hover:bg-rose-500 hover:text-white transition" title="Hapus"><i class="fas fa-trash text-xs"></i></button>
                         </td>
                     </tr>
                 `);
@@ -417,6 +429,18 @@
         }
 
         function bukaMasterDrive() { window.open("https://drive.google.com/drive/folders/1ySkc7E-QwANEb65tKnDGcMLqFSGqR6Gp", "_blank"); }
+
+        function copyToClipboard(text) {
+            if (!text || text === "null" || text === "") {
+                alert("Link folder belum tersedia untuk pegawai ini.");
+                return;
+            }
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Link folder berhasil disalin ke clipboard!");
+            }).catch(err => {
+                console.error('Gagal menyalin: ', err);
+            });
+        }
     </script>
 </body>
 </html>
