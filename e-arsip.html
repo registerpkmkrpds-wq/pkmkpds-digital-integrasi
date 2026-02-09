@@ -293,19 +293,59 @@ async function syncToCloud() {
                         'bg-amber-50 text-amber-600';
 
         return `
+        b.innerHTML = filtered.map(i => {
+        // Ambil link dan pastikan bersih dari spasi
+        const link = (i.l || "").trim();
+        const status = i.status || "Selesai";
+        
+        // Cek formatNo (N besar) atau formatno (n kecil) agar tidak undefined
+        const noArsipDisplay = i.formatNo || i.formatno || "000/---/---";
+        const klasterDisplay = i.klaster || "Umum";
+
+        const stClass = status === 'Selesai' ? 'bg-blue-50 text-blue-600' : 
+                        status === 'Penting' ? 'bg-rose-50 text-rose-600' : 
+                        'bg-amber-50 text-amber-600';
+
+        return `
         <tr class="hover:bg-slate-50 border-l-4 ${i.k === 'A' ? 'border-blue-500' : 'border-emerald-500'}">
-            <td class="px-6 py-4 font-mono text-slate-400">${noArsipDisplay}</td>
+            <td class="px-6 py-4 font-mono text-slate-500 font-bold">${noArsipDisplay}</td>
             <td class="px-6 py-4">
-                <div class="font-bold text-slate-800 uppercase">${i.n}</div>
-                <div class="text-[9px] text-slate-400 mt-1">${i.t} | GRUP: ${i.k} | <span class="text-emerald-600 font-bold">${klasterDisplay}</span></div>
+                <div class="font-bold text-slate-800 uppercase leading-tight">${i.n}</div>
+                <div class="text-[9px] text-slate-400 mt-1">
+                    <i class="far fa-calendar-alt mr-1"></i> ${i.t} | 
+                    <span class="bg-slate-100 px-1 rounded">GRUP: ${i.k}</span> | 
+                    <span class="text-emerald-600 font-bold">${klasterDisplay}</span>
+                </div>
             </td>
             <td class="px-6 py-4 text-center">
                 <span class="text-[9px] font-black px-3 py-1 rounded-full uppercase ${stClass}">${status.toUpperCase()}</span>
             </td>
-            <td class="px-6 py-4 flex justify-center gap-2">
-                ${link.trim() !== "" ? `<a href="${link}" target="_blank" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg"><i class="fas fa-eye text-[10px]"></i></a>` : ''}
-                ${link.trim() !== "" ? `<button onclick="showQR('${link}','${i.n}')" class="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg"><i class="fas fa-qrcode text-[10px]"></i></button>` : ''}
-                <button onclick="delData(${i.id})" class="w-8 h-8 flex items-center justify-center bg-rose-50 text-rose-400 rounded-lg"><i class="fas fa-trash-can text-[10px]"></i></button>
+            <td class="px-6 py-4">
+                <div class="flex justify-center gap-2">
+                    ${link !== "" ? `
+                        <a href="${link}" target="_blank" 
+                           class="w-8 h-8 flex items-center justify-center bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 transition-all"
+                           title="Buka File">
+                            <i class="fas fa-external-link-alt text-[10px]"></i>
+                        </a>
+                    ` : `
+                        <div class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-300 rounded-lg" title="Link tidak tersedia">
+                            <i class="fas fa-link-slash text-[10px]"></i>
+                        </div>
+                    `}
+
+                    ${link !== "" ? `
+                        <button onclick="showQR('${link}','${i.n}')" 
+                                class="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100 hover:bg-emerald-600 hover:text-white transition-all">
+                            <i class="fas fa-qrcode text-[10px]"></i>
+                        </button>
+                    ` : ''}
+
+                    <button onclick="delData(${i.id})" 
+                            class="w-8 h-8 flex items-center justify-center bg-rose-50 text-rose-400 rounded-lg border border-rose-100 hover:bg-rose-500 hover:text-white transition-all">
+                        <i class="fas fa-trash-can text-[10px]"></i>
+                    </button>
+                </div>
             </td>
         </tr>`;
     }).join('');
@@ -366,40 +406,54 @@ async function syncToCloud() {
     document.getElementById('docForm').onsubmit = async (e) => {
     e.preventDefault();
 
-    const cat = document.getElementById('docCatType').value; // Contoh: SK
+    const cat = document.getElementById('docCatType').value; // Ambil kode (SK, SOP, ST)
     const group = document.getElementById('docGroup').value;
     const date = new Date();
-    const romawiBulan = getRomawi(date.getMonth());
+    const romawiBulan = getRomawi(date.getMonth()); // Fungsi romawi sudah ada di kode Anda
     const tahun = date.getFullYear();
 
-    // 1. Hitung berapa banyak dokumen dengan kategori yang sama untuk nomor urut
-    const totalSameCat = db.filter(item => {
-        // Cek apakah formatNo mengandung kategori yang sama (misal: /SK/)
-        return item.formatNo && item.formatNo.includes(`/${cat}-KPDS/`);
-    }).length;
+    // --- LOGIKA PENOMORAN OTOMATIS ---
+    // 1. Filter data yang memiliki kategori yang sama (misal: semua yang mengandung /SK/)
+    const sameCatDocs = db.filter(item => {
+        const fNo = item.formatNo || item.formatno || "";
+        return fNo.includes(`/${cat}/`);
+    });
 
-    const nextNo = (totalSameCat + 1).toString().padStart(3, '0');
+    let nextNoInt = 1;
+    if (sameCatDocs.length > 0) {
+        // 2. Ambil nomor urut dari dokumen terakhir (paling atas karena kita pakai unshift)
+        // Format: 001/SK/... -> kita ambil bagian "001"
+        const lastFullNo = sameCatDocs[0].formatNo || sameCatDocs[0].formatno;
+        const lastNum = parseInt(lastFullNo.split('/')[0]);
+        if (!isNaN(lastNum)) {
+            nextNoInt = lastNum + 1;
+        }
+    }
 
-    // 2. Susun nomor surat lengkap: 001/SK-KPDS/II/2026
-    const fullNo = `${nextNo}/${cat}-KPDS/${romawiBulan}/${tahun}`;
+    // 3. Susun nomor urut menjadi 3 digit (misal: 005)
+    const nextNoStr = nextNoInt.toString().padStart(3, '0');
 
-    // 3. Simpan data
+    // 4. Susun format lengkap: 001/SK/PKM-KPDS/II/2026
+    const fullNo = `${nextNoStr}/${cat}/PKM-KPDS/${romawiBulan}/${tahun}`;
+
+    // --- SIMPAN DATA ---
     const newData = { 
         id: Date.now(), 
-        noRaw: nextNo, 
-        formatNo: fullNo, 
+        noRaw: nextNoInt, 
+        formatNo: fullNo, // Pastikan konsisten N besar
         n: document.getElementById('docName').value, 
         k: group, 
         klaster: document.getElementById('inputKlaster').value,
-        l: document.getElementById('docLink').value,
+        l: document.getElementById('docLink').value, // Link Drive
         status: document.getElementById('docStatus').value, 
         t: date.toLocaleDateString('id-ID') 
     };
 
-    db.unshift(newData);
+    db.unshift(newData); // Tambahkan ke paling atas
     renderTable(); 
     await syncToCloud(); 
     e.target.reset();
+    alert("Data Tersimpan dengan Nomor: " + fullNo);
 };
 
     async function saveAgenda() {
