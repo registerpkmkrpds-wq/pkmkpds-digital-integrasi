@@ -87,7 +87,14 @@
                 <h3 class="text-[10px] font-black text-emerald-600 mb-6 uppercase tracking-widest flex items-center gap-2"><i class="fas fa-plus-circle"></i> Registrasi Arsip</h3>
                 <form id="docForm" class="space-y-4">
                     <div class="grid grid-cols-2 gap-2">
-                        <select id="docGroup" class="input-modern"><option value="A">GRUP A</option><option value="B">GRUP B</option><option value="C">GRUP C</option><option value="D">GRUP D</option><option value="E">GRUP E</option><option value="F">GRUP F</option></select>
+                        <select id="docGroup" class="input-modern">
+                            <option value="A">GRUP A</option>
+                            <option value="B">GRUP B</option>
+                            <option value="C">GRUP C</option>
+                            <option value="D">GRUP D</option>
+                            <option value="E">GRUP E</option>
+                            <option value="F">GRUP F</option>
+                        </select>
                         <select id="docCatType" class="input-modern">
                             <option value="BA">Berita Acara (BA)</option>
                             <option value="SK">Surat Keputusan (SK)</option>
@@ -99,6 +106,13 @@
                             <option value="DB">Dokumen Bukti (DB)</option>
                             <option value="DU">Dokumen Umum (DU)</option>
                             <option value="Vid">Video (Vid)</option>
+                        </select>
+                        <select id="inputKlaster" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl mb-4">
+                        <option value="Klaster 1">Klaster 1: Manajemen</option>
+                        <option value="Klaster 2">Klaster 2: Ibu & Anak</option>
+                        <option value="Klaster 3">Klaster 3: Dewasa & Lansia</option>
+                        <option value="Klaster 4">Klaster 4: Penanggulangan Penyakit</option>
+                        <option value="Klaster 5">Klaster 5: Lintas Klaster</option>
                         </select>
                     </div>
                     <select id="docStatus" class="input-modern">
@@ -185,43 +199,48 @@
         </div>
     </div>
 </div>
-
+    
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyJQo3viQyNmdgOQYS8amOBMrGHjaiZ14v0olGYZx66CB7OKq7ZVSmUZnn5dvsIr9wKGg/exec"; 
-    const CONFIG = { instansi: "PKM-KRPDS", tahun: "2026" };
-    let db = [];
-    let myChart = null, pieChart = null, barChart = null;
+    // Ganti dengan URL Deployment GAS Anda yang baru
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyIQ_aI-sAInYo2y-1HUHaI2V9-WfK1zm8wM2jHcIZIoi5mZlrCYbXscGYarM09B_HHdg/exec"; 
+const SECRET_TOKEN = localStorage.getItem('pkm_token');
 
-    window.onload = function() { loadFromCloud(); };
+// Proteksi Halaman: Jika belum login, tendang ke index.html
+if (localStorage.getItem('pkm_session') !== 'active' || !SECRET_TOKEN) {
+    window.location.href = 'index.html';
+}
 
-    function showLoading(s) { document.getElementById('loading').classList.toggle('hidden', !s); }
-    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-    async function loadFromCloud() {
-        showLoading(true);
-        try {
-            const res = await fetch(WEB_APP_URL);
-            const data = await res.json();
-            db = Array.isArray(data) ? data : [];
-            renderTable();
-        } catch (e) { console.error(e); }
-        showLoading(false);
+async function loadFromCloud() {
+    showLoading(true);
+    try {
+        const res = await fetch(`${WEB_APP_URL}?token=${SECRET_TOKEN}`);
+        const data = await res.json();
+        db = Array.isArray(data) ? data : [];
+        renderTable();
+    } catch (e) { 
+        console.error("Gagal memuat data:", e); 
     }
+    showLoading(false);
+}
 
-    async function syncToCloud() {
-        showLoading(true);
-        try {
-            await fetch(WEB_APP_URL, { 
-                method: "POST", 
-                mode: "no-cors", 
-                body: JSON.stringify({ action: "saveAll", db: db }) 
-            });
-            updateStats();
-            renderChart();
-        } catch (e) { console.error(e); }
-        setTimeout(() => showLoading(false), 800);
+async function syncToCloud() {
+    showLoading(true);
+    try {
+        await fetch(WEB_APP_URL, { 
+            method: "POST", 
+            body: JSON.stringify({ 
+                action: "saveAll", 
+                db: db,
+                token: SECRET_TOKEN 
+            }) 
+        });
+        updateStats();
+        renderChart();
+    } catch (e) { 
+        console.error("Gagal sinkronisasi:", e); 
     }
+    setTimeout(() => showLoading(false), 800);
+}
 
     function switchTab(tab) {
         const m = document.getElementById('mainView'), d = document.getElementById('dashboardView');
