@@ -41,14 +41,24 @@
                 <div class="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/20 rotate-6">
                     <i class="fas fa-fingerprint text-3xl text-slate-900"></i>
                 </div>
-                <h1 class="text-xl font-black tracking-widest uppercase">Akses <span class="text-emerald-500"></span></h1>
-                <h1 class="text-xl font-black tracking-widest uppercase">Satu <span class="text-emerald-500">Data</span></h1>
+                <h1 class="text-xl font-black tracking-widest uppercase">Akses <span class="text-emerald-500">Satu Data</span></h1>
                 <p class="text-[9px] text-slate-500 font-bold tracking-widest mt-2 uppercase">Puskesmas Kiarapedes</p>
             </div>
+            
             <div class="space-y-4">
-                <input type="text" id="user" class="w-full bg-slate-900/50 border border-white/5 p-4 rounded-xl text-sm focus:border-emerald-500 transition-all outline-none mono text-white" placeholder="Nama Pengguna">
-                <input type="password" id="pass" class="w-full bg-slate-900/50 border border-white/5 p-4 rounded-xl text-sm focus:border-emerald-500 transition-all outline-none mono text-white" placeholder="Kata Sandi">
-                <button onclick="auth()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 py-4 rounded-xl font-black uppercase text-[10px] tracking-[0.2em] mt-4 shadow-xl transition-all active:scale-95">Verifikasi Akses</button>
+                <input type="text" id="user" 
+                    onkeydown="if(event.key === 'Enter') document.getElementById('pass').focus()"
+                    class="w-full bg-slate-900/50 border border-white/5 p-4 rounded-xl text-sm focus:border-emerald-500 transition-all outline-none mono text-white" 
+                    placeholder="Nama Pengguna">
+                
+                <input type="password" id="pass" 
+                    onkeydown="if(event.key === 'Enter') auth()"
+                    class="w-full bg-slate-900/50 border border-white/5 p-4 rounded-xl text-sm focus:border-emerald-500 transition-all outline-none mono text-white" 
+                    placeholder="Kata Sandi">
+                
+                <button onclick="auth()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 py-4 rounded-xl font-black uppercase text-[10px] tracking-[0.2em] mt-4 shadow-xl transition-all active:scale-95">
+                    Verifikasi Akses
+                </button>
             </div>
         </div>
     </div>
@@ -185,16 +195,16 @@
         // Data Kredensial
         const vault = { 'pkmkiarapedes': 'pkm@2026', 'kepala': 'pkmpro' };
 
-        // Fungsi Autentikasi
         function auth() {
             const u = document.getElementById('user').value;
             const p = document.getElementById('pass').value;
+            
             if(vault[u] && vault[u] === p) {
                 localStorage.setItem('pkm_session', 'active');
                 localStorage.setItem('pkm_user', u);
                 renderHub();
             } else { 
-                alert("AKSES DITOLAK: Nama pengguna atau kata sandi salah."); 
+                alert("AKSES DITOLAK: Username atau Password salah."); 
             }
         }
 
