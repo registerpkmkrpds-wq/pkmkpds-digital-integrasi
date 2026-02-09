@@ -86,42 +86,51 @@
             <div class="card-custom p-8">
                 <h3 class="text-[10px] font-black text-emerald-600 mb-6 uppercase tracking-widest flex items-center gap-2"><i class="fas fa-plus-circle"></i> Registrasi Arsip</h3>
                 <form id="docForm" class="space-y-4">
-                    <div class="grid grid-cols-2 gap-2">
-                        <select id="docGroup" class="input-modern">
-                            <option value="A">GRUP A</option>
-                            <option value="B">GRUP B</option>
-                            <option value="C">GRUP C</option>
-                            <option value="D">GRUP D</option>
-                            <option value="E">GRUP E</option>
-                            <option value="F">GRUP F</option>
-                        </select>
-                        <select id="docCatType" class="input-modern">
-                            <option value="BA">Berita Acara (BA)</option>
-                            <option value="SK">Surat Keputusan (SK)</option>
-                            <option value="SOP">Prosedur (SOP)</option>
-                            <option value="ST">Surat Tugas(ST)</option>
-                            <option value="SKT">Surat Keterangan (SKT)</option>
-                            <option value="SL">Surat Lainnya (SL)</option>
-                            <option value="UND">Undangan (UND)</option>
-                            <option value="DB">Dokumen Bukti (DB)</option>
-                            <option value="DU">Dokumen Umum (DU)</option>
-                            <option value="Vid">Video (Vid)</option>
-                        </select>
-                        <select id="inputKlaster" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl mb-4">
-                        <option value="Klaster 1">Klaster 1: Manajemen</option>
-                        <option value="Klaster 2">Klaster 2: Ibu & Anak</option>
-                        <option value="Klaster 3">Klaster 3: Dewasa & Lansia</option>
-                        <option value="Klaster 4">Klaster 4: Penanggulangan Penyakit</option>
-                        <option value="Klaster 5">Klaster 5: Lintas Klaster</option>
-                        </select>
-                    </div>
-                    <select id="docStatus" class="input-modern">
-                        <option value="Selesai">✅ Selesai</option><option value="Proses">⏳ Proses</option><option value="Penting">🚨 Penting</option>
-                    </select>
-                    <input type="text" id="docName" placeholder="Perihal Dokumen" class="input-modern" required>
-                    <input type="url" id="docLink" placeholder="Link Drive" class="input-modern">
-                    <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg hover:bg-emerald-700 transition-all">Simpan Data</button>
-                </form>
+    <div class="grid grid-cols-2 gap-2">
+        <select id="docGroup" class="input-modern">
+            <option value="A">GRUP A</option>
+            <option value="B">GRUP B</option>
+            <option value="C">GRUP C</option>
+            <option value="D">GRUP D</option>
+            <option value="E">GRUP E</option>
+            <option value="F">GRUP F</option>
+        </select>
+        <select id="docCatType" class="input-modern">
+            <option value="BA">Berita Acara (BA)</option>
+            <option value="SK">Surat Keputusan (SK)</option>
+            <option value="SOP">Prosedur (SOP)</option>
+            <option value="ST">Surat Tugas(ST)</option>
+            <option value="SKT">Surat Keterangan (SKT)</option>
+            <option value="SL">Surat Lainnya (SL)</option>
+            <option value="UND">Undangan (UND)</option>
+            <option value="DB">Dokumen Bukti (DB)</option>
+            <option value="DU">Dokumen Umum (DU)</option>
+            <option value="Vid">Video (Vid)</option>
+        </select>
+    </div>
+
+    <select id="inputKlaster" class="input-modern">
+        <option value="">-- Pilih Klaster --</option>
+        <option value="Klaster 1">Klaster 1: Manajemen</option>
+        <option value="Klaster 2">Klaster 2: Ibu & Anak</option>
+        <option value="Klaster 3">Klaster 3: Dewasa & Lansia</option>
+        <option value="Klaster 4">Klaster 4: Penanggulangan Penyakit</option>
+        <option value="Klaster 5">Klaster 5: Lintas Klaster</option>
+    </select>
+
+    <select id="docStatus" class="input-modern">
+        <option value="Selesai">✅ Selesai</option>
+        <option value="Proses">⏳ Proses</option>
+        <option value="Penting">🚨 Penting</option>
+    </select>
+
+    <input type="text" id="docName" placeholder="Perihal Dokumen" class="input-modern" required>
+    <input type="url" id="docLink" placeholder="Link Drive" class="input-modern">
+
+    <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg hover:bg-emerald-700 transition-all">
+        Simpan Data
+    </button>
+</form>
             </div>
             </div>
 
@@ -205,9 +214,35 @@
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyIQ_aI-sAInYo2y-1HUHaI2V9-WfK1zm8wM2jHcIZIoi5mZlrCYbXscGYarM09B_HHdg/exec"; 
 const SECRET_TOKEN = localStorage.getItem('pkm_token');
 
-// Proteksi Halaman: Jika belum login, tendang ke index.html
+// Inisialisasi Database dan Chart
+let db = [];
+let myChart, pieChart, barChart;
+
+// Objek CONFIG yang sebelumnya hilang
+const CONFIG = {
+    instansi: "PKM-KRP",
+    tahun: new Date().getFullYear()
+};
+
+// 2. Fungsi Utilitas (Modal & Loading)
+function showLoading(show) {
+    const loader = document.getElementById('loading');
+    show ? loader.classList.remove('hidden') : loader.classList.add('hidden');
+}
+
+function openModal(id) {
+    document.getElementById(id).classList.remove('hidden');
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.add('hidden');
+}
+
+// 3. Proteksi Halaman & Load Data Awal
 if (localStorage.getItem('pkm_session') !== 'active' || !SECRET_TOKEN) {
     window.location.href = 'index.html';
+} else {
+    loadFromCloud(); // Jalankan saat halaman siap
 }
 
 async function loadFromCloud() {
@@ -222,7 +257,6 @@ async function loadFromCloud() {
     }
     showLoading(false);
 }
-
 async function syncToCloud() {
     showLoading(true);
     try {
@@ -241,7 +275,48 @@ async function syncToCloud() {
     }
     setTimeout(() => showLoading(false), 800);
 }
+    function renderTable() {
+    const b = document.getElementById('tableBody');
+    const s = document.getElementById('search').value.toLowerCase();
+    
+    // Filter data dengan penanganan fail-safe
+    const filtered = db.filter(i => {
+        const perihal = (i.n || "").toLowerCase();
+        const noArsip = (i.formatno || "").toLowerCase(); // Gunakan formatno (huruf kecil)
+        return perihal.includes(s) || noArsip.includes(s);
+    });
 
+    b.innerHTML = filtered.map(i => {
+        // Mapping variabel agar sesuai dengan JSON dari Apps Script
+        const link = i.l || "";
+        const status = i.status || "Selesai";
+        const noArsipDisplay = i.formatno || "000/---/---"; // Gunakan formatno
+        const klasterDisplay = i.klaster || "Umum";
+
+        const stClass = status === 'Selesai' ? 'bg-blue-50 text-blue-600' : 
+                        status === 'Penting' ? 'bg-rose-50 text-rose-600' : 
+                        'bg-amber-50 text-amber-600';
+
+        return `
+        <tr class="hover:bg-slate-50 border-l-4 ${i.k === 'A' ? 'border-blue-500' : 'border-emerald-500'}">
+            <td class="px-6 py-4 font-mono text-slate-400">${noArsipDisplay}</td>
+            <td class="px-6 py-4">
+                <div class="font-bold text-slate-800 uppercase">${i.n}</div>
+                <div class="text-[9px] text-slate-400 mt-1">${i.t} | GRUP: ${i.k} | <span class="text-emerald-600 font-bold">${klasterDisplay}</span></div>
+            </td>
+            <td class="px-6 py-4 text-center">
+                <span class="text-[9px] font-black px-3 py-1 rounded-full uppercase ${stClass}">${status.toUpperCase()}</span>
+            </td>
+            <td class="px-6 py-4 flex justify-center gap-2">
+                ${link.trim() !== "" ? `<a href="${link}" target="_blank" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg"><i class="fas fa-eye text-[10px]"></i></a>` : ''}
+                ${link.trim() !== "" ? `<button onclick="showQR('${link}','${i.n}')" class="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg"><i class="fas fa-qrcode text-[10px]"></i></button>` : ''}
+                <button onclick="delData(${i.id})" class="w-8 h-8 flex items-center justify-center bg-rose-50 text-rose-400 rounded-lg"><i class="fas fa-trash-can text-[10px]"></i></button>
+            </td>
+        </tr>`;
+    }).join('');
+    
+    updateStats(); 
+}
     function switchTab(tab) {
         const m = document.getElementById('mainView'), d = document.getElementById('dashboardView');
         const bm = document.getElementById('btn-main'), bd = document.getElementById('btn-dash');
@@ -268,31 +343,28 @@ async function syncToCloud() {
         barChart = new Chart(document.getElementById('barChartStatus'), { type: 'bar', data: { labels: ['Selesai','Proses','Penting'], datasets: [{ data: sData, backgroundColor: ['#3b82f6','#f59e0b','#ef4444'] }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } } } });
     }
 
-    function renderTable() {
-        const b = document.getElementById('tableBody');
-        const s = document.getElementById('search').value.toLowerCase();
-        b.innerHTML = db.filter(i => i.n.toLowerCase().includes(s) || (i.formatNo && i.formatNo.toLowerCase().includes(s))).map(i => {
-            const hasL = i.l && i.l.trim() !== "", st = i.status === 'Selesai' ? 'bg-blue-50 text-blue-600' : i.status === 'Penting' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600';
-            return `<tr class="hover:bg-slate-50 border-l-4 ${i.k==='A'?'border-blue-500':'border-emerald-500'}">
-                <td class="px-6 py-4 font-mono text-slate-400">${i.formatNo}</td>
-                <td class="px-6 py-4"><div class="font-bold text-slate-800 uppercase">${i.n}</div><div class="text-[9px] text-slate-400 mt-1">${i.t} | GRUP: ${i.k}</div></td>
-                <td class="px-6 py-4 text-center"><span class="text-[9px] font-black px-3 py-1 rounded-full uppercase ${st}">${(i.status||'Selesai').toUpperCase()}</span></td>
-                <td class="px-6 py-4 flex justify-center gap-2">
-                    ${hasL?`<a href="${i.l}" target="_blank" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg"><i class="fas fa-eye text-[10px]"></i></a>`:''}
-                    ${hasL?`<button onclick="showQR('${i.l}','${i.n}')" class="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg"><i class="fas fa-qrcode text-[10px]"></i></button>`:''}
-                    <button onclick="delData(${i.id})" class="w-8 h-8 flex items-center justify-center bg-rose-50 text-rose-400 rounded-lg"><i class="fas fa-trash-can text-[10px]"></i></button>
-                </td>
-            </tr>`;
-        }).join('');
-        updateStats(); renderChart();
-    }
-
-    function renderChart() {
-        const ctx = document.getElementById('arsipChart').getContext('2d');
-        let mon = new Array(12).fill(0); db.forEach(i => { if(i.t){ const m = parseInt(i.t.split('/')[1])-1; if(m>=0) mon[m]++; } });
-        if(myChart) myChart.destroy();
-        myChart = new Chart(ctx, { type: 'line', data: { labels: ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"], datasets: [{ data: mon, borderColor: '#10b981', tension: 0.4, fill: true, backgroundColor: 'rgba(16, 185, 129, 0.05)' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
-    }
+     function renderChart() {
+    const canvas = document.getElementById('arsipChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let mon = new Array(12).fill(0); 
+    db.forEach(i => { 
+        if(i.t){ 
+            const parts = i.t.split('/');
+            const m = parseInt(parts[1]) - 1; 
+            if(m >= 0) mon[m]++; 
+        } 
+    });
+    if(myChart) myChart.destroy();
+    myChart = new Chart(ctx, { 
+        type: 'line', 
+        data: { 
+            labels: ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"], 
+            datasets: [{ data: mon, borderColor: '#10b981', tension: 0.4, fill: true, backgroundColor: 'rgba(16, 185, 129, 0.05)' }] 
+        }, 
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } 
+    });
+}
 
     function showQR(l, t) { document.getElementById("qrcode").innerHTML = ""; new QRCode(document.getElementById("qrcode"), { text: l, width: 140, height: 140 }); document.getElementById('qrTitle').innerText = t; openModal('qrModal'); }
 
