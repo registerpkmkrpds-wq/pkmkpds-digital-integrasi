@@ -193,21 +193,34 @@
 
     <script>
         // Data Kredensial
-        const vault = { 'pkmkiarapedes': 'pkm@2026', 'kepala': 'pkmpro' };
+        // Pastikan URL ini adalah URL Deployment terbaru Anda
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyIQ_aI-sAInYo2y-1HUHaI2V9-WfK1zm8wM2jHcIZIoi5mZlrCYbXscGYarM09B_HHdg/exec"; 
+const SECRET_TOKEN = "PKM_KRPDS_2026_SECURE"; // Harus sama dengan di GAS
 
-        function auth() {
-            const u = document.getElementById('user').value;
-            const p = document.getElementById('pass').value;
-            
-            if(vault[u] && vault[u] === p) {
-                localStorage.setItem('pkm_session', 'active');
-                localStorage.setItem('pkm_user', u);
-                renderHub();
-            } else { 
-                alert("AKSES DITOLAK: Username atau Password salah."); 
-            }
-        }
+async function auth() {
+    const u = document.getElementById('user').value;
+    const p = document.getElementById('pass').value;
+    const btn = document.querySelector('button');
 
+    // Data Kredensial Lokal (Sesuai kode asli Anda)
+    const vault = { 'pkmkiarapedes': 'pkm@2026', };
+
+    if(vault[u] && vault[u] === p) {
+        btn.innerText = "MENYIAPKAN SESI...";
+        
+        // Simpan status login dan token ke browser
+        localStorage.setItem('pkm_session', 'active');
+        localStorage.setItem('pkm_user', u);
+        localStorage.setItem('pkm_token', SECRET_TOKEN); 
+        
+        // Beri jeda sedikit agar terasa seperti loading sistem beneran
+        setTimeout(() => {
+            renderHub();
+        }, 800);
+    } else { 
+        alert("AKSES DITOLAK: Username atau Password salah."); 
+    }
+}
         // Fungsi Menampilkan Dashboard
         function renderHub() {
             document.getElementById('loginSection').classList.add('hidden');
