@@ -203,6 +203,11 @@
         </div>
     </div>
 </div>
+
+function getRomawi(month) {
+    const romawi = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+    return romawi[month];
+}
     
 <script>
     // Ganti dengan URL Deployment GAS Anda yang baru
@@ -364,12 +369,43 @@ async function syncToCloud() {
     function showQR(l, t) { document.getElementById("qrcode").innerHTML = ""; new QRCode(document.getElementById("qrcode"), { text: l, width: 140, height: 140 }); document.getElementById('qrTitle').innerText = t; openModal('qrModal'); }
 
     document.getElementById('docForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const nextNo = (db.length === 0) ? 1 : Math.max(...db.map(x => parseInt(x.noRaw) || 0)) + 1;
-        const k = document.getElementById('docCatType').value;
-        db.unshift({ id: Date.now(), noRaw: nextNo, formatNo: `${nextNo.toString().padStart(3,'0')}/${k}/${CONFIG.instansi}/${CONFIG.tahun}`, n: document.getElementById('docName').value, k: document.getElementById('docGroup').value, l: document.getElementById('docLink').value, status: document.getElementById('docStatus').value, t: new Date().toLocaleDateString('id-ID') });
-        renderTable(); await syncToCloud(); e.target.reset();
+    e.preventDefault();
+
+    const cat = document.getElementById('docCatType').value; // Contoh: SK
+    const group = document.getElementById('docGroup').value;
+    const date = new Date();
+    const romawiBulan = getRomawi(date.getMonth());
+    const tahun = date.getFullYear();
+
+    // 1. Hitung berapa banyak dokumen dengan kategori yang sama untuk nomor urut
+    const totalSameCat = db.filter(item => {
+        // Cek apakah formatNo mengandung kategori yang sama (misal: /SK/)
+        return item.formatNo && item.formatNo.includes(`/${cat}-KPDS/`);
+    }).length;
+
+    const nextNo = (totalSameCat + 1).toString().padStart(3, '0');
+
+    // 2. Susun nomor surat lengkap: 001/SK-KPDS/II/2026
+    const fullNo = `${nextNo}/${cat}-KPDS/${romawiBulan}/${tahun}`;
+
+    // 3. Simpan data
+    const newData = { 
+        id: Date.now(), 
+        noRaw: nextNo, 
+        formatNo: fullNo, 
+        n: document.getElementById('docName').value, 
+        k: group, 
+        klaster: document.getElementById('inputKlaster').value,
+        l: document.getElementById('docLink').value,
+        status: document.getElementById('docStatus').value, 
+        t: date.toLocaleDateString('id-ID') 
     };
+
+    db.unshift(newData);
+    renderTable(); 
+    await syncToCloud(); 
+    e.target.reset();
+};
 
     async function saveAgenda() {
         const nextNo = (db.length === 0) ? 1 : Math.max(...db.map(x => parseInt(x.noRaw) || 0)) + 1;
