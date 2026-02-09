@@ -203,12 +203,7 @@
         </div>
     </div>
 </div>
-
-function getRomawi(month) {
-    const romawi = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
-    return romawi[month];
-}
-    
+ 
 <script>
     // Ganti dengan URL Deployment GAS Anda yang baru
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyIQ_aI-sAInYo2y-1HUHaI2V9-WfK1zm8wM2jHcIZIoi5mZlrCYbXscGYarM09B_HHdg/exec"; 
@@ -436,6 +431,10 @@ async function syncToCloud() {
         doc.autoTable({ startY: 30, head: [['KODE', 'PERIHAL', 'STATUS', 'TGL']], body: db.map(i => [i.formatNo, i.n, i.status, i.t]) });
         doc.save('Arsip_PKM.pdf');
     }
+    function getRomawi(month) {
+    const romawi = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+    return romawi[month];
+}
 </script>
 </body>
 </html>
