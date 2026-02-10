@@ -73,12 +73,20 @@
                 <form id="docForm" class="space-y-4">
                     <div class="grid grid-cols-2 gap-2">
                         <select id="docGroup" class="input-modern">
-                            <option value="A">GRUP A</option><option value="B">GRUP B</option><option value="C">GRUP C</option>
-                            <option value="D">GRUP D</option><option value="E">GRUP E</option><option value="F">GRUP F</option>
+                            <option value="A">GRUP A</option>
+                            <option value="B">GRUP B</option>
+                            <option value="C">GRUP C</option>
+                            <option value="D">GRUP D</option>
+                            <option value="E">GRUP E</option>
+                            <option value="F">GRUP F</option>
                         </select>
                         <select id="docCatType" class="input-modern">
-                            <option value="BA">BA</option><option value="SK">SK</option><option value="SOP">SOP</option>
-                            <option value="ST">ST</option><option value="UND">UND</option>
+                            <option value="BA">BA</option>
+                            <option value="SK">SK</option>
+                            <option value="SOP">SOP</option>
+                            <option value="ST">ST</option>
+                            <option value="UND">UND</option>
+                            <option value="DL">DL</option>
                         </select>
                     </div>
                     <select id="inputKlaster" class="input-modern">
@@ -99,8 +107,29 @@
         <div class="lg:col-span-8 space-y-6">
             <div class="card-custom p-4 bg-white grid grid-cols-1 md:grid-cols-3 gap-4">
                 <input type="text" id="search" oninput="renderTable()" placeholder="Cari..." class="input-modern">
-                <select id="filterKlaster" onchange="renderTable()" class="input-modern"><option value="">Semua Klaster</option><option value="Klaster 1">Klaster 1</option><option value="Klaster 2">Klaster 2</option><option value="Klaster 3">Klaster 3</option><option value="Klaster 4">Klaster 4</option><option value="Klaster 5">Klaster 5</option></select>
-                <select id="filterBulan" onchange="renderTable()" class="input-modern"><option value="">Semua Bulan</option><option value="/01/">Januari</option><option value="/02/">Februari</option><option value="/03/">Maret</option></select>
+                <select id="filterKlaster" onchange="renderTable()" class="input-modern">
+                    <option value="">Semua Klaster</option>
+                    <option value="Klaster 1">Klaster 1</option>
+                    <option value="Klaster 2">Klaster 2</option>
+                    <option value="Klaster 3">Klaster 3</option>
+                    <option value="Klaster 4">Klaster 4</option>
+                    <option value="Klaster 5">Klaster 5</option>
+                </select>
+                <select id="filterBulan" onchange="renderTable()" class="input-modern">
+                    <option value="">Semua Bulan</option>
+                    <option value="/01/">Januari</option>
+                    <option value="/02/">Februari</option>
+                    <option value="/03/">Maret</option>
+                    <option value="/04/">April</option>
+                    <option value="/05/">Mei</option>
+                    <option value="/06/">Juni</option>
+                    <option value="/07/">Juli</option>
+                    <option value="/08/">Agustus</option>
+                    <option value="/09/">Sepetember</option>
+                    <option value="/10/">Oktober</option>
+                    <option value="/11/">November</option>
+                    <option value="/12/">Desember</option>
+                </select>
             </div>
 
             <div class="card-custom overflow-hidden bg-white">
