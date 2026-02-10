@@ -12,61 +12,56 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; }
         .glass-header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
-        .card-custom { background: white; border-radius: 1rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .card-custom { background: white; border-radius: 1.5rem; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
         .input-modern { width: 100%; padding: 0.75rem 1rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; }
-        .input-modern:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
-        .chart-wrapper { position: relative; height: 300px; width: 100%; }
-        /* Memastikan tabel tidak meluber */
-        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .input-modern:focus { border-color: #10b981; background: white; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+        .chart-box { position: relative; height: 300px; width: 100%; }
+        @media print { .no-print { display: none !important; } }
     </style>
 </head>
 <body class="text-slate-900">
 
-<div id="loading" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex flex-col items-center justify-center text-white">
-    <div class="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-    <p class="font-bold text-xs tracking-widest uppercase">Sinkronisasi Data...</p>
+<div id="loading" class="hidden fixed inset-0 z-[9999] bg-emerald-600/95 backdrop-blur-md flex flex-col items-center justify-center text-white">
+    <div class="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin mb-4"></div>
+    <p class="font-bold text-xs tracking-widest uppercase">Memproses Data...</p>
 </div>
 
-<header class="glass-header text-white pt-10 pb-28 no-print">
-    <div class="container mx-auto px-6">
-        <div class="flex flex-col lg:flex-row justify-between items-center gap-6">
-            <div class="text-center lg:text-left">
+<header class="glass-header text-white pb-32 no-print">
+    <div class="container mx-auto px-6 pt-10">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div>
                 <h1 class="font-black text-2xl uppercase tracking-tighter flex items-center gap-3">
-                    <i class="fas fa-archive text-emerald-400"></i> E-Arsip Digital
+                    <i class="fas fa-folder-tree text-emerald-400"></i> E-Arsip Digital
                 </h1>
                 <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-400 mt-1">PKM KIARAPEDES</p>
             </div>
             
             <div class="flex flex-wrap items-center justify-center gap-2">
-                <a href="index.html" class="bg-slate-700 hover:bg-yellow-600 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
-                    <i class="fas fa-home"></i> Menu
+                <a href="index.html" class="bg-slate-700 hover:bg-slate-600 px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase border border-white/10 flex items-center gap-2 transition-all">
+                    <i class="fas fa-home text-emerald-400"></i> Menu Utama
                 </a>
-                <a href="https://puskesmaskiarapedes.blogspot.com/p/form-surat-tugas.html" class="bg-khaki-700 hover:bg-slate-600 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
-                    <i class="fas fa-edit"></i> Buat Surat Tugas
-                </a>
-                <button onclick="openModal('statsModal')" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
-                    <i class="fas fa-chart-pie"></i> Statistik
+                <button onclick="openModal('statsModal')" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase border border-white/10 flex items-center gap-2 transition-all">
+                    <i class="fas fa-chart-line"></i> Statistik
                 </button>
-                <button onclick="openModal('agendaModal')" class="bg-emerald-600 hover:bg-blue-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
+                <button onclick="openModal('agendaModal')" class="bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase border border-white/10 flex items-center gap-2 transition-all">
                     <i class="fas fa-inbox"></i> Surat Masuk
                 </button>
-
-                <button onclick="openModal('suratKeluarModal')" class="bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
+                <button onclick="openModal('suratKeluarModal')" class="bg-rose-600 hover:bg-rose-700 px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase border border-white/10 flex items-center gap-2 transition-all">
                     <i class="fas fa-paper-plane"></i> Surat Keluar
                 </button>
-                </button>
-                <button onclick="exportToPDF()" class="bg-orange-600 hover:bg-emerald-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
+                <button onclick="exportToPDF()" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase border border-white/10 flex items-center gap-2 transition-all">
                     <i class="fas fa-file-pdf"></i> Export PDF
                 </button>
             </div>
         </div>
-        <div id="quickStats" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mt-10"></div>
+        
+        <div id="statsSummary" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mt-10"></div>
     </div>
 </header>
 
-<main class="container mx-auto px-6 -mt-16 pb-20">
+<main class="container mx-auto px-6 -mt-20 pb-20">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         <div class="lg:col-span-4">
@@ -78,21 +73,19 @@
                             <option value="A">GRUP A</option><option value="B">GRUP B</option><option value="C">GRUP C</option>
                             <option value="D">GRUP D</option><option value="E">GRUP E</option><option value="F">GRUP F</option>
                         </select>
-                        <select id="docType" class="input-modern">
+                        <select id="docCatType" class="input-modern">
                             <option value="BA">BA</option><option value="SK">SK</option><option value="SOP">SOP</option>
                             <option value="ST">ST</option><option value="UND">UND</option>
                         </select>
                     </div>
                     <select id="inputKlaster" class="input-modern">
-                        <option value="Klaster 1">Klaster 1: Manajemen</option>
-                        <option value="Klaster 2">Klaster 2: Ibu & Anak</option>
-                        <option value="Klaster 3">Klaster 3: Dewasa & Lansia</option>
-                        <option value="Klaster 4">Klaster 4: Penanggulangan Penyakit</option>
+                        <option value="Klaster 1">Klaster 1: Manajemen</option><option value="Klaster 2">Klaster 2: Ibu & Anak</option>
+                        <option value="Klaster 3">Klaster 3: Dewasa & Lansia</option><option value="Klaster 4">Klaster 4: Penanggulangan Penyakit</option>
                         <option value="Klaster 5">Klaster 5: Lintas Klaster</option>
                     </select>
                     <input type="text" id="docName" placeholder="Perihal Dokumen" class="input-modern" required>
-                    <input type="url" id="docLink" placeholder="Link Google Drive" class="input-modern">
-                    <button type="submit" id="btnSubmit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg hover:bg-emerald-700 transition-all">Simpan Data</button>
+                    <input type="url" id="docLink" placeholder="Link Drive (https://...)" class="input-modern">
+                    <button type="submit" id="btnSubmit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg hover:bg-emerald-700">Simpan Data</button>
                     <button type="button" id="btnCancel" onclick="cancelEdit()" class="hidden w-full bg-slate-200 text-slate-600 py-2 rounded-xl font-bold uppercase text-[10px] mt-2">Batal Edit</button>
                 </form>
             </div>
@@ -101,21 +94,17 @@
         <div class="lg:col-span-8 space-y-6">
             <div class="card-custom p-4 bg-white grid grid-cols-1 md:grid-cols-3 gap-4">
                 <input type="text" id="search" oninput="renderTable()" placeholder="Cari..." class="input-modern">
-                <select id="fKlaster" onchange="renderTable()" class="input-modern"><option value="">Semua Klaster</option><option value="Klaster 1">Klaster 1</option><option value="Klaster 2">Klaster 2</option><option value="Klaster 3">Klaster 3</option><option value="Klaster 4">Klaster 4</option><option value="Klaster 5">Klaster 5</option></select>
-                <select id="fBulan" onchange="renderTable()" class="input-modern"><option value="">Semua Bulan</option><option value="/01/">Januari</option><option value="/02/">Februari</option><option value="/03/">Maret</option></select>
+                <select id="filterKlaster" onchange="renderTable()" class="input-modern"><option value="">Semua Klaster</option><option value="Klaster 1">Klaster 1</option><option value="Klaster 2">Klaster 2</option><option value="Klaster 3">Klaster 3</option><option value="Klaster 4">Klaster 4</option><option value="Klaster 5">Klaster 5</option></select>
+                <select id="filterBulan" onchange="renderTable()" class="input-modern"><option value="">Semua Bulan</option><option value="/01/">Januari</option><option value="/02/">Februari</option><option value="/03/">Maret</option></select>
             </div>
 
             <div class="card-custom overflow-hidden bg-white">
-                <div class="table-container">
+                <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead class="bg-slate-50 border-b text-[10px] text-slate-400 font-black uppercase">
-                            <tr>
-                                <th class="px-6 py-5">No. Arsip</th>
-                                <th class="px-6 py-5">Detail Dokumen</th>
-                                <th class="px-6 py-5 text-center">Aksi</th>
-                            </tr>
+                            <tr><th class="px-6 py-5">No. Arsip</th><th class="px-6 py-5">Detail</th><th class="px-6 py-5 text-center">Aksi</th></tr>
                         </thead>
-                        <tbody id="tableBody" class="divide-y divide-slate-100 text-xs font-semibold"></tbody>
+                        <tbody id="tableBody" class="divide-y divide-slate-50 text-xs font-semibold"></tbody>
                     </table>
                 </div>
             </div>
@@ -123,22 +112,22 @@
     </div>
 </main>
 
-<div id="statsModal" class="fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-5xl rounded-[2rem] p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="font-black text-indigo-600 uppercase tracking-widest">Statistik & Grafik</h2>
-            <button onclick="closeModal('statsModal')" class="text-slate-400 hover:text-red-500 text-2xl font-bold">&times;</button>
+<div id="statsModal" class="fixed inset-0 z-[120] bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-5xl rounded-[2.5rem] p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div class="flex justify-between items-center mb-8 border-b pb-4">
+            <h2 class="font-black text-lg uppercase tracking-widest text-indigo-600">Laporan Statistik Grafik</h2>
+            <button onclick="closeModal('statsModal')" class="text-slate-400 hover:text-red-500 text-2xl">&times;</button>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="bg-slate-50 p-6 rounded-2xl"><div class="chart-wrapper"><canvas id="lineChart"></canvas></div></div>
-            <div class="bg-slate-50 p-6 rounded-2xl"><div class="chart-wrapper"><canvas id="pieChart"></canvas></div></div>
+            <div class="bg-slate-50 p-6 rounded-2xl"><div class="chart-box"><canvas id="lineChart"></canvas></div></div>
+            <div class="bg-slate-50 p-6 rounded-2xl"><div class="chart-box"><canvas id="pieChart"></canvas></div></div>
         </div>
     </div>
 </div>
 
 <div id="agendaModal" class="fixed inset-0 z-[100] bg-slate-900/60 hidden flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl">
-        <h2 class="font-black text-xs uppercase mb-6 text-blue-600">Input Surat Masuk</h2>
+        <h2 class="font-black text-xs uppercase mb-6 text-blue-600">Register Surat Masuk</h2>
         <input type="text" id="agAsal" placeholder="Asal Surat (Pengirim)" class="input-modern mb-2">
         <input type="text" id="agPerihal" placeholder="Perihal / Isi Ringkas" class="input-modern mb-6">
         <div class="flex gap-2">
@@ -150,7 +139,7 @@
 
 <div id="suratKeluarModal" class="fixed inset-0 z-[100] bg-slate-900/60 hidden flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl">
-        <h2 class="font-black text-xs uppercase mb-6 text-rose-600">Input Surat Keluar</h2>
+        <h2 class="font-black text-xs uppercase mb-6 text-rose-600">Register Surat Keluar</h2>
         <input type="text" id="skTujuan" placeholder="Tujuan Surat" class="input-modern mb-2">
         <input type="text" id="skPerihal" placeholder="Perihal / Isi Ringkas" class="input-modern mb-6">
         <div class="flex gap-2">
@@ -160,93 +149,39 @@
     </div>
 </div>
 
-
-<div id="qrModal" class="fixed inset-0 z-[110] bg-slate-900/80 hidden flex items-center justify-center p-4">
-    <div class="bg-white p-8 rounded-[2rem] text-center shadow-2xl">
+<div id="qrModal" class="fixed inset-0 z-[130] bg-slate-900/80 hidden flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-[2.5rem] text-center max-w-xs w-full">
         <div id="qrcode" class="flex justify-center mb-6"></div>
-        <button onclick="closeModal('qrModal')" class="bg-slate-100 px-6 py-2 rounded-full font-bold text-[10px] uppercase">Tutup</button>
+        <button onclick="closeModal('qrModal')" class="w-full bg-slate-100 py-3 rounded-xl font-bold text-[10px] uppercase">Tutup</button>
     </div>
 </div>
 
 <script>
-    // Pengaturan Waktu (30 menit = 30 * 60 * 1000 milidetik)
-const INACTIVITY_LIMIT = 30 * 60 * 1000; 
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwLzBas4iCCvs2wsLA2XcjHmAqILMFHu3Ff8twtRiQzJHrEYgfp2dJ1g_KTWcK97anumg/exec"; 
+const SECRET_TOKEN = localStorage.getItem('pkm_token');
+let db = [];
+let editId = null;
+let charts = { line: null, pie: null };
 
-function resetTimer() {
-    // Simpan waktu aktivitas terakhir ke localStorage
-    localStorage.setItem('last_activity', Date.now());
-}
-
-function checkInactivity() {
-    const lastActivity = localStorage.getItem('last_activity');
-    const currentTime = Date.now();
-
-    if (lastActivity && (currentTime - lastActivity > INACTIVITY_LIMIT)) {
-        alert("Sesi Anda telah berakhir karena tidak ada aktivitas selama 30 menit.");
-        logoutManually(); // Panggil fungsi logout
-    }
-}
-
-function logoutManually() {
-    localStorage.clear();
-    window.location.href = 'index.html';
-}
-
-// Pantau pergerakan mouse atau ketikan keyboard
-window.onload = resetTimer;
-window.onmousemove = resetTimer;
-window.onmousedown = resetTimer; 
-window.onclick = resetTimer;     
-window.onkeydown = resetTimer;   
-
-// Cek setiap 1 menit
-setInterval(checkInactivity, 60000);
-    
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyPuME9g05BtTN-ME-rXdzsSdbRz4_ZuBRfePuDaLLVnVH_z9mBkQSMBl4oVEEGqK_1RA/exec"; 
-
-// 1. Ambil token dari penyimpanan browser
-const SESSION_TOKEN = localStorage.getItem('pkm_token');
-
-// 2. Token yang sah (harus sama dengan yang di Script App)
-const VALID_TOKEN = "PKM_KRPDS_2026_SECURE";
-
-// 3. Validasi: Jika token tidak ada atau tidak cocok, tendang ke login
-if (!SESSION_TOKEN || SESSION_TOKEN !== VALID_TOKEN) { 
-    alert("Sesi habis atau akses tidak sah. Silakan login kembali.");
-    window.location.href = 'index.html'; 
-} else { 
-    loadFromCloud(); 
-}
+if (!SECRET_TOKEN) { window.location.href = 'index.html'; } else { loadFromCloud(); }
 
 async function loadFromCloud() {
     showLoading(true);
     try {
-        // Mengirim token yang tersimpan di localStorage ke Apps Script
-        const res = await fetch(`${WEB_APP_URL}?token=${SESSION_TOKEN}`);
-        
-        if (!res.ok) throw new Error("Server Response Error");
-        
+        const res = await fetch(`${WEB_APP_URL}?token=${SECRET_TOKEN}`);
         const data = await res.json();
         db = Array.isArray(data) ? data : [];
-        
         renderTable();
         updateStats();
-    } catch (e) { 
-        console.error(e);
-        alert("Error: Gagal terhubung ke Cloud. Pastikan koneksi internet stabil."); 
-    }
+    } catch (e) { alert("Error: Gagal terhubung ke Cloud"); }
     showLoading(false);
 }
 
 function renderTable() {
-    function renderTable() {
     const b = document.getElementById('tableBody');
     const s = document.getElementById('search').value.toLowerCase();
-    const fK = document.getElementById('fKlaster').value; // Sesuai ID di HTML
-    const fB = document.getElementById('fBulan').value;   // Sesuai ID di HTML
-    
-    // ... sisa kode filtered ...
-}
+    const fK = document.getElementById('filterKlaster').value;
+    const fB = document.getElementById('filterBulan').value;
     
     const filtered = db.filter(i => {
         const txt = ((i.n||"") + (i.formatNo||i.formatno||"")).toLowerCase();
@@ -270,146 +205,60 @@ function renderTable() {
 
 function updateStats() {
     const cats = ['TOTAL', 'A', 'B', 'C', 'D', 'E', 'F'];
-    const container = document.getElementById('quickStats'); // Samakan dengan ID di HTML
-    if(!container) return;
-
-    container.innerHTML = cats.map(k => {
+    document.getElementById('statsSummary').innerHTML = cats.map(k => {
         const val = k === 'TOTAL' ? db.length : db.filter(i => i.k === k).length;
-        let color = "bg-slate-800";
-        if(k === 'TOTAL') color = "bg-emerald-600";
-        
-        return `
-            <div class="${color} p-4 rounded-2xl text-center border border-white/10 shadow-lg">
-                <div class="text-[8px] font-black uppercase text-white/50">${k}</div>
-                <div class="text-xl font-bold text-white">${val}</div>
-            </div>`;
+        return `<div class="bg-white/10 p-4 rounded-2xl text-center border border-white/10"><div class="text-[8px] font-black uppercase text-white/50">${k}</div><div class="text-xl font-bold text-white">${val}</div></div>`;
     }).join('');
 }
 
 function initCharts() {
-    // 1. Hapus chart lama jika sudah ada agar tidak error tumpang tindih
     if(charts.line) charts.line.destroy();
     if(charts.pie) charts.pie.destroy();
     
-    // 2. Olah data bulan
     let mon = new Array(12).fill(0);
-    db.forEach(i => { 
-        if(i.t) { 
-            const parts = i.t.split('/');
-            // Menangani format DD/MM/YYYY atau MM/DD/YYYY
-            const m = parseInt(parts[1]) - 1; 
-            if(m >= 0 && m < 12) mon[m]++; 
-        } 
-    });
+    db.forEach(i => { if(i.t) { const m = parseInt(i.t.split('/')[1]) - 1; if(m>=0) mon[m]++; } });
 
-    // 3. Render Grafik Garis
-    const ctxLine = document.getElementById('lineChart').getContext('2d');
-    charts.line = new Chart(ctxLine, {
+    charts.line = new Chart(document.getElementById('lineChart'), {
         type: 'line',
-        data: { 
-            labels: ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"], 
-            datasets: [{ 
-                label: 'Jumlah Dokumen', 
-                data: mon, 
-                borderColor: '#6366f1', 
-                backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                tension: 0.4, 
-                fill: true 
-            }] 
-        },
-        options: { 
-            responsive: true, 
-            maintainAspectRatio: false,
-            plugins: { legend: { display: true } }
-        }
+        data: { labels: ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"], datasets: [{ label: 'Jumlah Dokumen', data: mon, borderColor: '#6366f1', tension: 0.4, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.1)' }] },
+        options: { responsive: true, maintainAspectRatio: false }
     });
 
-    // 4. Render Grafik Pie (Grup)
     const gData = ['A','B','C','D','E','F'].map(k => db.filter(i => i.k === k).length);
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    charts.pie = new Chart(ctxPie, {
+    charts.pie = new Chart(document.getElementById('pieChart'), {
         type: 'doughnut',
-        data: { 
-            labels: ['Grup A','Grup B','Grup C','Grup D','Grup E','Grup F'], 
-            datasets: [{ 
-                data: gData, 
-                backgroundColor: ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899'] 
-            }] 
-        },
-        options: { 
-            responsive: true, 
-            maintainAspectRatio: false 
-        }
+        data: { labels: ['Grup A','Grup B','Grup C','Grup D','Grup E','Grup F'], datasets: [{ data: gData, backgroundColor: ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899'] }] },
+        options: { responsive: true, maintainAspectRatio: false }
     });
 }
 
 document.getElementById('docForm').onsubmit = async (e) => {
     e.preventDefault();
     const d = new Date();
-    // Mengambil nilai bulan dalam romawi
     const rom = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][d.getMonth()];
-    
-    // Ambil nilai dari input
-    const name = document.getElementById('docName').value;
-    const link = document.getElementById('docLink').value;
-    const group = document.getElementById('docGroup').value;
-    const type = document.getElementById('docType').value; // Perbaikan ID di sini
-    const klaster = document.getElementById('inputKlaster').value;
-
     if (editId) {
         const idx = db.findIndex(i => i.id === editId);
-        db[idx] = {
-            ...db[idx], 
-            n: name, 
-            l: link, 
-            k: group, 
-            klaster: klaster 
-        };
+        db[idx] = {...db[idx], n: document.getElementById('docName').value, l: document.getElementById('docLink').value, k: document.getElementById('docGroup').value, klaster: document.getElementById('inputKlaster').value };
         cancelEdit();
     } else {
-        // Format Nomor: 001/SK/PKM-KPDS/II/2026
-        const fNo = `${(db.length + 1).toString().padStart(3, '0')}/${type}/PKM-KPDS/${rom}/${d.getFullYear()}`;
-        
-        db.unshift({ 
-            id: Date.now(), 
-            formatNo: fNo, 
-            n: name, 
-            k: group, 
-            klaster: klaster, 
-            l: link, 
-            t: d.toLocaleDateString('id-ID') 
-        });
+        const fNo = `${(db.length+1).toString().padStart(3,'0')}/${document.getElementById('docCatType').value}/PKM-KPDS/${rom}/${d.getFullYear()}`;
+        db.unshift({ id: Date.now(), formatNo: fNo, n: document.getElementById('docName').value, k: document.getElementById('docGroup').value, klaster: document.getElementById('inputKlaster').value, l: document.getElementById('docLink').value, t: d.toLocaleDateString('id-ID') });
     }
-    
-    document.getElementById('docForm').reset(); // Reset form setelah simpan
     await syncToCloud();
 };
-    
+
 async function syncToCloud() {
     showLoading(true);
     try {
-        await fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "saveAll", db: db, token: "PKM_KRPDS_2026_SECURE" }) });
+        await fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "saveAll", db: db, token: SECRET_TOKEN }) });
         renderTable(); updateStats();
     } catch (e) { alert("Gagal Sinkronisasi Cloud"); }
     showLoading(false);
 }
 
-function openModal(id) { 
-    const modal = document.getElementById(id);
-    modal.classList.remove('hidden'); 
-    
-    // Jika yang dibuka adalah modal statistik
-    if(id === 'statsModal') {
-        // Berikan jeda 300ms agar animasi transisi selesai dan Canvas siap
-        setTimeout(() => {
-            if (db && db.length > 0) {
-                initCharts();
-            } else {
-                console.warn("Data kosong, grafik tidak dapat ditampilkan.");
-            }
-        }, 300); 
-    } 
-}
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); if(id === 'statsModal') setTimeout(initCharts, 200); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function showLoading(s) { document.getElementById('loading').classList.toggle('hidden', !s); }
 
 function editData(id) {
     const item = db.find(i => i.id === id);
@@ -464,14 +313,6 @@ function exportToPDF() {
     doc.autoTable({ startY: 25, head: [['NOMOR ARSIP', 'PERIHAL DOKUMEN', 'TANGGAL']], body: db.map(i => [i.formatNo, i.n.toUpperCase(), i.t]) });
     doc.save('Arsip_PKM_Kiarapedes.pdf');
 }
-function closeModal(id) {
-    const modal = document.getElementById(id);
-    modal.classList.add('hidden');
-    
-    // Khusus untuk QR Code, bersihkan isinya saat ditutup
-    if(id === 'qrModal') {
-        document.getElementById("qrcode").innerHTML = "";
-    }
 </script>
 </body>
 </html>
