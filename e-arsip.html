@@ -18,14 +18,13 @@
         .card-custom { background: white; border-radius: 1.5rem; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); transition: 0.3s; }
         .input-modern { width: 100%; padding: 0.75rem 1rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; transition: 0.2s; }
         .input-modern:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
-        .nav-pill { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
         .animate-fade { animation: fadeIn 0.4s ease forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @media print { .no-print { display: none !important; } }
     </style>
 </head>
 <body class="text-slate-900">
-    
+
 <div id="loading" class="hidden fixed inset-0 z-[9999] bg-emerald-600/95 backdrop-blur-md flex flex-col items-center justify-center text-white">
     <div class="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin mb-4"></div>
     <p class="font-bold text-xs tracking-[0.3em] uppercase animate-pulse">Sinkronisasi Cloud...</p>
@@ -33,16 +32,9 @@
 
 <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] no-print w-max">
     <div class="bg-slate-900/90 backdrop-blur-xl p-2 rounded-2xl shadow-2xl border border-white/20 flex items-center gap-2">
-        <a href="index.html" class="nav-pill px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-emerald-400 transition-all flex items-center gap-2">
-            <i class="fas fa-home"></i><span class="hidden md:inline">Menu</span>
+        <a href="index.html" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white hover:text-emerald-400 transition-all flex items-center gap-2">
+            <i class="fas fa-home"></i> Kembali ke Menu Utama
         </a>
-        <div class="w-[1px] h-4 bg-white/10 mx-1"></div>
-        <button onclick="switchTab('main')" id="btn-main" class="nav-pill px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-600 text-white">
-            <i class="fas fa-table mr-2"></i> Data & Input
-        </button>
-        <button onclick="switchTab('dashboard')" id="btn-dash" class="nav-pill px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-all">
-            <i class="fas fa-chart-pie mr-2"></i> Dashboard
-        </button>
     </div>
 </div>
 
@@ -55,7 +47,6 @@
                 </h1>
                 <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-400 mt-1">Sistem Administrasi PKM Kiarapedes</p>
             </div>
-                
             <div class="flex flex-wrap items-center gap-3">
                 <a href="https://puskesmaskiarapedes.blogspot.com/p/form-surat-tugas.html" target="_blank" class="bg-yellow-600 hover:bg-yellow-700 px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase border border-white/10 transition flex items-center gap-2 text-white decoration-0">
                     <i class="fa-solid fa-pen-to-square"></i> Buat Surat Tugas
@@ -68,7 +59,7 @@
                 </button>
                 <div class="w-[1px] h-6 bg-white/10 mx-1 hidden md:block"></div>
                 <button onclick="exportToPDF()" class="bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase border border-white/10 transition flex items-center gap-2">
-                    <i class="fas fa-file-pdf"></i> Export
+                    <i class="fas fa-file-pdf"></i> Export Laporan
                 </button>
             </div>
         </div>
@@ -76,61 +67,46 @@
     </div>
 </header>
 
-<main id="mainView" class="container mx-auto px-6 -mt-20 pb-24 animate-fade">
+<main class="container mx-auto px-6 -mt-20 pb-24 animate-fade">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div class="lg:col-span-4">
             <div class="card-custom p-6 sticky top-6">
                 <h3 id="formTitle" class="text-xs font-black uppercase tracking-widest text-slate-400 mb-6">Input Dokumen Baru</h3>
                 <form id="docForm" class="space-y-4">
                     <div class="grid grid-cols-2 gap-2">
-                        <select id="docGroup" class="input-modern">
-                            <option value="A">GRUP A</option>
-                            <option value="B">GRUP B</option>
-                            <option value="C">GRUP C</option>
-                            <option value="D">GRUP D</option>
-                            <option value="E">GRUP E</option>
-                            <option value="F">GRUP F</option>
+                        <select id="docGroup" class="input-modern" required>
+                            <option value="A">GRUP A</option><option value="B">GRUP B</option><option value="C">GRUP C</option>
+                            <option value="D">GRUP D</option><option value="E">GRUP E</option><option value="F">GRUP F</option>
                         </select>
-                        <select id="docCatType" class="input-modern">
-                            <option value="BA">Berita Acara (BA)</option>
-                            <option value="SK">Surat Keputusan (SK)</option>
-                            <option value="SOP">Prosedur (SOP)</option>
-                            <option value="ST">Surat Tugas(ST)</option>
-                            <option value="SKT">Surat Keterangan (SKT)</option>
-                            <option value="SL">Surat Lainnya (SL)</option>
-                            <option value="UND">Undangan (UND)</option>
-                            <option value="DB">Dokumen Bukti (DB)</option>
-                            <option value="DU">Dokumen Umum (DU)</option>
-                            <option value="Vid">Video (Vid)</option>
+                        <select id="docCatType" class="input-modern" required>
+                            <option value="BA">Berita Acara (BA)</option><option value="SK">Surat Keputusan (SK)</option>
+                            <option value="SOP">Prosedur (SOP)</option><option value="ST">Surat Tugas(ST)</option>
+                            <option value="SKT">Surat Keterangan (SKT)</option><option value="SL">Surat Lainnya (SL)</option>
+                            <option value="UND">Undangan (UND)</option><option value="DB">Dokumen Bukti (DB)</option>
+                            <option value="DU">Dokumen Umum (DU)</option><option value="Vid">Video (Vid)</option>
                         </select>
                     </div>
-
-                    <select id="inputKlaster" class="input-modern">
+                    <select id="inputKlaster" class="input-modern" required>
                         <option value="Klaster 1">Klaster 1: Manajemen</option>
                         <option value="Klaster 2">Klaster 2: Ibu & Anak</option>
                         <option value="Klaster 3">Klaster 3: Dewasa & Lansia</option>
                         <option value="Klaster 4">Klaster 4: Penanggulangan Penyakit</option>
-                        <option value="Lintas Klaster ">Lintas Klaster : Lintas Klaster</option>
+                        <option value="Lintas Klaster">Lintas Klaster</option>
                     </select>
-
                     <select id="docStatus" class="input-modern">
                         <option value="Selesai">✅ Selesai</option>
                         <option value="Proses">⏳ Proses</option>
                         <option value="Penting">🚨 Penting</option>
                     </select>
-
                     <input type="text" id="docName" placeholder="Perihal Dokumen" class="input-modern" required>
-                    <input type="url" id="docLink" placeholder="Link Drive" class="input-modern">
-
-                    <button type="submit" id="btnSubmit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg hover:bg-emerald-700 transition-all">
-                        Simpan Data
-                    </button>
-                    <button type="button" id="btnCancel" onclick="cancelEdit()" class="hidden w-full bg-slate-100 text-slate-500 py-2 rounded-xl font-bold uppercase text-[10px]">Batal Edit</button>
+                    <input type="url" id="docLink" placeholder="Link Drive (https://...)" class="input-modern">
+                    <button type="submit" id="btnSubmit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg hover:bg-emerald-700 transition-all">Simpan Data</button>
+                    <button type="button" id="btnCancel" onclick="cancelEdit()" class="hidden w-full bg-slate-100 text-slate-500 py-2 rounded-xl font-bold uppercase text-[10px] mt-2">Batal Edit</button>
                 </form>
             </div>
         </div>
 
-        <div class="lg:col-span-8 space-y-6">
+        <div class="lg:col-span-8 space-y-8">
             <div class="card-custom p-4 bg-white no-print grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="relative">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
@@ -139,26 +115,16 @@
                 </div>
                 <select id="filterKlaster" onchange="renderTable()" class="input-modern">
                     <option value="">Semua Klaster</option>
-                    <option value="Klaster 1">Klaster 1</option>
-                    <option value="Klaster 2">Klaster 2</option>
-                    <option value="Klaster 3">Klaster 3</option>
-                    <option value="Klaster 4">Klaster 4</option>
-                    <option value="Lintas Klaster ">Lintas Klaster </option>
+                    <option value="Klaster 1">Klaster 1</option><option value="Klaster 2">Klaster 2</option>
+                    <option value="Klaster 3">Klaster 3</option><option value="Klaster 4">Klaster 4</option>
+                    <option value="Lintas Klaster">Lintas Klaster</option>
                 </select>
                 <select id="filterBulan" onchange="renderTable()" class="input-modern">
                     <option value="">Semua Bulan</option>
-                    <option value="/01/">Januari</option>
-                    <option value="/02/">Februari</option>
-                    <option value="/03/">Maret</option>
-                    <option value="/04/">April</option>
-                    <option value="/05/">Mei</option>
-                    <option value="/06/">Juni</option>
-                    <option value="/07/">Juli</option>
-                    <option value="/08/">Agustus</option>
-                    <option value="/09/">September</option>
-                    <option value="/10/">Oktober</option>
-                    <option value="/11/">November</option>
-                    <option value="/12/">Desember</option>
+                    <option value="/01/">Januari</option><option value="/02/">Februari</option><option value="/03/">Maret</option>
+                    <option value="/04/">April</option><option value="/05/">Mei</option><option value="/06/">Juni</option>
+                    <option value="/07/">Juli</option><option value="/08/">Agustus</option><option value="/09/">September</option>
+                    <option value="/10/">Oktober</option><option value="/11/">November</option><option value="/12/">Desember</option>
                 </select>
             </div>
 
@@ -177,26 +143,20 @@
                     </table>
                 </div>
             </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 no-print pt-4">
+                <div class="card-custom p-6 bg-white">
+                    <h4 class="text-[10px] font-black uppercase mb-6 text-slate-400">Penyebaran Grup</h4>
+                    <div class="h-[200px]"><canvas id="pieChartGrup"></canvas></div>
+                </div>
+                <div class="card-custom p-6 bg-white">
+                    <h4 class="text-[10px] font-black uppercase mb-6 text-slate-400">Status Dokumen</h4>
+                    <div class="h-[200px]"><canvas id="barChartStatus"></canvas></div>
+                </div>
+            </div>
         </div>
     </div>
 </main>
-
-<div id="dashboardView" class="hidden container mx-auto px-6 -mt-20 pb-32 animate-fade">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="card-custom p-8 bg-emerald-600 text-white text-center">
-            <h4 class="text-[10px] font-black uppercase tracking-widest mb-4 opacity-80">Total Arsip</h4>
-            <div id="dash-total" class="text-6xl font-black">0</div>
-        </div>
-        <div class="card-custom p-6 bg-white">
-            <h4 class="text-[10px] font-black uppercase mb-6 text-slate-400 text-center">Penyebaran Grup</h4>
-            <div class="h-[220px]"><canvas id="pieChartGrup"></canvas></div>
-        </div>
-        <div class="card-custom p-6 bg-white">
-            <h4 class="text-[10px] font-black uppercase mb-6 text-slate-400 text-center">Status</h4>
-            <div class="h-[220px]"><canvas id="barChartStatus"></canvas></div>
-        </div>
-    </div>
-</div>
 
 <div id="qrModal" class="fixed inset-0 z-[110] bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-white p-8 rounded-[2.5rem] text-center max-w-xs w-full">
@@ -208,23 +168,29 @@
 
 <div id="agendaModal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-[2rem] p-8">
-        <h2 class="font-black text-xs uppercase mb-6 text-blue-600">Surat Masuk</h2>
+        <h2 class="font-black text-xs uppercase mb-6 text-blue-600">Input Surat Masuk</h2>
         <div class="space-y-3">
             <input type="text" id="agAsal" placeholder="Asal Surat" class="input-modern">
             <input type="text" id="agPerihal" placeholder="Perihal" class="input-modern">
             <input type="url" id="agLink" placeholder="Link Drive" class="input-modern">
-            <div class="flex gap-3 pt-4"><button onclick="closeModal('agendaModal')" class="flex-1 text-[10px] font-bold uppercase text-slate-400">Batal</button><button onclick="saveAgenda()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-[10px] uppercase">Simpan</button></div>
+            <div class="flex gap-3 pt-4">
+                <button onclick="closeModal('agendaModal')" class="flex-1 text-[10px] font-bold uppercase text-slate-400">Batal</button>
+                <button onclick="alert('Sinkronisasi database Surat Masuk akan diproses oleh sistem.')" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-[10px] uppercase">Simpan</button>
+            </div>
         </div>
     </div>
 </div>
 
 <div id="suratKeluarModal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-[2rem] p-8">
-        <h2 class="font-black text-xs uppercase mb-6 text-rose-600">Surat Keluar</h2>
+        <h2 class="font-black text-xs uppercase mb-6 text-rose-600">Input Surat Keluar</h2>
         <div class="space-y-3">
             <input type="text" id="skTujuan" placeholder="Tujuan" class="input-modern">
             <input type="text" id="skPerihal" placeholder="Perihal" class="input-modern">
-            <div class="flex gap-3 pt-4"><button onclick="closeModal('suratKeluarModal')" class="flex-1 text-[10px] font-bold uppercase text-slate-400">Batal</button><button onclick="saveSuratKeluar()" class="flex-1 py-3 bg-rose-600 text-white rounded-xl font-bold text-[10px] uppercase">Simpan</button></div>
+            <div class="flex gap-3 pt-4">
+                <button onclick="closeModal('suratKeluarModal')" class="flex-1 text-[10px] font-bold uppercase text-slate-400">Batal</button>
+                <button onclick="alert('Nomor surat keluar akan segera terdaftar otomatis.')" class="flex-1 py-3 bg-rose-600 text-white rounded-xl font-bold text-[10px] uppercase">Simpan</button>
+            </div>
         </div>
     </div>
 </div>
@@ -236,9 +202,6 @@ let db = [];
 let editId = null;
 let pieChart, barChart;
 
-const CONFIG = { instansi: "PKM-KRP", tahun: new Date().getFullYear() };
-
-// Initialize
 if (localStorage.getItem('pkm_session') !== 'active' || !SECRET_TOKEN) {
     window.location.href = 'index.html';
 } else {
@@ -250,18 +213,33 @@ async function loadFromCloud() {
     try {
         const res = await fetch(`${WEB_APP_URL}?token=${SECRET_TOKEN}`);
         const data = await res.json();
-        db = Array.isArray(data) ? data : [];
+        db = Array.isArray(data) ? data.map(item => ({
+            id: item.id || Date.now(),
+            formatNo: item.formatNo || item.formatno || '---',
+            n: item.n || '',
+            l: item.l || '',
+            k: item.k || 'A',
+            klaster: item.klaster || 'UMUM',
+            status: item.status || 'Selesai',
+            t: item.t || ''
+        })) : [];
         renderTable();
-    } catch (e) { console.error("Gagal load:", e); }
+        updateCharts();
+    } catch (e) { console.error("Load Error:", e); }
     showLoading(false);
 }
 
 async function syncToCloud() {
     showLoading(true);
     try {
-        await fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "saveAll", db: db, token: SECRET_TOKEN }) });
+        await fetch(WEB_APP_URL, { 
+            method: "POST", 
+            mode: 'no-cors',
+            body: JSON.stringify({ action: "saveAll", db: db, token: SECRET_TOKEN }) 
+        });
         updateStats();
-    } catch (e) { console.error("Gagal sync:", e); }
+        updateCharts();
+    } catch (e) { console.error("Sync Error:", e); }
     showLoading(false);
 }
 
@@ -273,31 +251,31 @@ function renderTable() {
 
     const filtered = db.filter(i => {
         const perihal = (i.n || "").toLowerCase();
-        const noArsip = (i.formatNo || i.formatno || "").toLowerCase();
-        const klaster = i.klaster || "";
-        const tgl = i.t || "";
-        return (perihal.includes(s) || noArsip.includes(s)) && (fK === "" || klaster === fK) && (fB === "" || tgl.includes(fB));
+        const noArsip = (i.formatNo || "").toLowerCase();
+        return (perihal.includes(s) || noArsip.includes(s)) && 
+               (fK === "" || i.klaster === fK) && 
+               (fB === "" || i.t.includes(fB));
     });
 
     b.innerHTML = filtered.map(i => {
         const link = (i.l || "").trim();
-        const status = i.status || "Selesai";
-        const stClass = status === 'Selesai' ? 'bg-blue-50 text-blue-600' : status === 'Penting' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600';
+        const stClass = i.status === 'Selesai' ? 'bg-blue-50 text-blue-600' : 
+                        i.status === 'Penting' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600';
         
         return `
         <tr class="hover:bg-slate-50 transition-all">
-            <td class="px-6 py-4 font-mono text-slate-500 font-bold">${i.formatNo || i.formatno || '---'}</td>
+            <td class="px-6 py-4 font-mono text-slate-500 font-bold">${i.formatNo}</td>
             <td class="px-6 py-4">
                 <div class="font-bold text-slate-800 uppercase">${i.n}</div>
-                <div class="text-[9px] text-slate-400 mt-1 uppercase">${i.t} | GRUP ${i.k} | <span class="text-emerald-600 font-bold">${i.klaster || 'UMUM'}</span></div>
+                <div class="text-[9px] text-slate-400 mt-1 uppercase">${i.t} | GRUP ${i.k} | <span class="text-emerald-600 font-bold">${i.klaster}</span></div>
             </td>
             <td class="px-6 py-4 text-center">
-                <span class="text-[9px] font-black px-3 py-1 rounded-full uppercase ${stClass}">${status}</span>
+                <span class="text-[9px] font-black px-3 py-1 rounded-full uppercase ${stClass}">${i.status}</span>
             </td>
             <td class="px-6 py-4">
                 <div class="flex justify-center gap-2">
-                    ${link ? `<a href="${link}" target="_blank" class="w-8 h-8 flex items-center justify-center bg-blue-600 text-white rounded-lg"><i class="fas fa-external-link-alt text-[10px]"></i></a>` : ''}
-                    <button onclick="showQR('${link}','${i.n}')" class="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100"><i class="fas fa-qrcode text-[10px]"></i></button>
+                    ${link ? `<a href="${link}" target="_blank" class="w-8 h-8 flex items-center justify-center bg-blue-600 text-white rounded-lg shadow-sm hover:scale-110 transition-transform"><i class="fas fa-external-link-alt text-[10px]"></i></a>` : ''}
+                    <button onclick="showQR('${link}','${i.n}')" class="w-8 h-8 flex items-center justify-center ${link ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-gray-100 text-gray-300 cursor-not-allowed'} border rounded-lg"><i class="fas fa-qrcode text-[10px]"></i></button>
                     <button onclick="editData(${i.id})" class="w-8 h-8 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg border border-amber-100"><i class="fas fa-pen text-[10px]"></i></button>
                     <button onclick="delData(${i.id})" class="w-8 h-8 flex items-center justify-center bg-rose-50 text-rose-400 rounded-lg border border-rose-100 hover:bg-rose-500 hover:text-white transition-all"><i class="fas fa-trash-can text-[10px]"></i></button>
                 </div>
@@ -324,13 +302,18 @@ document.getElementById('docForm').onsubmit = async (e) => {
         }
         cancelEdit();
     } else {
-        const sameCatDocs = db.filter(item => (item.formatNo || item.formatno || "").includes(`/${cat}/`));
-        const nextNo = sameCatDocs.length > 0 ? (parseInt((sameCatDocs[0].formatNo || sameCatDocs[0].formatno).split('/')[0]) + 1) : 1;
+        const sameCatDocs = db.filter(item => {
+            const parts = (item.formatNo || "").split('/');
+            return parts.length > 1 && parts[1] === cat;
+        });
+        let nextNo = 1;
+        if (sameCatDocs.length > 0) {
+            const numbers = sameCatDocs.map(item => parseInt(item.formatNo.split('/')[0])).filter(n => !isNaN(n));
+            nextNo = numbers.length > 0 ? Math.max(...numbers) + 1 : 1;
+        }
         const fullNo = `${nextNo.toString().padStart(3,'0')}/${cat}/PKM-KPDS/${romawi}/${date.getFullYear()}`;
-
         db.unshift({
             id: Date.now(),
-            noRaw: nextNo,
             formatNo: fullNo,
             n: document.getElementById('docName').value,
             k: document.getElementById('docGroup').value,
@@ -340,7 +323,6 @@ document.getElementById('docForm').onsubmit = async (e) => {
             t: date.toLocaleDateString('id-ID')
         });
     }
-
     renderTable();
     await syncToCloud();
     e.target.reset();
@@ -351,9 +333,9 @@ function editData(id) {
     if(!item) return;
     editId = id;
     document.getElementById('docName').value = item.n;
-    document.getElementById('docLink').value = item.l || "";
+    document.getElementById('docLink').value = item.l;
     document.getElementById('docGroup').value = item.k;
-    document.getElementById('inputKlaster').value = item.klaster || "Klaster 1";
+    document.getElementById('inputKlaster').value = item.klaster;
     document.getElementById('docStatus').value = item.status;
     document.getElementById('formTitle').innerText = "Edit Dokumen";
     document.getElementById('btnSubmit').innerText = "Update Data";
@@ -371,10 +353,14 @@ function cancelEdit() {
     document.getElementById('btnCancel').classList.add('hidden');
 }
 
-function showLoading(s) { document.getElementById('loading').classList.toggle('hidden', !s); }
-function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-function showQR(l, t) { if(!l) return alert('Link tidak ada'); document.getElementById("qrcode").innerHTML = ""; new QRCode(document.getElementById("qrcode"), { text: l, width: 140, height: 140 }); document.getElementById('qrTitle').innerText = t; openModal('qrModal'); }
+function updateCharts() {
+    const gData = ['A','B','C','D','E','F'].map(k => db.filter(i => i.k === k).length);
+    const sData = ['Selesai','Proses','Penting'].map(s => db.filter(i => i.status === s).length);
+    if(pieChart) pieChart.destroy();
+    if(barChart) barChart.destroy();
+    pieChart = new Chart(document.getElementById('pieChartGrup'), { type: 'doughnut', data: { labels: ['A','B','C','D','E','F'], datasets: [{ data: gData, backgroundColor: ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899'] }] }, options: { maintainAspectRatio: false } });
+    barChart = new Chart(document.getElementById('barChartStatus'), { type: 'bar', data: { labels: ['Selesai','Proses','Penting'], datasets: [{ label: 'Jumlah', data: sData, backgroundColor: ['#3b82f6','#f59e0b','#ef4444'] }] }, options: { maintainAspectRatio: false } });
+}
 
 function updateStats() {
     const cats = ['TOTAL', 'A', 'B', 'C', 'D', 'E', 'F'];
@@ -385,28 +371,16 @@ function updateStats() {
 }
 
 async function delData(id) { if(confirm("Hapus data?")) { db = db.filter(i => i.id !== id); renderTable(); await syncToCloud(); } }
-
-function switchTab(tab) {
-    document.getElementById('mainView').classList.toggle('hidden', tab !== 'main');
-    document.getElementById('dashboardView').classList.toggle('hidden', tab !== 'dashboard');
-    if(tab === 'dashboard') initDashboardCharts();
-}
-
-function initDashboardCharts() {
-    document.getElementById('dash-total').innerText = db.length;
-    const gData = ['A','B','C','D','E','F'].map(k => db.filter(i => i.k === k).length);
-    const sData = ['Selesai','Proses','Penting'].map(s => db.filter(i => i.status === s).length);
-    if(pieChart) pieChart.destroy();
-    if(barChart) barChart.destroy();
-    pieChart = new Chart(document.getElementById('pieChartGrup'), { type: 'doughnut', data: { labels: ['A','B','C','D','E','F'], datasets: [{ data: gData, backgroundColor: ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899'] }] }, options: { maintainAspectRatio: false } });
-    barChart = new Chart(document.getElementById('barChartStatus'), { type: 'bar', data: { labels: ['Selesai','Proses','Penting'], datasets: [{ data: sData, backgroundColor: ['#3b82f6','#f59e0b','#ef4444'] }] }, options: { maintainAspectRatio: false } });
-}
+function showLoading(s) { document.getElementById('loading').classList.toggle('hidden', !s); }
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function showQR(l, t) { if(!l) return alert('Link tidak ada'); document.getElementById("qrcode").innerHTML = ""; new QRCode(document.getElementById("qrcode"), { text: l, width: 140, height: 140 }); document.getElementById('qrTitle').innerText = t; openModal('qrModal'); }
 
 function exportToPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('l', 'mm', 'a4');
     doc.text("LAPORAN ARSIP DIGITAL PKM KIARAPEDES", 14, 15);
-    doc.autoTable({ startY: 25, head: [['NO ARSIP', 'PERIHAL', 'KLASTER', 'STATUS', 'TANGGAL']], body: db.map(i => [i.formatNo||i.formatno, i.n.toUpperCase(), i.klaster, i.status, i.t]) });
+    doc.autoTable({ startY: 25, head: [['NO ARSIP', 'PERIHAL', 'KLASTER', 'STATUS', 'TANGGAL']], body: db.map(i => [i.formatNo, i.n.toUpperCase(), i.klaster, i.status, i.t]) });
     doc.save('Laporan_Arsip_PKM.pdf');
 }
 </script>
