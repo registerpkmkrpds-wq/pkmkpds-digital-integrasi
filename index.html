@@ -8,35 +8,23 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;800&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        
         :root { --emerald-glow: rgba(16, 185, 129, 0.4); --slate-deep: #020617; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--slate-deep); color: #f8fafc; overflow-x: hidden; min-height: 100vh; }
         .mono { font-family: 'JetBrains Mono', monospace; }
-
-        /* Background Visual */
         .bg-mesh { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 20%), radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 20%); }
-
-        /* Glassmorphism Panel */
         .glass-panel { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.05); }
-        
-        /* Interaksi Kartu */
         .app-card { transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); border: 1px solid rgba(255, 255, 255, 0.03); height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
         .app-card:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(16, 185, 129, 0.3); transform: translateY(-10px); box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7); }
-
-        /* Dokumentasi Sidebar */
         #docSidebar { transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1); z-index: 100; transform: translateX(100%); }
         .sidebar-open { transform: translateX(0) !important; }
-        
         .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-        .markdown-body h2 { color: #10b981; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; margin-top: 20px; margin-bottom: 10px; }
-        .markdown-body p, .markdown-body li { font-size: 0.8rem; color: #94a3b8; line-height: 1.6; }
     </style>
 </head>
 <body>
     <div class="bg-mesh"></div>
 
     <div id="loginSection" class="flex items-center justify-center min-h-screen p-6 transition-all duration-700">
-        <div class="glass-panel w-full max-w-md p-10 rounded-[2.5rem] shadow-2xl">
+        <div class="glass-panel w-full max-w-md p-10 rounded-[2.5rem] shadow-2xl border border-white/10">
             <div class="flex flex-col items-center mb-8">
                 <div class="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/20 rotate-6">
                     <i class="fas fa-fingerprint text-3xl text-slate-900"></i>
@@ -46,17 +34,9 @@
             </div>
             
             <div class="space-y-4">
-                <input type="text" id="user" 
-                    onkeydown="if(event.key === 'Enter') document.getElementById('pass').focus()"
-                    class="w-full bg-slate-900/50 border border-white/5 p-4 rounded-xl text-sm focus:border-emerald-500 transition-all outline-none mono text-white" 
-                    placeholder="Nama Pengguna">
-                
-                <input type="password" id="pass" 
-                    onkeydown="if(event.key === 'Enter') auth()"
-                    class="w-full bg-slate-900/50 border border-white/5 p-4 rounded-xl text-sm focus:border-emerald-500 transition-all outline-none mono text-white" 
-                    placeholder="Kata Sandi">
-                
-                <button onclick="auth()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 py-4 rounded-xl font-black uppercase text-[10px] tracking-[0.2em] mt-4 shadow-xl transition-all active:scale-95">
+                <input type="text" id="user" onkeydown="if(event.key === 'Enter') document.getElementById('pass').focus()" class="w-full bg-slate-900/50 border border-white/5 p-4 rounded-xl text-sm focus:border-emerald-500 transition-all outline-none mono text-white" placeholder="Nama Pengguna">
+                <input type="password" id="pass" onkeydown="if(event.key === 'Enter') auth()" class="w-full bg-slate-900/50 border border-white/5 p-4 rounded-xl text-sm focus:border-emerald-500 transition-all outline-none mono text-white" placeholder="Kata Sandi">
+                <button onclick="auth()" id="authBtn" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 py-4 rounded-xl font-black uppercase text-[10px] tracking-[0.2em] mt-4 shadow-xl transition-all active:scale-95">
                     Verifikasi Akses
                 </button>
             </div>
@@ -76,7 +56,6 @@
                     <i class="fas fa-book-medical"></i>
                     <span class="text-[10px] font-black uppercase tracking-widest">Panduan & Log Sistem</span>
                 </button>
-                <div class="h-10 w-[1px] bg-white/10 hidden lg:block"></div>
                 <button onclick="logout()" class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center border border-rose-500/10">
                     <i class="fas fa-power-off text-sm"></i>
                 </button>
@@ -84,80 +63,38 @@
         </header>
 
         <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            
             <a href="e-arsip.html" class="app-card glass-panel p-8 rounded-[2rem] group border-t-2 border-purple-500/10">
                 <div>
                     <div class="flex justify-between items-start mb-6">
                         <div class="w-12 h-12 bg-purple-500/20 text-purple-400 rounded-xl flex items-center justify-center group-hover:bg-purple-500 group-hover:text-white transition-all"><i class="fas fa-folder-open text-xl"></i></div>
-                        <span class="text-[8px] font-black opacity-30 tracking-widest uppercase text-white">Arsip</span>
+                        <span class="text-[8px] font-black opacity-30 tracking-widest uppercase text-white">Modul v3.0</span>
                     </div>
                     <h3 class="text-lg font-bold mb-2 text-white italic tracking-tight uppercase">Arsip Digital</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed mb-6">Pusat digitalisasi surat menyurat, regulasi internal, dan dokumen akreditasi.</p>
+                    <p class="text-xs text-slate-500 leading-relaxed mb-6">Pusat digitalisasi surat, regulasi, dan dokumen akreditasi puskesmas.</p>
                 </div>
-                <div class="pt-6 border-t border-white/5 flex justify-between items-center text-[9px] font-black text-purple-500 uppercase tracking-widest">Buka Sistem <i class="fas fa-chevron-right ml-1"></i></div>
+                <div class="pt-6 border-t border-white/5 flex justify-between items-center text-[9px] font-black text-purple-500 uppercase tracking-widest">Akses Database <i class="fas fa-chevron-right ml-1"></i></div>
             </a>
             
             <a href="simpeg.html" class="app-card glass-panel p-8 rounded-[2rem] group border-t-2 border-blue-500/10">
                 <div>
                     <div class="flex justify-between items-start mb-6">
                         <div class="w-12 h-12 bg-blue-500/20 text-blue-400 rounded-xl flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-all"><i class="fas fa-users-viewfinder text-xl"></i></div>
-                        <span class="text-[8px] font-black opacity-30 tracking-widest uppercase text-white">Kepegawaian</span>
                     </div>
                     <h3 class="text-lg font-bold mb-2 text-white italic tracking-tight uppercase">Simpeg Digital</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed mb-6">Manajemen data pegawai, monitoring masa berlaku SIP, KGB/Pangkat dan arsip digital SDM.</p>
+                    <p class="text-xs text-slate-500 leading-relaxed mb-6">Manajemen data pegawai, monitoring SIP, dan arsip digital SDM.</p>
                 </div>
-                <div class="pt-6 border-t border-white/5 flex justify-between items-center text-[9px] font-black text-blue-500 uppercase tracking-widest">Buka Sistem <i class="fas fa-chevron-right ml-1"></i></div>
+                <div class="pt-6 border-t border-white/5 flex justify-between items-center text-[9px] font-black text-blue-500 uppercase tracking-widest">Coming Soon <i class="fas fa-lock"></i></div>
             </a>
 
             <a href="analisis-data.html" class="app-card glass-panel p-8 rounded-[2rem] group border-t-2 border-emerald-500/20">
                 <div>
                     <div class="flex justify-between items-start mb-6">
                         <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-all"><i class="fas fa-chart-line text-xl"></i></div>
-                        <span class="text-[8px] font-black opacity-30 tracking-widest uppercase text-white">Analisis</span>
                     </div>
                     <h3 class="text-lg font-bold mb-2 text-white italic tracking-tight uppercase text-emerald-500">Analisis Data</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed mb-6">Audit sinkronisasi data ASIK vs E-Puskesmas serta mapping tren penyakit bulanan.</p>
+                    <p class="text-xs text-slate-500 leading-relaxed mb-6">Sinkronisasi data ASIK vs E-Puskesmas dan mapping tren penyakit.</p>
                 </div>
-                <div class="pt-6 border-t border-white/5 flex justify-between items-center">
-                    <span class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Buka Sistem <i class="fas fa-chevron-right ml-1"></i></span>
-                    <div id="dataStatus" class="flex items-center text-[9px] font-bold text-slate-600"><span class="status-dot bg-slate-600"></span> Siaga</div>
-                </div>
-            </a>
-
-            <a href="masukan.html" class="app-card glass-panel p-8 rounded-[2rem] group border-t-2 border-amber-500/20">
-                <div>
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-xl flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-all"><i class="fas fa-file-invoice-dollar text-xl"></i></div>
-                        <span class="text-[8px] font-black opacity-30 tracking-widest uppercase text-white">Keuangan</span>
-                    </div>
-                    <h3 class="text-lg font-bold mb-2 text-white italic tracking-tight uppercase text-amber-500">Keuangan</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed mb-6">Audit belanja JKN/BOK berbasis ILP dengan algoritma efisiensi biaya per pasien.</p>
-                </div>
-                <div class="pt-6 border-t border-white/5 flex justify-between items-center text-[9px] font-black text-amber-500 uppercase tracking-widest">Coming Soon... <i class="fas fa-lock"></i></div>
-            </a>
-
-            <a href="logistik.html" class="app-card glass-panel p-8 rounded-[2rem] group border-t-2 border-cyan-500/10">
-                <div>
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="w-12 h-12 bg-cyan-500/20 text-cyan-400 rounded-xl flex items-center justify-center group-hover:bg-cyan-500 group-hover:text-white transition-all"><i class="fas fa-boxes-stacked text-xl"></i></div>
-                        <span class="text-[8px] font-black opacity-30 tracking-widest uppercase text-white">Logistik</span>
-                    </div>
-                    <h3 class="text-lg font-bold mb-2 text-white italic tracking-tight uppercase">Logistik & BMHP</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed mb-6">Kontrol stok obat, alat kesehatan, dan monitoring sarana prasarana (ASPPAK).</p>
-                </div>
-                <div class="pt-6 border-t border-white/5 flex justify-between items-center text-[9px] font-black text-cyan-500 uppercase tracking-widest">Coming Soon... <i class="fas fa-lock"></i></div>
-            </a>
-
-            <a href="mutu.html" class="app-card glass-panel p-8 rounded-[2rem] group border-t-2 border-rose-500/10">
-                <div>
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="w-12 h-12 bg-rose-500/20 text-rose-400 rounded-xl flex items-center justify-center group-hover:bg-rose-500 group-hover:text-white transition-all"><i class="fas fa-star-half-stroke text-xl"></i></div>
-                        <span class="text-[8px] font-black opacity-30 tracking-widest uppercase text-white">App</span>
-                    </div>
-                    <h3 class="text-lg font-bold mb-2 text-white italic tracking-tight uppercase text-rose-500">Next App</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed mb-6">Aplikasi pendukung untuk membantu kinerja puskesmas kiarapedes</p>
-                </div>
-                <div class="pt-6 border-t border-white/5 flex justify-between items-center text-[9px] font-black text-rose-500 uppercase tracking-widest">Coming Soon... <i class="fas fa-lock"></i></div>
+                <div class="pt-6 border-t border-white/5 flex justify-between items-center text-[9px] font-black text-emerald-500 uppercase tracking-widest">Siaga Sistem <i class="fas fa-check-double"></i></div>
             </a>
         </div>
     </div>
@@ -167,122 +104,64 @@
             <h2 class="text-xl font-black italic uppercase tracking-tighter text-white">Manual <span class="text-emerald-500">Sistem</span></h2>
             <button onclick="toggleDoc()" class="text-slate-400 hover:text-white transition-all"><i class="fas fa-times text-xl"></i></button>
         </div>
-
-        <div class="markdown-body">
-            <section>
-                <h2>🚀 Visi Strategis</h2>
-                <p>Sistem Intelligence PKM Kiarapedes v3.1 dirancang untuk menyatukan data pelayanan klinis dengan audit manajemen dalam satu gerbang terpadu.</p>
-            </section>
-            <section>
-                <h2>🛠️ Prosedur Operasional (SOP)</h2>
-                <ul>
-                    <li>Gunakan menu <b>Analitik Medis</b> untuk sinkronisasi data kunjungan harian dari ASIK/EPuskesmas.</li>
-                    <li>Audit efisiensi belanja JKN/BOK dilakukan melalui menu <b>Finance Intel</b>.</li>
-                    <li>Semua data disimpan secara lokal pada peramban (browser) untuk menjamin keamanan privasi.</li>
-                </ul>
-            </section>
-            <section class="mt-8 pt-6 border-t border-white/10">
-                <div class="flex items-center gap-2 mb-4 text-emerald-500">
-                    <span class="status-dot bg-emerald-500 animate-pulse"></span>
-                    <span class="text-[10px] font-black uppercase tracking-widest">Log Aktivitas Langsung</span>
-                </div>
-                <div id="logContainer" class="space-y-3">
-                    </div>
-            </section>
+        <div class="space-y-6 text-sm text-slate-400 leading-relaxed">
+            <p><b class="text-emerald-500 uppercase">Visi:</b> Mengintegrasikan seluruh data administrasi ke dalam satu gerbang akses terenkripsi.</p>
+            <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                <p class="text-[10px] font-bold text-white uppercase mb-2">Log Keamanan</p>
+                <p class="text-[9px] italic">Sesi login Anda berlaku selama browser tidak dibersihkan.</p>
+            </div>
         </div>
     </div>
 
     <script>
-        // Data Kredensial
-        // Pastikan URL ini adalah URL Deployment terbaru Anda
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwLzBas4iCCvs2wsLA2XcjHmAqILMFHu3Ff8twtRiQzJHrEYgfp2dJ1g_KTWcK97anumg/exec"; 
-const SECRET_TOKEN = "PKM_KRPDS_2026_SECURE"; // Harus sama dengan di GAS
+        // UPDATE: URL disamakan dengan file E-Arsip
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyPuME9g05BtTN-ME-rXdzsSdbRz4_ZuBRfePuDaLLVnVH_z9mBkQSMBl4oVEEGqK_1RA/exec";
+        // Update Token: Harus string unik yang dikenal sistem
+        const SECRET_TOKEN = "PKM_KRPDS_2026_SECURE"; 
 
-async function auth() {
-    const u = document.getElementById('user').value;
-    const p = document.getElementById('pass').value;
-    const btn = document.querySelector('button');
+        async function auth() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            const btn = document.getElementById('authBtn');
 
-    // Data Kredensial Lokal (Sesuai kode asli Anda)
-    const vault = { 'pkmkiarapedes': 'pkm@2026', };
+            // Database User Lokal
+            const vault = { 'pkmkiarapedes': 'pkm@2026' };
 
-    if(vault[u] && vault[u] === p) {
-        btn.innerText = "MENYIAPKAN SESI...";
-        
-        // Simpan status login dan token ke browser
-        localStorage.setItem('pkm_session', 'active');
-        localStorage.setItem('pkm_user', u);
-        localStorage.setItem('pkm_token', SECRET_TOKEN); 
-        
-        // Beri jeda sedikit agar terasa seperti loading sistem beneran
-        setTimeout(() => {
-            renderHub();
-        }, 800);
-    } else { 
-        alert("AKSES DITOLAK: Username atau Password salah."); 
-    }
-}
-        // Fungsi Menampilkan Dashboard
+            if(vault[u] && vault[u] === p) {
+                btn.innerText = "MENGOTORISASI...";
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                
+                // Simpan Sesi
+                localStorage.setItem('pkm_session', 'active');
+                localStorage.setItem('pkm_user', u);
+                localStorage.setItem('pkm_token', SECRET_TOKEN); 
+                
+                setTimeout(() => {
+                    renderHub();
+                }, 600);
+            } else {
+                alert("AKSES DITOLAK: Kredensial tidak valid.");
+            }
+        }
+
         function renderHub() {
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('hubSection').classList.remove('hidden');
-            updateExternalStats();
         }
 
-        // Update Indikator Status pada Kartu
-        function updateExternalStats() {
-            const pasien = localStorage.getItem('totalPasienILP');
-            const finSync = localStorage.getItem('serapanPersen');
-            
-            if(pasien) {
-                document.getElementById('dataStatus').innerHTML = `<span class="status-dot bg-emerald-500 animate-pulse"></span> ${pasien} DATA SINKRON`;
-                document.getElementById('dataStatus').className = "flex items-center text-[9px] font-bold text-emerald-500";
-            }
-            if(finSync) {
-                document.getElementById('finStatus').innerHTML = `<span class="status-dot bg-amber-500 animate-pulse"></span> TER-AUDIT`;
-                document.getElementById('finStatus').className = "flex items-center text-[9px] font-bold text-amber-500";
-            }
-        }
-
-        // Fungsi Render Log di Sidebar
-        function refreshLogs() {
-            const container = document.getElementById('logContainer');
-            const logs = [];
-            const lastMedis = localStorage.getItem('last_medis_update');
-            const lastFin = localStorage.getItem('last_finance_update');
-
-            if(lastMedis) logs.push({title: "Sinkron Medis", desc: "Data PWS telah diperbarui", time: lastMedis});
-            if(lastFin) logs.push({title: "Audit Keuangan", desc: "Laporan JKN/BOK telah diterbitkan", time: lastFin});
-
-            container.innerHTML = logs.length ? logs.map(l => `
-                <div class="bg-white/5 p-3 rounded-xl border border-white/5">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-[9px] font-black text-emerald-400 uppercase">${l.title}</span>
-                        <span class="mono text-[8px] opacity-30">${l.time}</span>
-                    </div>
-                    <p class="text-[10px] opacity-50 italic">${l.desc}</p>
-                </div>
-            `).join('') : `<p class="text-[10px] opacity-30 italic">Belum ada log aktivitas hari ini.</p>`;
-        }
-
-        // Kontrol Buka/Tutup Sidebar
         function toggleDoc() {
-            const sidebar = document.getElementById('docSidebar');
-            sidebar.classList.toggle('sidebar-open');
-            if(sidebar.classList.contains('sidebar-open')) refreshLogs();
+            document.getElementById('docSidebar').classList.toggle('sidebar-open');
         }
 
-        // Fungsi Logout
-        function logout() { 
-            if(confirm("Apakah Anda yakin ingin keluar dari sistem?")) {
-                localStorage.clear(); 
-                location.reload(); 
+        function logout() {
+            if(confirm("Keluar dari Digital System?")) {
+                localStorage.clear();
+                location.reload();
             }
         }
 
-        // Cek Sesi saat Halaman Dimuat
-        window.onload = () => { 
-            if(localStorage.getItem('pkm_session') === 'active') renderHub(); 
+        window.onload = () => {
+            if(localStorage.getItem('pkm_session') === 'active') renderHub();
         }
     </script>
 </body>
