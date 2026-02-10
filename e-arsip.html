@@ -34,8 +34,9 @@
     <div class="container mx-auto px-6 pt-10">
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="font-black text-2xl tracking-tighter italic uppercase">E-Arsip <span class="text-emerald-400">Digital</span></h1>
-                <p class="text-[9px] font-bold uppercase tracking-[0.3em] text-emerald-300">UPTD PUSKESMAS KIARAPEDES - STANDAR ILP</p>
+                <h1 class="font-black text-2xl tracking-tighter italic uppercase">A r s i p <span class="text-emerald-400">  D i g i t a l</span></h1>
+                <p class="text-[9px] font-bold uppercase tracking-[0.3em] text-emerald-300"> PUSKESMAS KIARAPEDES</p>
+                 <p class="text-[7px] font-italic uppercase tracking-[0.3em] text-white-300">MANAJEMEN ARSIP @ DATA & INFORMASI</p>
             </div>
             <div class="theme-switch" onclick="toggleDarkMode()"><div class="dot"></div></div>
         </div>
@@ -68,7 +69,7 @@
                 <form id="formArsip" class="space-y-4">
                     <div class="bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-xl border border-emerald-200 mb-4">
                         <p class="text-[10px] font-bold text-emerald-700 uppercase">Preview Nomor:</p>
-                        <h4 id="displayNomor" class="font-mono font-bold text-sm text-slate-700 dark:text-emerald-300 mt-1">---</h4>
+                        <h4 id="displayNomor" class="font-mono font-bold text-sm text-white-700 dark:text-white-300 mt-1">---</h4>
                     </div>
 
                     <div>
@@ -98,23 +99,17 @@
                     </div>
 
                     <div>
-                        <label class="text-[10px] font-black uppercase text-slate-500 italic text-emerald-600">Upload Dokumen (Simulasi Drive)</label>
+                        <label class="text-[10px] font-black uppercase text-slate-500 italic text-emerald-600">Upload Dokumen (PDF/JPG)</label>
                         <input type="file" id="arsipFile" class="text-[10px] block w-full text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
                     </div>
 
                     <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg">SIMPAN KE DATABASE</button>
-                    <button type="button" onclick="togglePedoman()" class="w-full text-[10px] font-bold text-slate-400 mt-2"><i class="fas fa-info-circle"></i> LIHAT PEDOMAN KODE</button>
+                    <button type="button" onclick="togglePedoman()" class="w-full text-[10px] font-bold text-orange-600 hover:text-rose-500 mt-2"><i class="fas fa-info-circle"></i> LIHAT PEDOMAN KODE</button>
                 </form>
             </div>
         </div>
-
-        <div class="lg:col-span-8">
-            <div class="card-custom p-4 flex items-center shadow-md mb-4">
-                <i class="fas fa-search text-slate-400 mr-3"></i>
-                <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari arsip..." class="w-full bg-transparent outline-none font-semibold text-sm">
-            </div>
-
-<div class="flex gap-2 mb-4">
+   
+    <div class="flex gap-2 mb-4">
     <div class="card-custom p-4 flex items-center shadow-md flex-1">
         <i class="fas fa-search text-slate-400 mr-3"></i>
         <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari arsip..." class="w-full bg-transparent outline-none font-semibold text-sm">
@@ -122,7 +117,7 @@
     <button onclick="exportToExcel()" class="card-custom px-6 bg-emerald-600 text-white font-bold text-xs flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-md">
         <i class="fas fa-file-excel"></i> EXPORT
     </button>
-</div>
+    </div>
             
             <div class="card-custom overflow-hidden shadow-xl">
                 <table class="w-full">
@@ -150,7 +145,7 @@
 
 <div id="modalPedoman" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-8 shadow-2xl">
-        <h2 class="font-black text-xl text-emerald-700 uppercase italic mb-4">Pedoman ILP & Klasifikasi</h2>
+        <h2 class="font-black text-xl text-emerald-700 uppercase italic mb-4">Pedoman Penomoran ILP & Klasifikasi</h2>
         <div id="pedomanContent" class="space-y-4 text-xs text-slate-600">
             </div>
         <button onclick="togglePedoman()" class="mt-6 w-full bg-slate-800 text-white py-2 rounded-xl">Tutup</button>
@@ -327,6 +322,47 @@ function exportToExcel() {
     // Download File
     const tgl = new Date().toISOString().split('T')[0];
     XLSX.writeFile(workbook, `E-Arsip_PKM_Kiarapedes_${tgl}.xlsx`);}    
+
+    function renderPedoman() {
+    const pedomanData = [
+        { klaster: "Klaster 1 (Manajemen)", deskripsi: "Urusan TU, Kepegawaian, Keuangan, dan Sistem Informasi.", kode: "800, 900, 060" },
+        { klaster: "Klaster 2 (Ibu & Anak)", deskripsi: "KIA, KB, Gizi, Imunisasi, dan Kesehatan Remaja.", kode: "400.7.5" },
+        { klaster: "Klaster 3 (Dewasa & Lansia)", deskripsi: "Penyakit Tidak Menular (PTM), Penyakit Menular, dan Lansia.", kode: "400.7.2, 400.7.3" },
+        { klaster: "Klaster 4 (P2P & Kesling)", deskripsi: "Surveilans, Sanitasi, dan Kesehatan Jiwa.", kode: "400.7.3, 400.7.6" },
+        { klaster: "Lintas Klaster", deskripsi: "Farmasi, Laboratorium, dan Gawat Darurat.", kode: "400.7.1, 400.7.2" }
+    ];
+
+    let html = `
+        <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100 mb-6">
+            <h3 class="font-bold text-blue-700 mb-1">💡 Format Nomor (Perbup 12/2024):</h3>
+            <p class="font-mono text-[10px]">[KODE] / [NO URUT] / PKM-KPDS / [TAHUN]</p>
+        </div>
+    `;
+
+    pedomanData.forEach(item => {
+        html += `
+            <div class="border-b pb-3 mb-3">
+                <h4 class="font-black text-emerald-600 uppercase text-[10px]">${item.klaster}</h4>
+                <p class="text-[11px] text-slate-600 mb-1">${item.deskripsi}</p>
+                <span class="bg-slate-100 px-2 py-0.5 rounded text-[9px] font-bold text-slate-500 italic">REFERENSI KODE: ${item.kode}</span>
+            </div>
+        `;
+    });
+
+    document.getElementById('pedomanContent').innerHTML = html;
+}
+
+// Update window.onload agar memanggil semua fungsi inisialisasi
+window.onload = () => {
+    const kSel = document.getElementById('selKlaster');
+    kSel.innerHTML = ""; // Clear
+    Object.keys(KLASTER).forEach(k => kSel.innerHTML += `<option value="${k}">${k}</option>`);
+    
+    updateSub();
+    renderTable();
+    initChart();
+    renderPedoman(); // Pastikan ini dipanggil
+};
 </script>
 </body>
 </html>
