@@ -3,102 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Arsip ILP | PKM Kiarapedes</title>
+    <title>E-Arsip & Surat Tugas | PKM Kiarapedes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; }
-        .glass-header { background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); }
-        .card-custom { background: white; border-radius: 1.5rem; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
-        .input-modern { width: 100%; padding: 0.75rem 1rem; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; transition: 0.2s; }
-        .input-modern:focus { border-color: #10b981; background: white; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #1e293b; }
+        .glass-header { background: linear-gradient(135deg, #064e3b 0%, #059669 100%); }
+        .card-custom { background: white; border-radius: 1.25rem; border: 1px solid #e2e8f0; }
+        .input-modern { width: 100%; padding: 0.75rem 1rem; background: #f1f5f9; border: 2px solid transparent; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; transition: 0.2s; }
+        .input-modern:focus { border-color: #10b981; background: white; }
         .tab-active { background: #10b981 !important; color: white !important; }
-        .sub-tab-active { background: #10b981; color: white !important; }
+        .stat-card { background: white; padding: 1rem; border-radius: 1rem; border: 1px solid #e2e8f0; text-align: center; }
     </style>
 </head>
-<body class="text-slate-900">
+<body>
 
 <header class="glass-header text-white pb-32">
     <div class="container mx-auto px-6 pt-10">
-        <h1 class="font-black text-2xl uppercase tracking-tighter italic">E-Arsip <span class="text-emerald-400">Kiarapedes</span></h1>
-        <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-300">Sistem Integrasi Pelayanan Primer</p>
+        <h1 class="font-black text-2xl tracking-tighter italic uppercase">E-Arsip <span class="text-emerald-400">Digital</span></h1>
+        <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-300">UPTD PUSKESMAS KIARAPEDES</p>
     </div>
 </header>
 
-<main class="container mx-auto px-6 -mt-20 pb-20">
-    <div class="flex flex-wrap gap-2 mb-8">
-        <button onclick="switchMainTab('arsip')" id="btn-main-arsip" class="main-tab-link tab-active bg-white text-slate-600 px-6 py-3 rounded-2xl font-black text-[10px] uppercase shadow-sm">Manajemen Arsip</button>
-        <button onclick="switchMainTab('tugas')" id="btn-main-tugas" class="main-tab-link bg-white text-slate-600 px-6 py-3 rounded-2xl font-black text-[10px] uppercase shadow-sm">Buat Surat Tugas</button>
+<main class="container mx-auto px-6 -mt-24 pb-20">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8" id="statContainer"></div>
+
+    <div class="flex gap-2 mb-6">
+        <button onclick="switchTab('arsip')" id="btn-tab-arsip" class="tab-link tab-active px-6 py-3 rounded-2xl font-black text-[10px] uppercase shadow-md">Manajemen Arsip</button>
+        <button onclick="switchTab('tugas')" id="btn-tab-tugas" class="tab-link bg-white text-slate-500 px-6 py-3 rounded-2xl font-black text-[10px] uppercase shadow-md">Buat Surat Tugas</button>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div class="lg:col-span-4">
-            
-            <div id="content-arsip" class="main-content card-custom p-6 sticky top-6">
-                <h3 class="text-xs font-black uppercase tracking-widest text-emerald-600 mb-6">Pengarsipan Dokumen</h3>
-                
-                <div class="flex bg-slate-100 p-1 rounded-xl mb-6">
-                    <button onclick="setJenis('Masuk')" id="btn-sub-masuk" class="sub-tab-link sub-tab-active flex-1 py-2 rounded-lg text-[9px] font-black uppercase">Surat Masuk</button>
-                    <button onclick="setJenis('Keluar')" id="btn-sub-keluar" class="sub-tab-link flex-1 py-2 rounded-lg text-[9px] font-black uppercase text-slate-400">Surat Keluar</button>
-                </div>
-
-                <form id="docForm" class="space-y-4">
-                    <input type="hidden" id="valJenis" value="Masuk">
-                    <select id="inputKlaster" class="input-modern" onchange="updateSub()"></select>
-                    <select id="subKategori" class="input-modern"></select>
-                    <input type="text" id="docName" placeholder="Perihal Surat" class="input-modern" required>
-                    <input type="date" id="docDate" class="input-modern" required>
-                    <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg">Simpan Ke Database</button>
+            <div id="pane-arsip" class="pane card-custom p-6 shadow-xl sticky top-6">
+                <h3 class="text-xs font-black uppercase text-emerald-600 mb-6 italic">Input Arsip Baru</h3>
+                <form id="formArsip" class="space-y-4">
+                    <select id="selKlaster" class="input-modern" onchange="updateSub()"></select>
+                    <select id="selSub" class="input-modern"></select>
+                    <input type="text" id="arsipNama" placeholder="Judul Dokumen / Perihal" class="input-modern" required>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="date" id="arsipTgl" class="input-modern" required>
+                        <select id="arsipTipe" class="input-modern">
+                            <option value="Masuk">Surat Masuk</option>
+                            <option value="Keluar">Surat Keluar</option>
+                        </select>
+                    </div>
+                    <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center">
+                        <input type="file" id="arsipFile" class="hidden" onchange="updateFileName()">
+                        <label for="arsipFile" class="cursor-pointer">
+                            <i class="fas fa-cloud-upload-alt text-emerald-500 text-xl mb-1"></i>
+                            <p id="fileNameDisplay" class="text-[9px] font-bold text-slate-400 uppercase">Lampirkan File</p>
+                        </label>
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-xl font-black uppercase text-xs">Simpan ke Cloud</button>
                 </form>
             </div>
 
-            <div id="content-tugas" class="main-content hidden card-custom p-6 sticky top-6">
-                <h3 class="text-xs font-black uppercase tracking-widest text-indigo-600 mb-6">Generator Surat Tugas</h3>
-                <div class="space-y-3">
+            <div id="pane-tugas" class="pane hidden card-custom p-6 shadow-xl sticky top-6">
+                <h3 class="text-xs font-black uppercase text-indigo-600 mb-6 italic">Buat Surat Tugas</h3>
+                <div class="space-y-4">
                     <input type="text" id="stNo" placeholder="Nomor Urut (Contoh: 001)" class="input-modern">
-                    <select id="selPegawai" class="input-modern" onchange="addPegawai()"></select>
-                    <div id="listPetugas" class="p-3 bg-slate-50 rounded-xl space-y-2 border border-dashed border-slate-300 min-h-[50px]"></div>
+                    <select id="selPegawai" class="input-modern" onchange="tambahPetugas()"></select>
+                    <div id="boxPetugas" class="p-3 bg-slate-50 rounded-xl space-y-2 border border-dashed min-h-[50px]"></div>
                     <input type="text" id="stTujuan" placeholder="Tempat Tujuan" class="input-modern">
                     <input type="date" id="stTgl" class="input-modern">
                     <textarea id="stMaksud" placeholder="Maksud Tugas" class="input-modern h-20"></textarea>
-                    <button onclick="exportPDF()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg">Cetak Surat Tugas</button>
+                    <button onclick="cetakSuratTugas()" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-black uppercase text-xs">Cetak PDF Sesuai Template</button>
                 </div>
             </div>
         </div>
 
-        <div class="lg:col-span-8">
-            <div class="card-custom overflow-hidden bg-white">
-                <div class="p-5 border-b flex justify-between items-center bg-slate-50/50">
-                    <h2 id="tableTitle" class="font-black text-[10px] uppercase text-slate-400 tracking-widest italic">Daftar Surat Masuk</h2>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-50 border-b text-[9px] text-slate-400 font-black uppercase tracking-tighter">
-                            <tr>
-                                <th class="px-6 py-4">Tanggal</th>
-                                <th class="px-6 py-4">Klaster</th>
-                                <th class="px-6 py-4">Perihal</th>
-                                <th class="px-6 py-4 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody" class="divide-y divide-slate-100 text-[11px] font-bold text-slate-600"></tbody>
-                    </table>
-                </div>
+        <div class="lg:col-span-8 space-y-4">
+            <div class="relative">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari arsip berdasarkan judul, klaster, atau file..." class="w-full pl-12 pr-4 py-4 rounded-2xl shadow-md outline-none focus:ring-2 focus:ring-emerald-500 font-semibold text-sm border-none">
+            </div>
+
+            <div class="card-custom overflow-hidden shadow-lg">
+                <table class="w-full">
+                    <thead class="bg-slate-50 border-b">
+                        <tr class="text-[10px] uppercase font-bold text-slate-500">
+                            <th class="p-4 text-left">Tanggal</th>
+                            <th class="p-4 text-left">Klaster</th>
+                            <th class="p-4 text-left">Judul</th>
+                            <th class="p-4 text-left">File</th>
+                            <th class="p-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="text-sm"></tbody>
+                </table>
             </div>
         </div>
     </div>
 </main>
 
 <script>
-// DATA LOGO (PASTE BASE64 LENGKAP DI SINI)
-const LOGO_KAB = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR4AAAFMCAYAAAAdj9MqAAABAGlDQ1BpY2MAABiVY2BgPMEABCwGDAy5eSVFQe5OChGRUQrsDxgYgRAMEpOLCxhwA6Cqb9cgai/r4lGHC3CmpBYnA+kPQKxSBLQcaKQIkC2SDmFrgNhJELYNiF1eUlACZAeA2EUhQc5AdgqQrZGOxE5CYicXFIHU9wDZNrk5pckIdzPwpOaFBgNpDiCWYShmCGJwZ3AC+R+iJH8RA4PFVwYG5gkIsaSZDAzbWxkYJG4hxFQWMDDwtzAwbDuPEEOESUFiUSJYiAWImdLSGBg+LWdg4I1kYBC+wMDAFQ0LCBxuUwC7zZ0hHwjTGXIYUoEingx5DMkMekCWEYMBgyGDGQCm1j8/yRb+6wAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QA/wD/AP+gvaeTAAABPXpUWHRSYXcgcHJvZmlsZSB0eXBlIGljYwAAKJGdU9mtxCAM/KeKLcH4JOUkJEiv/waeuaJslP3YHYkgOWbGHkz4yzm...";
-const LOGO_PKM = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR4AAAFMCAYAAAAdj9MqAAABAGlDQ1BpY2MAABiVY2BgPMEABCwGDAy5eSVFQe5OChGRUQrsDxgYgRAMEpOLCxhwA6Cqb9cgai/r4lGHC3CmpBYnA+kPQKxSBLQcaKQIkC2SDmFrgNhJELYNiF1eUlACZAeA2EUhQc5AdgqQrZGOxE5CYicXFIHU9wDZNrk5pckIdzPwpOaFBgNpDiCWYShmCGJwZ3AC+R+iJH8RA4PFVwYG5gkIsaSZDAzbWxkYJG4hxFQWMDDwtzAwbDuPEEOESUFiUSJYiAWImdLSGBg+LWdg4I1kYBC+wMDAFQ0LCBxuUwC7zZ0hHwjTGXIYUoEingx5DMkMekCWEYMBgyGDGQCm1j8/yRb+6wAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QA/wD/AP+gvaeTAAABPXpUWHRSYXcgcHJvZmlsZSB0eXBlIGljYwAAKJGdU9mtxCAM/KeKLcH4JOUkJEiv/waeuaJslP3YHYkgOWbGHkz4yzm...";
+// KONFIGURASI DATA
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyPuME9g05BtTN-ME-rXdzsSdbRz4_ZuBRfePuDaLLVnVH_z9mBkQSMBl4oVEEGqK_1RA/exec"; 
+const SECRET_TOKEN = localStorage.getItem('PKM_KPDS_SECURE');
+let db = [];
+let editId = null;
+let charts = { line: null, pie: null };
 
-// DATA PEGAWAI (62 DATA)
+if (!SECRET_TOKEN) { window.location.href = 'index.html'; } else { loadFromCloud(); }
+
+async function loadFromCloud() {showLoading(true);try {
+const res = await fetch(`${WEB_APP_URL}?token=${SECRET_TOKEN}`);
+const data = await res.json();
+db = Array.isArray(data) ? data : [];
+renderTable();
+updateStats();
+} catch (e) { alert("Error: Gagal terhubung ke Cloud"); }
+showLoading(false);
+}
+
+    
+const LOGO_KAB = "data:image/png;base64,..."; // Gunakan base64 dari file Logo Kabupaten PNG.txt
+const LOGO_PKM = "data:image/png;base64,..."; // Gunakan base64 dari file Logo Puskesmas PNG.txt
+
+const KLASTER = {
+    "Klaster 1": ["Kepegawaian (800)", "Keuangan (900)", "Umum (060)"],
+    "Klaster 2": ["KIA/Gizi (441)", "Kes Anak (441.5)"],
+    "Klaster 3": ["Yankes (445)", "Kes Umum (440)"],
+    "Klaster 4": ["P2P (443)", "Kesling (444)"],
+    "Klaster 5": ["Farmasi (442)", "Laborat (445.4)"]
+};
+
 const DATA_PEGAWAI = [
+    const DATA_PEGAWAI = [
     { nama: "Ajat Hermawan", nip: "198102202025211054", jabatan: "Operator Layanan Operasional" },
     { nama: "Anas Muhiban, S.E.", nip: "199703242025211057", jabatan: "Penata Layanan Operasional" },
     { nama: "apt. Herni Ekaraharjo, S. Farm", nip: "198509272023212004", jabatan: "Ahli Pertama - Apoteker" },
@@ -122,7 +157,7 @@ const DATA_PEGAWAI = [
     { nama: "drg. Fitri Nurzanah", nip: "199902032025062009", jabatan: "Dokter Gigi Ahli Pertama" },
     { nama: "Eka Prisna Nengsih, Amd. Kep", nip: "199605152025212081", jabatan: "Perawat Terampil" },
     { nama: "Garry Rachman, Amd.Kep", nip: "198509132025211002", jabatan: "Perawat Terampil" },
-    { nama: "H. Ujang Sutrisna, S. Kep., Ners., M. Kep.", nip: "197707132006041011", jabatan: "Kepala Puskesmas Kiarapedes (Pimpinan)" },
+    { nama: "H. Ujang Sutrisna, S. Kep., Ners., M. Kep.", nip: "197707132006041011", jabatan: "Kepala Puskesmas Kiarapedes" },
     { nama: "Harbangkit Rizki, Amd. Kes", nip: "199605202022031014", jabatan: "Perekam Medis Terampil" },
     { nama: "Haris Ridwansyah, S. Kep. Ners.", nip: "198105202008011004", jabatan: "Perawat Penyelia" },
     { nama: "Imas Teti Sugiharti, Amd.Keb", nip: "198702172017042001", jabatan: "Bidan Mahir" },
@@ -162,132 +197,131 @@ const DATA_PEGAWAI = [
     { nama: "Widya Kusumawati, S.E.", nip: "199708152025212066", jabatan: "Penata Layanan Operasional" },
     { nama: "Yeni Heryani", nip: "198510212025212047", jabatan: "Operator Layanan Operasional" }
 ];
-
-const KLASTER = {
-    "Klaster 1": ["Kepegawaian (800)", "Keuangan (900)", "Umum (060)"],
-    "Klaster 2": ["KIA/Gizi (441)", "Kes Anak (441.5)"],
-    "Klaster 3": ["Yankes (445)", "Kes Umum (440)"],
-    "Klaster 4": ["P2P (443)", "Kesling (444)"],
-    "Klaster 5": ["Farmasi (442)", "Laborat (445.4)"]
-};
-
-let db = [];
-let dipilih = [];
+    
+let database = JSON.parse(localStorage.getItem('db_arsip')) || [];
+let petugasDipilih = [];
 
 window.onload = () => {
-    const kSel = document.getElementById('inputKlaster');
+    const kSel = document.getElementById('selKlaster');
     Object.keys(KLASTER).forEach(k => kSel.innerHTML += `<option value="${k}">${k}</option>`);
-    updateSub();
-
+    
     const pSel = document.getElementById('selPegawai');
     pSel.innerHTML = '<option value="">-- Pilih Nama Pegawai --</option>';
-    PEGAWAI.forEach(p => pSel.innerHTML += `<option value="${p.n}">${p.n}</option>`);
+    DATA_PEGAWAI.forEach(p => pSel.innerHTML += `<option value="${p.nama}">${p.nama}</option>`);
+    
+    updateSub();
+    renderTable();
 };
 
-function switchMainTab(target) {
-    document.querySelectorAll('.main-content').forEach(c => c.classList.add('hidden'));
-    document.querySelectorAll('.main-tab-link').forEach(l => l.classList.remove('tab-active'));
-    document.getElementById('content-' + target).classList.remove('hidden');
-    document.getElementById('btn-main-' + target).classList.add('tab-active');
-}
-
-function setJenis(j) {
-    document.getElementById('valJenis').value = j;
-    document.getElementById('tableTitle').innerText = "Daftar Surat " + j;
-    document.querySelectorAll('.sub-tab-link').forEach(b => {
-        b.classList.remove('sub-tab-active', 'text-white');
-        b.classList.add('text-slate-400');
-    });
-    const btnActive = j === 'Masuk' ? 'btn-sub-masuk' : 'btn-sub-keluar';
-    document.getElementById(btnActive).classList.add('sub-tab-active', 'text-white');
-    renderTable();
+// LOGIKA UI
+function switchTab(t) {
+    document.querySelectorAll('.pane').forEach(p => p.classList.add('hidden'));
+    document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('tab-active', 'bg-white', 'text-slate-500'));
+    document.getElementById('pane-' + t).classList.remove('hidden');
+    document.getElementById('btn-tab-' + t).classList.add('tab-active');
 }
 
 function updateSub() {
-    const k = document.getElementById('inputKlaster').value;
-    document.getElementById('subKategori').innerHTML = KLASTER[k].map(i => `<option value="${i}">${i}</option>`).join('');
+    const k = document.getElementById('selKlaster').value;
+    document.getElementById('selSub').innerHTML = KLASTER[k].map(s => `<option value="${s}">${s}</option>`).join('');
 }
 
-function addPegawai() {
+function updateFileName() {
+    const f = document.getElementById('arsipFile').files[0];
+    document.getElementById('fileNameDisplay').innerText = f ? f.name : "Lampirkan File";
+}
+
+// LOGIKA ARSIP & PENCARIAN
+document.getElementById('formArsip').onsubmit = function(e) {
+    e.preventDefault();
+    const entry = {
+        klaster: document.getElementById('selKlaster').value,
+        nama: document.getElementById('arsipNama').value,
+        tgl: document.getElementById('arsipTgl').value,
+        file: document.getElementById('arsipFile').files[0]?.name || "Tanpa Lampiran"
+    };
+    database.push(entry);
+    localStorage.setItem('db_arsip', JSON.stringify(database));
+    renderTable();
+    this.reset();
+    alert("Berhasil disimpan!");
+};
+
+function renderTable() {
+    const s = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = database.filter(i => i.nama.toLowerCase().includes(s) || i.klaster.toLowerCase().includes(s));
+    
+    document.getElementById('tableBody').innerHTML = filtered.reverse().map(x => `
+        <tr class="border-b hover:bg-slate-50 transition-all">
+            <td class="p-4 font-bold text-slate-500 text-xs">${x.tgl}</td>
+            <td class="p-4"><span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-[9px] font-black">${x.klaster}</span></td>
+            <td class="p-4 font-semibold uppercase text-xs">${x.nama}</td>
+            <td class="p-4 text-blue-500 italic text-[10px]">${x.file}</td>
+            <td class="p-4 text-center"><button class="text-slate-300 hover:text-emerald-500"><i class="fas fa-file-alt"></i></button></td>
+        </tr>
+    `).join('');
+    renderStats();
+}
+
+function renderStats() {
+    document.getElementById('statContainer').innerHTML = Object.keys(KLASTER).map(k => {
+        const c = database.filter(i => i.klaster === k).length;
+        return `<div class="stat-card shadow-sm"><p class="text-[8px] font-black text-slate-400 uppercase">${k}</p><p class="text-xl font-black text-emerald-600">${c}</p></div>`;
+    }).join('');
+}
+
+// LOGIKA SURAT TUGAS
+function tambahPetugas() {
     const n = document.getElementById('selPegawai').value;
-    const p = PEGAWAI.find(x => x.n === n);
-    if (p && !dipilih.includes(p)) {
-        dipilih.push(p);
-        const div = document.getElementById('listPetugas');
-        div.innerHTML = dipilih.map((x, i) => `
-            <div class="flex justify-between items-center bg-white p-2 rounded-lg border text-[10px]">
-                <span>${x.n}</span>
-                <button onclick="dipilih.splice(${i},1);addPegawai()" class="text-rose-500">×</button>
-            </div>
-        `).join('');
+    const p = DATA_PEGAWAI.find(x => x.nama === n);
+    if(p && !petugasDipilih.some(x => x.nama === n)) {
+        petugasDipilih.push(p);
+        renderBoxPetugas();
     }
 }
 
-function renderTable() {
-    const j = document.getElementById('valJenis').value;
-    const filtered = db.filter(x => x.jenis === j);
-    document.getElementById('tableBody').innerHTML = filtered.map(x => `
-        <tr>
-            <td class="px-6 py-4">${x.tgl}</td>
-            <td class="px-6 py-4 text-emerald-600">${x.klas}</td>
-            <td class="px-6 py-4 uppercase">${x.nama}</td>
-            <td class="px-6 py-4 text-center"><i class="fas fa-check-circle text-emerald-400"></i></td>
-        </tr>
+function renderBoxPetugas() {
+    document.getElementById('boxPetugas').innerHTML = petugasDipilih.map((p, i) => `
+        <div class="flex justify-between items-center bg-white p-2 rounded-lg border text-[10px] font-bold">
+            <span>${p.nama}</span>
+            <button onclick="petugasDipilih.splice(${i},1);renderBoxPetugas()" class="text-rose-500 font-black px-2">×</button>
+        </div>
     `).join('');
 }
 
-document.getElementById('docForm').onsubmit = (e) => {
-    e.preventDefault();
-    db.push({
-        jenis: document.getElementById('valJenis').value,
-        klas: document.getElementById('inputKlaster').value,
-        nama: document.getElementById('docName').value,
-        tgl: document.getElementById('docDate').value
-    });
-    renderTable();
-    e.target.reset();
-};
-
-async function exportPDF() {
+async function cetakSuratTugas() {
+    if(petugasDipilih.length === 0) return alert("Pilih petugas!");
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
     
-    // Header Kop
-    doc.addImage(LOGO_KAB, 'PNG', 15, 10, 22, 28);
-    doc.addImage(LOGO_PKM, 'PNG', 170, 10, 22, 22);
+    // Header (Sesuai Template)
     doc.setFont("times", "bold").setFontSize(14);
-    doc.text("PEMERINTAH KABUPATEN PURWAKARTA", 100, 16, {align:"center"});
-    doc.text("DINAS KESEHATAN", 100, 22, {align:"center"});
-    doc.setFontSize(16).text("UPTD PUSKESMAS KIARAPEDES", 100, 29, {align:"center"});
+    doc.text("PEMERINTAH KABUPATEN PURWAKARTA", 100, 15, {align:"center"});
+    doc.text("DINAS KESEHATAN", 100, 21, {align:"center"});
+    doc.setFontSize(16).text("UPTD PUSKESMAS KIARAPEDES", 100, 28, {align:"center"});
     doc.setFontSize(9).setFont("times", "normal");
-    doc.text("Jalan Raya Kiarapedes No.2 Km. 28 Kecamatan Kiarapedes", 100, 34, {align:"center"});
-    doc.text("Email: pkmkiarapedes20@gmail.com Kode Pos: 41175", 100, 39, {align:"center"});
+    doc.text("Jalan Raya Kiarapedes No.2 Km. 28 Kecamatan Kiarapedes", 100, 33, {align:"center"});
+    doc.text("Email : pkmkiarapedes20@gmail.com Kode Pos 41175", 100, 37, {align:"center"});
+    doc.line(15, 40, 195, 40);
     doc.line(15, 41, 195, 41);
-
-    // Penomoran & Tanggal Otomatis
-    const tglInput = new Date(document.getElementById('stTgl').value);
-    const blnRomawi = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][tglInput.getMonth()];
-    const hari = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][tglInput.getDay()];
-
+    
+    // Nomor Surat
+    const tgl = new Date(document.getElementById('stTgl').value);
+    const romawi = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][tgl.getMonth()];
     doc.setFont("times", "bold").setFontSize(12).text("SURAT TUGAS", 100, 50, {align:"center"});
-    doc.setFont("times", "normal").text(`No: ${document.getElementById('stNo').value}/ST/PKM-KPDS/${blnRomawi}/${tglInput.getFullYear()}`, 100, 55, {align:"center"});
+    doc.setFont("times", "normal").text(`No: ${document.getElementById('stNo').value}/ST/PKM-KPDS/${romawi}/${tgl.getFullYear()}`, 100, 55, {align:"center"});
 
-    // TTD Kepala
-    doc.text("Nama     : H. Ujang Sutrisna,S.Kep.,Ners.,M.Kep", 25, 72);
-    doc.text("NIP      : 197707132006041011", 25, 77);
-    doc.text("Jabatan  : Kepala UPTD Puskesmas Kiarapedes", 25, 82);
-
+    // Tabel Petugas
     doc.autoTable({
-        startY: 102,
+        startY: 90,
         head: [['No', 'Nama', 'NIP', 'Jabatan']],
-        body: dipilih.map((p, i) => [i+1, p.n, p.nip, p.j]),
+        body: petugasDipilih.map((p, i) => [i+1, p.nama, p.nip, p.jabatan]),
         theme: 'grid', styles: {font: "times"}
     });
 
-    let fY = doc.lastAutoTable.finalY + 10;
-    doc.text(`Untuk ${document.getElementById('stMaksud').value}`, 20, fY);
-    doc.text(`Hari : ${hari}`, 25, fY + 8);
-    doc.text(`Tempat : ${document.getElementById('stTujuan').value}`, 25, fY + 16);
+    let y = doc.lastAutoTable.finalY + 10;
+    doc.text(`Untuk: ${document.getElementById('stMaksud').value}`, 20, y);
+    doc.text(`Tempat: ${document.getElementById('stTujuan').value}`, 20, y+8);
 
     doc.save(`Surat_Tugas_${document.getElementById('stNo').value}.pdf`);
 }
