@@ -219,23 +219,59 @@ function updateStats() {
 }
 
 function initCharts() {
+    // 1. Hapus chart lama jika sudah ada agar tidak error tumpang tindih
     if(charts.line) charts.line.destroy();
     if(charts.pie) charts.pie.destroy();
     
+    // 2. Olah data bulan
     let mon = new Array(12).fill(0);
-    db.forEach(i => { if(i.t) { const m = parseInt(i.t.split('/')[1]) - 1; if(m>=0) mon[m]++; } });
-
-    charts.line = new Chart(document.getElementById('lineChart'), {
-        type: 'line',
-        data: { labels: ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"], datasets: [{ label: 'Jumlah Dokumen', data: mon, borderColor: '#6366f1', tension: 0.4, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.1)' }] },
-        options: { responsive: true, maintainAspectRatio: false }
+    db.forEach(i => { 
+        if(i.t) { 
+            const parts = i.t.split('/');
+            // Menangani format DD/MM/YYYY atau MM/DD/YYYY
+            const m = parseInt(parts[1]) - 1; 
+            if(m >= 0 && m < 12) mon[m]++; 
+        } 
     });
 
+    // 3. Render Grafik Garis
+    const ctxLine = document.getElementById('lineChart').getContext('2d');
+    charts.line = new Chart(ctxLine, {
+        type: 'line',
+        data: { 
+            labels: ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"], 
+            datasets: [{ 
+                label: 'Jumlah Dokumen', 
+                data: mon, 
+                borderColor: '#6366f1', 
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                tension: 0.4, 
+                fill: true 
+            }] 
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            plugins: { legend: { display: true } }
+        }
+    });
+
+    // 4. Render Grafik Pie (Grup)
     const gData = ['A','B','C','D','E','F'].map(k => db.filter(i => i.k === k).length);
-    charts.pie = new Chart(document.getElementById('pieChart'), {
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    charts.pie = new Chart(ctxPie, {
         type: 'doughnut',
-        data: { labels: ['Grup A','Grup B','Grup C','Grup D','Grup E','Grup F'], datasets: [{ data: gData, backgroundColor: ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899'] }] },
-        options: { responsive: true, maintainAspectRatio: false }
+        data: { 
+            labels: ['Grup A','Grup B','Grup C','Grup D','Grup E','Grup F'], 
+            datasets: [{ 
+                data: gData, 
+                backgroundColor: ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899'] 
+            }] 
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false 
+        }
     });
 }
 
@@ -263,9 +299,22 @@ async function syncToCloud() {
     showLoading(false);
 }
 
-function openModal(id) { document.getElementById(id).classList.remove('hidden'); if(id === 'statsModal') setTimeout(initCharts, 200); }
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-function showLoading(s) { document.getElementById('loading').classList.toggle('hidden', !s); }
+function openModal(id) { 
+    const modal = document.getElementById(id);
+    modal.classList.remove('hidden'); 
+    
+    // Jika yang dibuka adalah modal statistik
+    if(id === 'statsModal') {
+        // Berikan jeda 300ms agar animasi transisi selesai dan Canvas siap
+        setTimeout(() => {
+            if (db && db.length > 0) {
+                initCharts();
+            } else {
+                console.warn("Data kosong, grafik tidak dapat ditampilkan.");
+            }
+        }, 300); 
+    } 
+}
 
 function editData(id) {
     const item = db.find(i => i.id === id);
