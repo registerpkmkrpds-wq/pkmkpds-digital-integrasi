@@ -255,31 +255,35 @@ function generatePreview() {
 // ==========================================
 // CORE LOGIC (SIMPAN & SYNC)
 // ==========================================
+// Tambahkan variabel global di bagian atas
+let fileData = null; 
+let editIndex = null;
+
+// Handler untuk membaca file saat dipilih
+document.getElementById('arsipFile').onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        fileData = {
+            base64: event.target.result.split(',')[1],
+            name: file.name,
+            type: file.type
+        };
+    };
+    reader.readAsDataURL(file);
+};
+
+// Fungsi Submit yang disatukan
 document.getElementById('formArsip').onsubmit = async function(e) {
     e.preventDefault();
     const btn = document.getElementById('btnSimpan');
     const originalText = btn.innerHTML;
     
-    if(!document.getElementById('arsipNama').value) return alert("Perihal harus diisi!");
-
+    // Animasi Loading
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Mengupload...';
-
-    const fileInput = document.getElementById('arsipFile');
-    const file = fileInput.files[0];
-    let fileData = null;
-
-    if (file) {
-        fileData = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (ev) => resolve({
-                base64: ev.target.result,
-                name: file.name,
-                type: file.type
-            });
-            reader.readAsDataURL(file);
-        });
-    }
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';
 
     const payload = {
         no: generatePreview(),
@@ -287,68 +291,66 @@ document.getElementById('formArsip').onsubmit = async function(e) {
         klaster: document.getElementById('selKlaster').value,
         sub: document.getElementById('selSub').value,
         tgl: document.getElementById('arsipTgl').value || new Date().toISOString().split('T')[0],
-        fileData: fileData ? fileData.base64 : "Non-File",
+        fileData: fileData ? fileData.base64 : null,
         fileName: fileData ? fileData.name : "",
         fileType: fileData ? fileData.type : "",
         token: "KPDS2026"
     };
 
     try {
-        // Simpan Lokal Terlebih Dahulu (Offline First)
-        const localEntry = {...payload, link: "#", file: payload.fileName};
-        delete localEntry.fileData; 
-        database.unshift(localEntry);
-        localStorage.setItem('db_arsip_ilp_final', JSON.stringify(database));
-        
-        // Kirim ke GAS Cloud
-        if(GAS_URL !== "ISI_DENGAN_URL_WEB_APP_GAS_ANDA") {
-            await fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-            alert("Data tersimpan di Lokal & Antrian Cloud!");
+        if (editIndex !== null) {
+            // MODE EDIT
+            database[editIndex] = { ...database[editIndex], ...payload, link: database[editIndex].link };
+            alert("Data berhasil diperbarui secara lokal!");
         } else {
-            alert("Data tersimpan di Lokal. (Hubungkan GAS URL untuk Cloud)");
+            // MODE INPUT BARU
+            const localEntry = { ...payload, link: "#" };
+            delete localEntry.fileData; 
+            database.unshift(localEntry);
+            
+            // Kirim ke Cloud jika URL valid
+            if (GAS_URL.includes("exec")) {
+                await fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+            }
         }
 
-        this.reset();
-        updateSub();
+        // Finalisasi
+        localStorage.setItem('db_arsip_ilp_final', JSON.stringify(database));
+        resetForm();
         renderTable();
         updateChart();
+        
     } catch (err) {
-        alert("Gagal Sinkron ke Cloud, tersimpan di lokal.");
+        alert("Terjadi kesalahan: " + err.message);
     } finally {
         btn.disabled = false;
         btn.innerHTML = originalText;
     }
 };
 
-async function syncFromGAS() {
-    const icon = document.getElementById('syncIcon');
-    icon.classList.add('fa-spin');
-    try {
-        const response = await fetch(GAS_URL);
-        const cloudData = await response.json();
-        if (Array.isArray(cloudData)) {
-            database = cloudData;
-            localStorage.setItem('db_arsip_ilp_final', JSON.stringify(database));
-            renderTable();
-            updateChart();
-        }
-    } catch (e) { console.warn("Sync failed - check GAS URL & Access"); }
-    finally { setTimeout(() => icon.classList.remove('fa-spin'), 800); }
+function resetForm() {
+    editIndex = null;
+    fileData = null;
+    document.getElementById('formArsip').reset();
+    document.getElementById('btnSimpan').innerHTML = '<i class="fas fa-cloud-arrow-up mr-2"></i> Simpan ke Cloud';
+    document.getElementById('btnSimpan').className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-xl transition-all shadow-lg uppercase text-xs tracking-widest";
+    updateSub();
 }
 
-// ==========================================
-// UI RENDERING
-// ==========================================
 function renderTable() {
     const s = document.getElementById('searchInput').value.toLowerCase();
     const filtered = database.filter(i => 
         i.nama.toLowerCase().includes(s) || i.no.toLowerCase().includes(s) || i.klaster.toLowerCase().includes(s)
     );
+
+    const tableBody = document.getElementById('tableBody');
+    const statTotal = document.getElementById('statTotal');
+    const noData = document.getElementById('noData');
+
+    statTotal.innerText = database.length;
+    noData.classList.toggle('hidden', filtered.length > 0);
     
-    document.getElementById('statTotal').innerText = database.length;
-    document.getElementById('noData').classList.toggle('hidden', filtered.length > 0);
-    
-    document.getElementById('tableBody').innerHTML = filtered.map((x, index) => {
+    tableBody.innerHTML = filtered.map((x, index) => {
         const isCloud = x.link && x.link.includes('google.com');
         return `
         <tr class="border-b border-slate-50 dark:border-slate-800/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/10 transition-all">
@@ -363,22 +365,31 @@ function renderTable() {
                 </div>
             </td>
             <td class="p-4">
-                <div class="flex justify-center gap-2">
-                    <button onclick="showQR('${x.no}')" class="btn-action bg-emerald-50 text-emerald-600 border border-emerald-100"><i class="fas fa-qrcode"></i></button>
-                    <button onclick="cetakLabel(${index})" class="btn-action bg-orange-50 text-orange-600 border border-orange-100"><i class="fas fa-print"></i></button>
-                    <a href="${x.link}" target="_blank" class="btn-action ${isCloud ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-slate-50 text-slate-300 pointer-events-none border-slate-100'}">
+                <div class="flex justify-center gap-1.5">
+                    <button onclick="showQR('${x.no}')" class="btn-action bg-emerald-50 text-emerald-600 border border-emerald-100" title="QR Code">
+                        <i class="fas fa-qrcode"></i>
+                    </button>
+                    <button onclick="editData(${index})" class="btn-action bg-yellow-50 text-yellow-600 border border-yellow-100" title="Edit Data">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                    <button onclick="cetakLabel(${index})" class="btn-action bg-orange-50 text-orange-600 border border-orange-100" title="Cetak Label">
+                        <i class="fas fa-print"></i>
+                    </button>
+                    <a href="${x.link}" target="_blank" class="btn-action ${isCloud ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-slate-50 text-slate-300 pointer-events-none border-slate-100'}" title="Lihat Dokumen">
                         <i class="fas fa-file-pdf"></i>
                     </a>
                 </div>
             </td>
             <td class="p-4 text-center">
-                <button onclick="hapus(${index})" class="text-slate-300 hover:text-rose-500 transition-colors"><i class="fas fa-trash-can"></i></button>
+                <button onclick="hapus(${index})" class="text-slate-300 hover:text-rose-500 transition-colors">
+                    <i class="fas fa-trash-can"></i>
+                </button>
             </td>
         </tr>`;
     }).join('');
+    
     updateActivityLog();
 }
-
 function updateActivityLog() {
     const log = document.getElementById('activityLog');
     if (!database.length) return;
@@ -521,6 +532,32 @@ function showLogin(cb) { loginCallback = cb; document.getElementById('modalLogin
 function closeLogin() { document.getElementById('modalLogin').classList.add('hidden'); document.getElementById('pinInput').value = ""; }
 function togglePedoman() { document.getElementById('modalPedoman').classList.toggle('hidden'); }
 function toggleDarkMode() { document.body.classList.toggle('dark'); }
+
+    function editData(index) {
+    const data = database[index];
+    editIndex = index;
+
+    // Isi Form dengan data lama
+    document.getElementById('selKlaster').value = data.klaster;
+    updateSub(); // Update pilihan sub sesuai klaster
+    document.getElementById('selSub').value = data.sub;
+    
+    // Ambil No Urut dari string nomor arsip (misal: 400.7.5 / 001 / ...)
+    const parts = data.no.split(' / ');
+    document.getElementById('noUrut').value = parts[1];
+    document.getElementById('arsipTgl').value = data.tgl;
+    document.getElementById('arsipNama').value = data.nama;
+
+    // Ubah UI Form jadi Mode Edit
+    const btn = document.getElementById('btnSimpan');
+    btn.innerHTML = '<i class="fas fa-check-double mr-2"></i> Update Data';
+    btn.classList.replace('bg-emerald-600', 'bg-yellow-500');
+    btn.classList.replace('hover:bg-emerald-700', 'hover:bg-yellow-600');
+    
+    // Scroll ke atas agar user tahu form sudah terisi
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+    
 </script>
 </body>
 </html>
