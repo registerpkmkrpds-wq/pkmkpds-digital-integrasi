@@ -40,19 +40,24 @@
             </div>
             
             <div class="flex flex-wrap items-center justify-center gap-2">
-                <a href="index.html" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
+                <a href="index.html" class="bg-slate-700 hover:bg-yellow-600 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
                     <i class="fas fa-home"></i> Menu
+                </a>
+                <a href="https://puskesmaskiarapedes.blogspot.com/p/form-surat-tugas.html" class="bg-khaki-700 hover:bg-slate-600 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
+                    <i class="fas fa-edit"></i> Buat Surat Tugas
                 </a>
                 <button onclick="openModal('statsModal')" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
                     <i class="fas fa-chart-pie"></i> Statistik
                 </button>
-                <button onclick="openModal('masukModal')" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
+                <button onclick="openModal('agendaModal')" class="bg-emerald-600 hover:bg-blue-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
                     <i class="fas fa-inbox"></i> Surat Masuk
                 </button>
-                <button onclick="openModal('keluarModal')" class="bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
+
+                <button onclick="openModal('suratKeluarModal')" class="bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
                     <i class="fas fa-paper-plane"></i> Surat Keluar
                 </button>
-                <button onclick="exportToPDF()" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
+                </button>
+                <button onclick="exportToPDF()" class="bg-orange-600 hover:bg-emerald-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
                     <i class="fas fa-file-pdf"></i> Export PDF
                 </button>
             </div>
@@ -145,7 +150,7 @@
 
 <div id="suratKeluarModal" class="fixed inset-0 z-[100] bg-slate-900/60 hidden flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl">
-        <h2 class="font-black text-xs uppercase mb-6 text-rose-600">Register Surat Keluar</h2>
+        <h2 class="font-black text-xs uppercase mb-6 text-rose-600">Input Surat Keluar</h2>
         <input type="text" id="skTujuan" placeholder="Tujuan Surat" class="input-modern mb-2">
         <input type="text" id="skPerihal" placeholder="Perihal / Isi Ringkas" class="input-modern mb-6">
         <div class="flex gap-2">
@@ -165,17 +170,17 @@
 
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwLzBas4iCCvs2wsLA2XcjHmAqILMFHu3Ff8twtRiQzJHrEYgfp2dJ1g_KTWcK97anumg/exec"; 
-const SECRET_TOKEN = localStorage.getItem('pkm_token');
+const "PKM_KRPDS_2026_SECURE" = localStorage.getItem('pkm_token');
 let db = [];
 let editId = null;
 let charts = { line: null, pie: null };
 
-if (!SECRET_TOKEN) { window.location.href = 'index.html'; } else { loadFromCloud(); }
+if (!"PKM_KRPDS_2026_SECURE") { window.location.href = 'index.html'; } else { loadFromCloud(); }
 
 async function loadFromCloud() {
     showLoading(true);
     try {
-        const res = await fetch(`${WEB_APP_URL}?token=${SECRET_TOKEN}`);
+        const res = await fetch(`${WEB_APP_URL}?token=${"PKM_KRPDS_2026_SECURE"}`);
         const data = await res.json();
         db = Array.isArray(data) ? data : [];
         renderTable();
@@ -185,10 +190,14 @@ async function loadFromCloud() {
 }
 
 function renderTable() {
+    function renderTable() {
     const b = document.getElementById('tableBody');
     const s = document.getElementById('search').value.toLowerCase();
-    const fK = document.getElementById('filterKlaster').value;
-    const fB = document.getElementById('filterBulan').value;
+    const fK = document.getElementById('fKlaster').value; // Sesuai ID di HTML
+    const fB = document.getElementById('fBulan').value;   // Sesuai ID di HTML
+    
+    // ... sisa kode filtered ...
+}
     
     const filtered = db.filter(i => {
         const txt = ((i.n||"") + (i.formatNo||i.formatno||"")).toLowerCase();
@@ -212,9 +221,19 @@ function renderTable() {
 
 function updateStats() {
     const cats = ['TOTAL', 'A', 'B', 'C', 'D', 'E', 'F'];
-    document.getElementById('statsSummary').innerHTML = cats.map(k => {
+    const container = document.getElementById('quickStats'); // Samakan dengan ID di HTML
+    if(!container) return;
+
+    container.innerHTML = cats.map(k => {
         const val = k === 'TOTAL' ? db.length : db.filter(i => i.k === k).length;
-        return `<div class="bg-white/10 p-4 rounded-2xl text-center border border-white/10"><div class="text-[8px] font-black uppercase text-white/50">${k}</div><div class="text-xl font-bold text-white">${val}</div></div>`;
+        let color = "bg-slate-800";
+        if(k === 'TOTAL') color = "bg-emerald-600";
+        
+        return `
+            <div class="${color} p-4 rounded-2xl text-center border border-white/10 shadow-lg">
+                <div class="text-[8px] font-black uppercase text-white/50">${k}</div>
+                <div class="text-xl font-bold text-white">${val}</div>
+            </div>`;
     }).join('');
 }
 
@@ -278,22 +297,49 @@ function initCharts() {
 document.getElementById('docForm').onsubmit = async (e) => {
     e.preventDefault();
     const d = new Date();
+    // Mengambil nilai bulan dalam romawi
     const rom = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][d.getMonth()];
+    
+    // Ambil nilai dari input
+    const name = document.getElementById('docName').value;
+    const link = document.getElementById('docLink').value;
+    const group = document.getElementById('docGroup').value;
+    const type = document.getElementById('docType').value; // Perbaikan ID di sini
+    const klaster = document.getElementById('inputKlaster').value;
+
     if (editId) {
         const idx = db.findIndex(i => i.id === editId);
-        db[idx] = {...db[idx], n: document.getElementById('docName').value, l: document.getElementById('docLink').value, k: document.getElementById('docGroup').value, klaster: document.getElementById('inputKlaster').value };
+        db[idx] = {
+            ...db[idx], 
+            n: name, 
+            l: link, 
+            k: group, 
+            klaster: klaster 
+        };
         cancelEdit();
     } else {
-        const fNo = `${(db.length+1).toString().padStart(3,'0')}/${document.getElementById('docCatType').value}/PKM-KPDS/${rom}/${d.getFullYear()}`;
-        db.unshift({ id: Date.now(), formatNo: fNo, n: document.getElementById('docName').value, k: document.getElementById('docGroup').value, klaster: document.getElementById('inputKlaster').value, l: document.getElementById('docLink').value, t: d.toLocaleDateString('id-ID') });
+        // Format Nomor: 001/SK/PKM-KPDS/II/2026
+        const fNo = `${(db.length + 1).toString().padStart(3, '0')}/${type}/PKM-KPDS/${rom}/${d.getFullYear()}`;
+        
+        db.unshift({ 
+            id: Date.now(), 
+            formatNo: fNo, 
+            n: name, 
+            k: group, 
+            klaster: klaster, 
+            l: link, 
+            t: d.toLocaleDateString('id-ID') 
+        });
     }
+    
+    document.getElementById('docForm').reset(); // Reset form setelah simpan
     await syncToCloud();
 };
-
+    
 async function syncToCloud() {
     showLoading(true);
     try {
-        await fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "saveAll", db: db, token: SECRET_TOKEN }) });
+        await fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "saveAll", db: db, token: "PKM_KRPDS_2026_SECURE" }) });
         renderTable(); updateStats();
     } catch (e) { alert("Gagal Sinkronisasi Cloud"); }
     showLoading(false);
@@ -369,6 +415,14 @@ function exportToPDF() {
     doc.autoTable({ startY: 25, head: [['NOMOR ARSIP', 'PERIHAL DOKUMEN', 'TANGGAL']], body: db.map(i => [i.formatNo, i.n.toUpperCase(), i.t]) });
     doc.save('Arsip_PKM_Kiarapedes.pdf');
 }
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    modal.classList.add('hidden');
+    
+    // Khusus untuk QR Code, bersihkan isinya saat ditutup
+    if(id === 'qrModal') {
+        document.getElementById("qrcode").innerHTML = "";
+    }
 </script>
 </body>
 </html>
