@@ -131,23 +131,30 @@
     </div>
 </div>
 
-<div id="masukModal" class="fixed inset-0 z-[100] bg-slate-900/60 hidden flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-[2rem] p-8 shadow-2xl">
-        <h2 class="font-black text-blue-600 uppercase text-xs mb-6">Input Surat Masuk</h2>
-        <input type="text" id="smAsal" placeholder="Asal Surat" class="input-modern mb-2">
-        <input type="text" id="smPerihal" placeholder="Perihal" class="input-modern mb-6">
-        <button onclick="saveSM()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-xs uppercase shadow-lg">Simpan Surat Masuk</button>
+<div id="agendaModal" class="fixed inset-0 z-[100] bg-slate-900/60 hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl">
+        <h2 class="font-black text-xs uppercase mb-6 text-blue-600">Input Surat Masuk</h2>
+        <input type="text" id="agAsal" placeholder="Asal Surat (Pengirim)" class="input-modern mb-2">
+        <input type="text" id="agPerihal" placeholder="Perihal / Isi Ringkas" class="input-modern mb-6">
+        <div class="flex gap-2">
+            <button onclick="closeModal('agendaModal')" class="flex-1 py-3 text-[10px] font-bold text-slate-400">Batal</button>
+            <button onclick="saveAgenda()" class="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-bold text-xs uppercase">Simpan</button>
+        </div>
     </div>
 </div>
 
-<div id="keluarModal" class="fixed inset-0 z-[100] bg-slate-900/60 hidden flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-[2rem] p-8 shadow-2xl">
-        <h2 class="font-black text-rose-600 uppercase text-xs mb-6">Input Surat Keluar</h2>
+<div id="suratKeluarModal" class="fixed inset-0 z-[100] bg-slate-900/60 hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl">
+        <h2 class="font-black text-xs uppercase mb-6 text-rose-600">Register Surat Keluar</h2>
         <input type="text" id="skTujuan" placeholder="Tujuan Surat" class="input-modern mb-2">
-        <input type="text" id="skPerihal" placeholder="Perihal" class="input-modern mb-6">
-        <button onclick="saveSK()" class="w-full bg-rose-600 text-white py-4 rounded-xl font-bold text-xs uppercase shadow-lg">Simpan Surat Keluar</button>
+        <input type="text" id="skPerihal" placeholder="Perihal / Isi Ringkas" class="input-modern mb-6">
+        <div class="flex gap-2">
+            <button onclick="closeModal('suratKeluarModal')" class="flex-1 py-3 text-[10px] font-bold text-slate-400">Batal</button>
+            <button onclick="saveSuratKeluar()" class="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-bold text-xs uppercase">Simpan</button>
+        </div>
     </div>
 </div>
+
 
 <div id="qrModal" class="fixed inset-0 z-[110] bg-slate-900/80 hidden flex items-center justify-center p-4">
     <div class="bg-white p-8 rounded-[2rem] text-center shadow-2xl">
@@ -163,24 +170,25 @@ let db = [];
 let editId = null;
 let charts = { line: null, pie: null };
 
-if (!SECRET_TOKEN) { window.location.href = 'index.html'; } else { loadData(); }
+if (!SECRET_TOKEN) { window.location.href = 'index.html'; } else { loadFromCloud(); }
 
-async function loadData() {
+async function loadFromCloud() {
     showLoading(true);
     try {
         const res = await fetch(`${WEB_APP_URL}?token=${SECRET_TOKEN}`);
-        db = await res.json();
+        const data = await res.json();
+        db = Array.isArray(data) ? data : [];
         renderTable();
         updateStats();
-    } catch (e) { alert("Koneksi Cloud Gagal"); }
+    } catch (e) { alert("Error: Gagal terhubung ke Cloud"); }
     showLoading(false);
 }
 
 function renderTable() {
     const b = document.getElementById('tableBody');
     const s = document.getElementById('search').value.toLowerCase();
-    const fK = document.getElementById('fKlaster').value;
-    const fB = document.getElementById('fBulan').value;
+    const fK = document.getElementById('filterKlaster').value;
+    const fB = document.getElementById('filterBulan').value;
     
     const filtered = db.filter(i => {
         const txt = ((i.n||"") + (i.formatNo||i.formatno||"")).toLowerCase();
@@ -188,8 +196,8 @@ function renderTable() {
     });
 
     b.innerHTML = filtered.map(i => `
-        <tr class="hover:bg-slate-50">
-            <td class="px-6 py-4 font-mono font-bold text-emerald-600">${i.formatNo || i.formatno}</td>
+        <tr class="hover:bg-slate-50 transition-all">
+            <td class="px-6 py-4 font-mono font-bold text-slate-500 text-[10px]">${i.formatNo || i.formatno}</td>
             <td class="px-6 py-4">
                 <div class="font-bold uppercase text-slate-800 leading-tight">${i.n}</div>
                 <div class="text-[9px] text-slate-400 mt-1 uppercase">${i.t} | GRUP ${i.k} | ${i.klaster}</div>
@@ -204,60 +212,30 @@ function renderTable() {
 
 function updateStats() {
     const cats = ['TOTAL', 'A', 'B', 'C', 'D', 'E', 'F'];
-    document.getElementById('quickStats').innerHTML = cats.map(k => {
+    document.getElementById('statsSummary').innerHTML = cats.map(k => {
         const val = k === 'TOTAL' ? db.length : db.filter(i => i.k === k).length;
-        return `<div class="bg-white/10 p-3 rounded-xl border border-white/10 text-center"><div class="text-[8px] font-bold text-white/50 uppercase">${k}</div><div class="text-lg font-bold text-white">${val}</div></div>`;
+        return `<div class="bg-white/10 p-4 rounded-2xl text-center border border-white/10"><div class="text-[8px] font-black uppercase text-white/50">${k}</div><div class="text-xl font-bold text-white">${val}</div></div>`;
     }).join('');
 }
 
 function initCharts() {
-    console.log("Memulai pembuatan grafik dengan data:", db.length); // Untuk debugging
-    
     if(charts.line) charts.line.destroy();
     if(charts.pie) charts.pie.destroy();
     
     let mon = new Array(12).fill(0);
-    db.forEach(i => { 
-        if(i.t) { 
-            // Memastikan mengambil angka bulan dari format DD/MM/YYYY
-            const parts = i.t.split('/');
-            if(parts.length > 1) {
-                const m = parseInt(parts[1]) - 1; 
-                if(m >= 0 && m < 12) mon[m]++; 
-            }
-        } 
-    });
+    db.forEach(i => { if(i.t) { const m = parseInt(i.t.split('/')[1]) - 1; if(m>=0) mon[m]++; } });
 
-    // Render Line Chart
-    const ctxLine = document.getElementById('lineChart').getContext('2d');
-    charts.line = new Chart(ctxLine, { 
-        type: 'line', 
-        data: { 
-            labels: ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"], 
-            datasets: [{ 
-                label: 'Data Arsip', 
-                data: mon, 
-                borderColor: '#10b981', 
-                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                fill: true 
-            }] 
-        },
+    charts.line = new Chart(document.getElementById('lineChart'), {
+        type: 'line',
+        data: { labels: ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"], datasets: [{ label: 'Jumlah Dokumen', data: mon, borderColor: '#6366f1', tension: 0.4, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.1)' }] },
         options: { responsive: true, maintainAspectRatio: false }
     });
 
-    // Render Pie Chart
     const gData = ['A','B','C','D','E','F'].map(k => db.filter(i => i.k === k).length);
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    charts.pie = new Chart(ctxPie, { 
-        type: 'doughnut', 
-        data: { 
-            labels: ['Grup A','Grup B','Grup C','Grup D','Grup E','Grup F'], 
-            datasets: [{ 
-                data: gData, 
-                backgroundColor: ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899'] 
-            }] 
-        }, 
-        options: { responsive: true, maintainAspectRatio: false } 
+    charts.pie = new Chart(document.getElementById('pieChart'), {
+        type: 'doughnut',
+        data: { labels: ['Grup A','Grup B','Grup C','Grup D','Grup E','Grup F'], datasets: [{ data: gData, backgroundColor: ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899'] }] },
+        options: { responsive: true, maintainAspectRatio: false }
     });
 }
 
@@ -270,94 +248,77 @@ document.getElementById('docForm').onsubmit = async (e) => {
         db[idx] = {...db[idx], n: document.getElementById('docName').value, l: document.getElementById('docLink').value, k: document.getElementById('docGroup').value, klaster: document.getElementById('inputKlaster').value };
         cancelEdit();
     } else {
-        const fNo = `${(db.length+1).toString().padStart(3,'0')}/${document.getElementById('docType').value}/PKM-KPDS/${rom}/${d.getFullYear()}`;
+        const fNo = `${(db.length+1).toString().padStart(3,'0')}/${document.getElementById('docCatType').value}/PKM-KPDS/${rom}/${d.getFullYear()}`;
         db.unshift({ id: Date.now(), formatNo: fNo, n: document.getElementById('docName').value, k: document.getElementById('docGroup').value, klaster: document.getElementById('inputKlaster').value, l: document.getElementById('docLink').value, t: d.toLocaleDateString('id-ID') });
     }
-    await sync();
+    await syncToCloud();
 };
 
-async function sync() {
+async function syncToCloud() {
     showLoading(true);
     try {
         await fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "saveAll", db: db, token: SECRET_TOKEN }) });
         renderTable(); updateStats();
-    } catch (e) lse);
-}{ alert("Gagal Simpan ke Cloud"); }
-    showLoading(fa
-function openModal(id) { 
-    document.getElementById(id).classList.remove('hidden'); 
-    
-    // Jika yang dibuka adalah modal statistik, jalankan inisialisasi grafik
-    if(id === 'statsModal') {
-        // Gunakan sedikit jeda (300ms) agar transisi CSS selesai
-        setTimeout(() => {
-            if (db.length > 0) {
-                initCharts();
-            } else {
-                alert("Data belum dimuat, silakan tunggu sebentar.");
-            }
-        }, 300); 
-    } 
+    } catch (e) { alert("Gagal Sinkronisasi Cloud"); }
+    showLoading(false);
 }
 
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); if(id === 'statsModal') setTimeout(initCharts, 200); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function showLoading(s) { document.getElementById('loading').classList.toggle('hidden', !s); }
+
 function editData(id) {
-    const i = db.find(x => x.id === id);
+    const item = db.find(i => i.id === id);
     editId = id;
-    document.getElementById('docName').value = i.n;
-    document.getElementById('docLink').value = i.l || "";
-    document.getElementById('docGroup').value = i.k;
-    document.getElementById('formTitle').innerText = "EDIT DOKUMEN";
-    document.getElementById('btnSubmit').innerText = "UPDATE DATA";
+    document.getElementById('docName').value = item.n;
+    document.getElementById('docLink').value = item.l || "";
+    document.getElementById('docGroup').value = item.k;
+    document.getElementById('formTitle').innerText = "Edit Dokumen";
+    document.getElementById('btnSubmit').innerText = "Update Data";
     document.getElementById('btnCancel').classList.remove('hidden');
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    window.scrollTo({top: 200, behavior: 'smooth'});
 }
 
 function cancelEdit() {
     editId = null; document.getElementById('docForm').reset();
-    document.getElementById('formTitle').innerText = "INPUT DOKUMEN BARU";
-    document.getElementById('btnSubmit').innerText = "SIMPAN DATA";
+    document.getElementById('formTitle').innerText = "Input Dokumen Baru";
+    document.getElementById('btnSubmit').innerText = "Simpan Data";
     document.getElementById('btnCancel').classList.add('hidden');
 }
 
 function showQR(l) {
-    // Validasi apakah link ada dan valid
-    if(!l || l.trim() === "") {
-        return alert("Maaf, link Google Drive belum diisi untuk dokumen ini.");
-    }
-    
+    if(!l) return alert("Link Drive Kosong");
     document.getElementById("qrcode").innerHTML = "";
-    try {
-        new QRCode(document.getElementById("qrcode"), { 
-            text: l, 
-            width: 140, 
-            height: 140,
-            correctLevel : QRCode.CorrectLevel.H
-        });
-        openModal('qrModal');
-    } catch (err) {
-        alert("Gagal membuat QR Code. Pastikan format link benar.");
-    }
-}
+    new QRCode(document.getElementById("qrcode"), { text: l, width: 150, height: 150 });
+    openModal('qrModal');
 }
 
-async function delData(id) { if(confirm("Hapus data ini?")) { db = db.filter(x => x.id !== id); await sync(); } }
+async function delData(id) { if(confirm("Hapus data ini secara permanen?")) { db = db.filter(i => i.id !== id); await syncToCloud(); } }
 
-async function saveSM() {
-    db.unshift({ id: Date.now(), formatNo: `SM-${Date.now().toString().slice(-4)}`, n: `[MASUK] ${document.getElementById('smAsal').value} - ${document.getElementById('smPerihal').value}`, k: 'A', klaster: 'Klaster 5', l: '', t: new Date().toLocaleDateString('id-ID') });
-    closeModal('masukModal'); await sync();
+async function saveAgenda() {
+    const asal = document.getElementById('agAsal').value;
+    const perihal = document.getElementById('agPerihal').value;
+    if(!asal || !perihal) return alert("Isi data surat masuk!");
+    db.unshift({ id: Date.now(), formatNo: `SM-${Date.now().toString().slice(-4)}`, n: `[SURAT MASUK] ${asal} - ${perihal}`, k: 'A', klaster: 'Klaster 5', l: '', t: new Date().toLocaleDateString('id-ID') });
+    closeModal('agendaModal'); await syncToCloud();
+    document.getElementById('agAsal').value = ""; document.getElementById('agPerihal').value = "";
 }
 
-async function saveSK() {
-    db.unshift({ id: Date.now(), formatNo: `SK-${Date.now().toString().slice(-4)}`, n: `[KELUAR] ${document.getElementById('skTujuan').value} - ${document.getElementById('skPerihal').value}`, k: 'A', klaster: 'Klaster 5', l: '', t: new Date().toLocaleDateString('id-ID') });
-    closeModal('keluarModal'); await sync();
+async function saveSuratKeluar() {
+    const tujuan = document.getElementById('skTujuan').value;
+    const perihal = document.getElementById('skPerihal').value;
+    if(!tujuan || !perihal) return alert("Isi data surat keluar!");
+    db.unshift({ id: Date.now(), formatNo: `SK-${Date.now().toString().slice(-4)}`, n: `[SURAT KELUAR] ${tujuan} - ${perihal}`, k: 'A', klaster: 'Klaster 5', l: '', t: new Date().toLocaleDateString('id-ID') });
+    closeModal('suratKeluarModal'); await syncToCloud();
+    document.getElementById('skTujuan').value = ""; document.getElementById('skPerihal').value = "";
 }
 
 function exportToPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('l', 'mm', 'a4');
-    doc.text("LAPORAN ARSIP DIGITAL PKM KIARAPEDES", 14, 15);
-    doc.autoTable({ startY: 25, head: [['NO', 'PERIHAL', 'TANGGAL']], body: db.map(i => [i.formatNo, i.n.toUpperCase(), i.t]) });
-    doc.save('Arsip.pdf');
+    doc.text("DATA ARSIP PKM KIARAPEDES", 14, 15);
+    doc.autoTable({ startY: 25, head: [['NOMOR ARSIP', 'PERIHAL DOKUMEN', 'TANGGAL']], body: db.map(i => [i.formatNo, i.n.toUpperCase(), i.t]) });
+    doc.save('Arsip_PKM_Kiarapedes.pdf');
 }
 </script>
 </body>
