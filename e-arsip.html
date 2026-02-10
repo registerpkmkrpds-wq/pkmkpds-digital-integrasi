@@ -170,22 +170,38 @@
 
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwLzBas4iCCvs2wsLA2XcjHmAqILMFHu3Ff8twtRiQzJHrEYgfp2dJ1g_KTWcK97anumg/exec"; 
-const SECRET_TOKEN = localStorage.getItem('pkm_token');
-let db = [];
-let editId = null;
-let charts = { line: null, pie: null };
 
-if (!"PKM_KRPDS_2026_SECURE") { window.location.href = 'index.html'; } else { loadFromCloud(); }
+// 1. Ambil token dari penyimpanan browser
+const SESSION_TOKEN = localStorage.getItem('pkm_token');
+
+// 2. Token yang sah (harus sama dengan yang di Script App)
+const VALID_TOKEN = "PKM_KRPDS_2026_SECURE";
+
+// 3. Validasi: Jika token tidak ada atau tidak cocok, tendang ke login
+if (!SESSION_TOKEN || SESSION_TOKEN !== VALID_TOKEN) { 
+    alert("Sesi habis atau akses tidak sah. Silakan login kembali.");
+    window.location.href = 'index.html'; 
+} else { 
+    loadFromCloud(); 
+}
 
 async function loadFromCloud() {
     showLoading(true);
     try {
-        const res = await fetch(`${WEB_APP_URL}?token=${"PKM_KRPDS_2026_SECURE"}`);
+        // Mengirim token yang tersimpan di localStorage ke Apps Script
+        const res = await fetch(`${WEB_APP_URL}?token=${SESSION_TOKEN}`);
+        
+        if (!res.ok) throw new Error("Server Response Error");
+        
         const data = await res.json();
         db = Array.isArray(data) ? data : [];
+        
         renderTable();
         updateStats();
-    } catch (e) { alert("Error: Gagal terhubung ke Cloud"); }
+    } catch (e) { 
+        console.error(e);
+        alert("Error: Gagal terhubung ke Cloud. Pastikan koneksi internet stabil."); 
+    }
     showLoading(false);
 }
 
