@@ -3,350 +3,330 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Arsip | PKM Kiarapedes</title>
+    <title>E-Arsip Digital | PKM Kiarapedes (ILP Edition)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; }
-        .glass-header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
-        .card-custom { background: white; border-radius: 1.5rem; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
-        .input-modern { width: 100%; padding: 0.75rem 1rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; }
-        .input-modern:focus { border-color: #10b981; background: white; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
-        .chart-box { position: relative; height: 300px; width: 100%; }
-        @media print { .no-print { display: none !important; } }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        :root { --bg-body: #f8fafc; --bg-card: #ffffff; --text-main: #1e293b; --border-color: #e2e8f0; }
+        .dark { --bg-body: #0f172a; --bg-card: #1e293b; --text-main: #f1f5f9; --border-color: #334155; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-body); color: var(--text-main); transition: all 0.3s ease; }
+        .glass-header { background: linear-gradient(135deg, #064e3b 0%, #059669 100%); }
+        .card-custom { background: var(--bg-card); border-radius: 1.25rem; border: 1px solid var(--border-color); }
+        .input-modern { width: 100%; padding: 0.75rem 1rem; background: rgba(0,0,0,0.05); border: 2px solid transparent; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; color: var(--text-main); }
+        .input-modern:focus { border-color: #10b981; background: var(--bg-card); }
+        .box-marquee { background: #064e3b; border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem; height: 32px; display: flex; align-items: center; border: 2px solid #10b981; }
+        .box-marquee marquee { color: #ffffff; font-weight: 800; font-size: 11px; line-height: 32px; letter-spacing: 0.5px; }
+        .theme-switch { position: relative; width: 50px; height: 24px; background: #334155; border-radius: 20px; cursor: pointer; display: flex; align-items: center; padding: 0 5px; }
+        .theme-switch .dot { width: 16px; height: 16px; background: white; border-radius: 50%; transition: 0.3s; }
+        .dark .theme-switch .dot { transform: translateX(24px); }
+        .dark .theme-switch { background: #10b981; }
+        .btn-action { padding: 6px; border-radius: 8px; transition: 0.2s; }
+        canvas { max-height: 200px; }
     </style>
 </head>
-<body class="text-slate-900">
+<body>
 
-<div id="loading" class="hidden fixed inset-0 z-[9999] bg-emerald-600/95 backdrop-blur-md flex flex-col items-center justify-center text-white">
-    <div class="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin mb-4"></div>
-    <p class="font-bold text-xs tracking-widest uppercase">Memproses Data...</p>
-</div>
-
-<header class="glass-header text-white pb-32 no-print">
+<header class="glass-header text-white pb-20">
     <div class="container mx-auto px-6 pt-10">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div>  
-                <h1 class="font-black text-2xl uppercase tracking-tighter flex items-center gap-3">
-                    <i class="fas fa-archive text-emerald-400"></i> E-Arsip Digital
-                </h1>
-                <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-400 mt-1">PKM KIARAPEDES</p>
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="font-black text-2xl tracking-tighter italic uppercase">E-Arsip <span class="text-emerald-400">Digital</span></h1>
+                <p class="text-[9px] font-bold uppercase tracking-[0.3em] text-emerald-300">UPTD PUSKESMAS KIARAPEDES - STANDAR ILP</p>
             </div>
-            
-            <div class="flex flex-wrap items-center justify-center gap-2">
-                <a href="index.html">
-                    <i class="fas fa-home" style="font-size:24px;color:red"></i>
-                </a>
-                <a href="https://puskesmaskiarapedes.blogspot.com/p/form-surat-tugas.html" target="_blank" class="bg-emerald-700 hover:bg-emerald-600 px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase border border-white/10 flex items-center gap-2 transition-all">
-                    <i class="fas fa-edit text-emerald-400"></i> Buat Surat Tugas
-                </a>
-                <button onclick="openModal('statsModal')" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase border border-white/10 flex items-center gap-2 transition-all">
-                    <i class="fas fa-chart-line"></i> Statistik
-                </button>
-                <button onclick="openModal('agendaModal')" class="bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase border border-white/10 flex items-center gap-2 transition-all">
-                    <i class="fas fa-inbox"></i> Surat Masuk
-                </button>
-                <button onclick="openModal('suratKeluarModal')" class="bg-rose-600 hover:bg-rose-700 px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase border border-white/10 flex items-center gap-2 transition-all">
-                    <i class="fas fa-paper-plane"></i> Surat Keluar
-                </button>
-                <button onclick="exportToPDF()" class="bg-orange-600 hover:bg-orange-700 px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase border border-white/10 flex items-center gap-2 transition-all">
-                    <i class="fas fa-file-pdf"></i> Export PDF
-                </button>
-            </div>
+            <div class="theme-switch" onclick="toggleDarkMode()"><div class="dot"></div></div>
         </div>
-        
-        <div id="statsSummary" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mt-10"></div>
     </div>
 </header>
 
-<main class="container mx-auto px-6 -mt-20 pb-20">
+<main class="container mx-auto px-6 -mt-10 pb-20">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="card-custom p-6 shadow-lg flex items-center justify-between">
+            <div><p class="text-[10px] font-bold text-slate-400 uppercase">Total Arsip</p><h2 id="statTotal" class="text-3xl font-black text-emerald-600">0</h2></div>
+            <i class="fas fa-box-archive text-4xl text-emerald-100"></i>
+        </div>
+        <div class="card-custom p-6 shadow-lg col-span-2">
+            <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Sebaran Klaster ILP</p>
+            <canvas id="chartILP"></canvas>
+        </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
         <div class="lg:col-span-4">
-            <div class="card-custom p-6 sticky top-6">
-                <h3 id="formTitle" class="text-xs font-black uppercase tracking-widest text-slate-400 mb-6">Input Dokumen Baru</h3>
-                <form id="docForm" class="space-y-4">
-                    <div class="grid grid-cols-2 gap-2">
-                        <select id="docGroup" class="input-modern">
-                            <option value="A">GRUP A</option>
-                            <option value="B">GRUP B</option>
-                            <option value="C">GRUP C</option>
-                            <option value="D">GRUP D</option>
-                            <option value="E">GRUP E</option>
-                            <option value="F">GRUP F</option>
-                        </select>
-                        <select id="docCatType" class="input-modern">
-                            <option value="BA">BA</option>
-                            <option value="SK">SK</option>
-                            <option value="SOP">SOP</option>
-                            <option value="ST">ST</option>
-                            <option value="UND">UND</option>
-                            <option value="DL">DL</option>
-                        </select>
+            <div class="card-custom p-6 shadow-xl sticky top-6">
+                <h3 class="text-xs font-black uppercase text-emerald-600 mb-4 italic flex items-center gap-2">
+                    <i class="fas fa-file-contract"></i> Registrasi Arsip ILP
+                </h3>
+
+                <div class="box-marquee">
+                    <marquee scrollamount="3">SISTEM INTEGRASI LAYANAN PRIMER (ILP) PUSKESMAS KIARAPEDES - PERBUP 12/2024 & 135/2023</marquee>
+                </div>
+
+                <form id="formArsip" class="space-y-4">
+                    <div class="bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-xl border border-emerald-200 mb-4">
+                        <p class="text-[10px] font-bold text-emerald-700 uppercase">Preview Nomor:</p>
+                        <h4 id="displayNomor" class="font-mono font-bold text-sm text-slate-700 dark:text-emerald-300 mt-1">---</h4>
                     </div>
-                    <select id="inputKlaster" class="input-modern">
-                        <option value="Klaster 1">Klaster 1: Manajemen</option>
-                        <option value="Klaster 2">Klaster 2: Ibu & Anak</option>
-                        <option value="Klaster 3">Klaster 3: Dewasa & Lansia</option>
-                        <option value="Klaster 4">Klaster 4: Penanggulangan Penyakit</option>
-                        <option value="Klaster 5">Klaster 5: Lintas Klaster</option>
-                    </select>
-                    <input type="text" id="docName" placeholder="Perihal Dokumen" class="input-modern" required>
-                    <input type="url" id="docLink" placeholder="Link Drive (https://...)" class="input-modern">
-                    <button type="submit" id="btnSubmit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg hover:bg-emerald-700">Simpan Data</button>
-                    <button type="button" id="btnCancel" onclick="cancelEdit()" class="hidden w-full bg-slate-200 text-slate-600 py-2 rounded-xl font-bold uppercase text-[10px] mt-2">Batal Edit</button>
+
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-500">Pilih Klaster ILP</label>
+                        <select id="selKlaster" class="input-modern" onchange="updateSub()"></select>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-500">Sub-Kode (Perbup 135/2023)</label>
+                        <select id="selSub" class="input-modern" onchange="generatePreview()"></select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-slate-500">No. Urut</label>
+                            <input type="number" id="noUrut" class="input-modern" placeholder="001" oninput="generatePreview()">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-slate-500">Tgl Surat</label>
+                            <input type="date" id="arsipTgl" class="input-modern" onchange="generatePreview()">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-500">Perihal / Isi Ringkas</label>
+                        <textarea id="arsipNama" class="input-modern h-20" placeholder="Contoh: Laporan Gizi Buruk Desa..."></textarea>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-500 italic text-emerald-600">Upload Dokumen (Simulasi Drive)</label>
+                        <input type="file" id="arsipFile" class="text-[10px] block w-full text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                    </div>
+
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg">SIMPAN KE DATABASE</button>
+                    <button type="button" onclick="togglePedoman()" class="w-full text-[10px] font-bold text-slate-400 mt-2"><i class="fas fa-info-circle"></i> LIHAT PEDOMAN KODE</button>
                 </form>
             </div>
         </div>
 
-        <div class="lg:col-span-8 space-y-6">
-            <div class="card-custom p-4 bg-white grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input type="text" id="search" oninput="renderTable()" placeholder="Cari..." class="input-modern">
-                <select id="filterKlaster" onchange="renderTable()" class="input-modern">
-                    <option value="">Semua Klaster</option>
-                    <option value="Klaster 1">Klaster 1</option>
-                    <option value="Klaster 2">Klaster 2</option>
-                    <option value="Klaster 3">Klaster 3</option>
-                    <option value="Klaster 4">Klaster 4</option>
-                    <option value="Klaster 5">Klaster 5</option>
-                </select>
-                <select id="filterBulan" onchange="renderTable()" class="input-modern">
-                    <option value="">Semua Bulan</option>
-                    <option value="/01/">Januari</option>
-                    <option value="/02/">Februari</option>
-                    <option value="/03/">Maret</option>
-                    <option value="/04/">April</option>
-                    <option value="/05/">Mei</option>
-                    <option value="/06/">Juni</option>
-                    <option value="/07/">Juli</option>
-                    <option value="/08/">Agustus</option>
-                    <option value="/09/">Sepetember</option>
-                    <option value="/10/">Oktober</option>
-                    <option value="/11/">November</option>
-                    <option value="/12/">Desember</option>
-                </select>
+        <div class="lg:col-span-8">
+            <div class="card-custom p-4 flex items-center shadow-md mb-4">
+                <i class="fas fa-search text-slate-400 mr-3"></i>
+                <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari arsip..." class="w-full bg-transparent outline-none font-semibold text-sm">
             </div>
 
-            <div class="card-custom overflow-hidden bg-white">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-50 border-b text-[10px] text-slate-400 font-black uppercase">
-                            <tr><th class="px-6 py-5">No. Arsip</th><th class="px-6 py-5">Detail</th><th class="px-6 py-5 text-center">Aksi</th></tr>
-                        </thead>
-                        <tbody id="tableBody" class="divide-y divide-slate-50 text-xs font-semibold"></tbody>
-                    </table>
-                </div>
+<div class="flex gap-2 mb-4">
+    <div class="card-custom p-4 flex items-center shadow-md flex-1">
+        <i class="fas fa-search text-slate-400 mr-3"></i>
+        <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari arsip..." class="w-full bg-transparent outline-none font-semibold text-sm">
+    </div>
+    <button onclick="exportToExcel()" class="card-custom px-6 bg-emerald-600 text-white font-bold text-xs flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-md">
+        <i class="fas fa-file-excel"></i> EXPORT
+    </button>
+</div>
+            
+            <div class="card-custom overflow-hidden shadow-xl">
+                <table class="w-full">
+                    <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                        <tr class="text-[10px] uppercase font-black text-slate-500">
+                            <th class="p-4 text-left">Detail Arsip ILP</th>
+                            <th class="p-4 text-center">Aksi & Barcode</th>
+                            <th class="p-4 text-center">Hapus</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="text-xs font-semibold"></tbody>
+                </table>
             </div>
         </div>
     </div>
 </main>
 
-<div id="statsModal" class="fixed inset-0 z-[120] bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-5xl rounded-[2.5rem] p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
-        <div class="flex justify-between items-center mb-8 border-b pb-4">
-            <h2 class="font-black text-lg uppercase tracking-widest text-indigo-600">Laporan Statistik Grafik</h2>
-            <button onclick="closeModal('statsModal')" class="text-slate-400 hover:text-red-500 text-2xl">&times;</button>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="bg-slate-50 p-6 rounded-2xl"><div class="chart-box"><canvas id="lineChart"></canvas></div></div>
-            <div class="bg-slate-50 p-6 rounded-2xl"><div class="chart-box"><canvas id="pieChart"></canvas></div></div>
-        </div>
+<div id="modalQR" class="fixed inset-0 bg-black/80 z-[999] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white p-8 rounded-[2rem] text-center max-w-xs w-full">
+        <h4 id="qrTitle" class="text-[10px] font-black uppercase mb-4 text-slate-400"></h4>
+        <div id="qrcode" class="flex justify-center mb-6 p-2 bg-white border-4 border-slate-50 rounded-xl"></div>
+        <button onclick="closeQR()" class="w-full bg-slate-100 py-3 rounded-xl font-bold uppercase text-[10px]">Tutup</button>
     </div>
 </div>
 
-<div id="agendaModal" class="fixed inset-0 z-[100] bg-slate-900/60 hidden flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl">
-        <h2 class="font-black text-xs uppercase mb-6 text-blue-600">Input Surat Masuk</h2>
-        <input type="text" id="agAsal" placeholder="Asal Surat (Pengirim)" class="input-modern mb-2">
-        <input type="text" id="agPerihal" placeholder="Perihal / Isi Ringkas" class="input-modern mb-6">
-        <div class="flex gap-2">
-            <button onclick="closeModal('agendaModal')" class="flex-1 py-3 text-[10px] font-bold text-slate-400">Batal</button>
-            <button onclick="saveAgenda()" class="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-bold text-xs uppercase">Simpan</button>
-        </div>
-    </div>
-</div>
-
-<div id="suratKeluarModal" class="fixed inset-0 z-[100] bg-slate-900/60 hidden flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl">
-        <h2 class="font-black text-xs uppercase mb-6 text-rose-600">Input Surat Keluar</h2>
-        <input type="text" id="skTujuan" placeholder="Tujuan Surat" class="input-modern mb-2">
-        <input type="text" id="skPerihal" placeholder="Perihal / Isi Ringkas" class="input-modern mb-6">
-        <div class="flex gap-2">
-            <button onclick="closeModal('suratKeluarModal')" class="flex-1 py-3 text-[10px] font-bold text-slate-400">Batal</button>
-            <button onclick="saveSuratKeluar()" class="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-bold text-xs uppercase">Simpan</button>
-        </div>
-    </div>
-</div>
-
-<div id="qrModal" class="fixed inset-0 z-[130] bg-slate-900/80 hidden flex items-center justify-center p-4">
-    <div class="bg-white p-8 rounded-[2.5rem] text-center max-w-xs w-full">
-        <div id="qrcode" class="flex justify-center mb-6"></div>
-        <button onclick="closeModal('qrModal')" class="w-full bg-slate-100 py-3 rounded-xl font-bold text-[10px] uppercase">Tutup</button>
+<div id="modalPedoman" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-8 shadow-2xl">
+        <h2 class="font-black text-xl text-emerald-700 uppercase italic mb-4">Pedoman ILP & Klasifikasi</h2>
+        <div id="pedomanContent" class="space-y-4 text-xs text-slate-600">
+            </div>
+        <button onclick="togglePedoman()" class="mt-6 w-full bg-slate-800 text-white py-2 rounded-xl">Tutup</button>
     </div>
 </div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyPuME9g05BtTN-ME-rXdzsSdbRz4_ZuBRfePuDaLLVnVH_z9mBkQSMBl4oVEEGqK_1RA/exec"; 
-const SECRET_TOKEN = localStorage.getItem('pkm_token');
-let db = [];
-let editId = null;
-let charts = { line: null, pie: null };
-
-if (!SECRET_TOKEN) { window.location.href = 'index.html'; } else { loadFromCloud(); }
-
-async function loadFromCloud() {
-    showLoading(true);
-    try {
-        const res = await fetch(`${WEB_APP_URL}?token=${SECRET_TOKEN}`);
-        const data = await res.json();
-        db = Array.isArray(data) ? data : [];
-        renderTable();
-        updateStats();
-    } catch (e) { alert("Error: Gagal terhubung ke Cloud"); }
-    showLoading(false);
-}
-
-function renderTable() {
-    const b = document.getElementById('tableBody');
-    const s = document.getElementById('search').value.toLowerCase();
-    const fK = document.getElementById('filterKlaster').value;
-    const fB = document.getElementById('filterBulan').value;
-    
-    const filtered = db.filter(i => {
-        const txt = ((i.n||"") + (i.formatNo||i.formatno||"")).toLowerCase();
-        return txt.includes(s) && (fK === "" || i.klaster === fK) && (fB === "" || (i.t || "").includes(fB));
-    });
-
-    b.innerHTML = filtered.map(i => `
-        <tr class="hover:bg-slate-50 transition-all">
-            <td class="px-6 py-4 font-mono font-bold text-slate-500 text-[10px]">${i.formatNo || i.formatno}</td>
-            <td class="px-6 py-4">
-                <div class="font-bold uppercase text-slate-800 leading-tight">${i.n}</div>
-                <div class="text-[9px] text-slate-400 mt-1 uppercase">${i.t} | GRUP ${i.k} | ${i.klaster}</div>
-            </td>
-            <td class="px-6 py-4 flex justify-center gap-2">
-                <button onclick="showQR('${i.l}')" class="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><i class="fas fa-qrcode"></i></button>
-                <button onclick="editData(${i.id})" class="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-600 hover:text-white transition-all"><i class="fas fa-pen"></i></button>
-                <button onclick="delData(${i.id})" class="p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-all"><i class="fas fa-trash"></i></button>
-            </td>
-        </tr>`).join('');
-}
-
-function updateStats() {
-    const cats = ['TOTAL', 'A', 'B', 'C', 'D', 'E', 'F'];
-    document.getElementById('statsSummary').innerHTML = cats.map(k => {
-        const val = k === 'TOTAL' ? db.length : db.filter(i => i.k === k).length;
-        return `<div class="bg-white/10 p-4 rounded-2xl text-center border border-white/10"><div class="text-[8px] font-black uppercase text-white/50">${k}</div><div class="text-xl font-bold text-white">${val}</div></div>`;
-    }).join('');
-}
-
-function initCharts() {
-    if(charts.line) charts.line.destroy();
-    if(charts.pie) charts.pie.destroy();
-    
-    let mon = new Array(12).fill(0);
-    db.forEach(i => { if(i.t) { const m = parseInt(i.t.split('/')[1]) - 1; if(m>=0) mon[m]++; } });
-
-    charts.line = new Chart(document.getElementById('lineChart'), {
-        type: 'line',
-        data: { labels: ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"], datasets: [{ label: 'Jumlah Dokumen', data: mon, borderColor: '#6366f1', tension: 0.4, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.1)' }] },
-        options: { responsive: true, maintainAspectRatio: false }
-    });
-
-    const gData = ['A','B','C','D','E','F'].map(k => db.filter(i => i.k === k).length);
-    charts.pie = new Chart(document.getElementById('pieChart'), {
-        type: 'doughnut',
-        data: { labels: ['Grup A','Grup B','Grup C','Grup D','Grup E','Grup F'], datasets: [{ data: gData, backgroundColor: ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899'] }] },
-        options: { responsive: true, maintainAspectRatio: false }
-    });
-}
-
-document.getElementById('docForm').onsubmit = async (e) => {
-    e.preventDefault();
-    const d = new Date();
-    const rom = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][d.getMonth()];
-    if (editId) {
-        const idx = db.findIndex(i => i.id === editId);
-        db[idx] = {...db[idx], n: document.getElementById('docName').value, l: document.getElementById('docLink').value, k: document.getElementById('docGroup').value, klaster: document.getElementById('inputKlaster').value };
-        cancelEdit();
-    } else {
-        const fNo = `${(db.length+1).toString().padStart(3,'0')}/${document.getElementById('docCatType').value}/PKM-KPDS/${rom}/${d.getFullYear()}`;
-        db.unshift({ id: Date.now(), formatNo: fNo, n: document.getElementById('docName').value, k: document.getElementById('docGroup').value, klaster: document.getElementById('inputKlaster').value, l: document.getElementById('docLink').value, t: d.toLocaleDateString('id-ID') });
-    }
-    await syncToCloud();
+const KLASTER = {
+    "Klaster 1 (Manajemen)": ["800 (Kepegawaian)", "900 (Keuangan)", "060 (Ortala)", "045 (Arsip)"],
+    "Klaster 2 (Ibu & Anak)": ["400.7.5 (KIA)", "400.7.5 (Gizi)", "400.7.5 (Imunisasi)"],
+    "Klaster 3 (Dewasa/Lansia)": ["400.7.2 (PTM)", "400.7.3 (Penyuluhan)", "400.7.2 (Lansia)"],
+    "Klaster 4 (P2P/Kesling)": ["400.7.3 (Surveilans)", "400.7.6 (Sanitasi)", "400.7.3 (Jiwa)"],
+    "Lintas Klaster": ["400.7.1 (Farmasi)", "400.7.2 (Lab)", "400.7.2 (UGD)"]
 };
 
-async function syncToCloud() {
-    showLoading(true);
-    try {
-        await fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "saveAll", db: db, token: SECRET_TOKEN }) });
-        renderTable(); updateStats();
-    } catch (e) { alert("Gagal Sinkronisasi Cloud"); }
-    showLoading(false);
+let database = JSON.parse(localStorage.getItem('db_arsip_ilp')) || [];
+let myChart;
+
+window.onload = () => {
+    const kSel = document.getElementById('selKlaster');
+    Object.keys(KLASTER).forEach(k => kSel.innerHTML += `<option value="${k}">${k}</option>`);
+    updateSub();
+    renderTable();
+    initChart();
+};
+
+function updateSub() {
+    const k = document.getElementById('selKlaster').value;
+    document.getElementById('selSub').innerHTML = KLASTER[k].map(s => `<option value="${s}">${s}</option>`).join('');
+    generatePreview();
 }
 
-function openModal(id) { document.getElementById(id).classList.remove('hidden'); if(id === 'statsModal') setTimeout(initCharts, 200); }
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-function showLoading(s) { document.getElementById('loading').classList.toggle('hidden', !s); }
-
-function editData(id) {
-    const item = db.find(i => i.id === id);
-    editId = id;
-    document.getElementById('docName').value = item.n;
-    document.getElementById('docLink').value = item.l || "";
-    document.getElementById('docGroup').value = item.k;
-    document.getElementById('formTitle').innerText = "Edit Dokumen";
-    document.getElementById('btnSubmit').innerText = "Update Data";
-    document.getElementById('btnCancel').classList.remove('hidden');
-    window.scrollTo({top: 200, behavior: 'smooth'});
+function generatePreview() {
+    const kode = document.getElementById('selSub').value.split(' ')[0];
+    const no = (document.getElementById('noUrut').value || "000").padStart(3, '0');
+    const thn = new Date(document.getElementById('arsipTgl').value || new Date()).getFullYear();
+    const nomor = `${kode} / ${no} / PKM-KPDS / ${thn}`;
+    document.getElementById('displayNomor').innerText = nomor;
+    return nomor;
 }
 
-function cancelEdit() {
-    editId = null; document.getElementById('docForm').reset();
-    document.getElementById('formTitle').innerText = "Input Dokumen Baru";
-    document.getElementById('btnSubmit').innerText = "Simpan Data";
-    document.getElementById('btnCancel').classList.add('hidden');
+document.getElementById('formArsip').onsubmit = function(e) {
+    e.preventDefault();
+    const nomor = generatePreview();
+    const fileInput = document.getElementById('arsipFile');
+    const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : "Tidak ada file";
+
+    database.unshift({
+        no: nomor,
+        nama: document.getElementById('arsipNama').value.toUpperCase(),
+        sub: document.getElementById('selSub').value,
+        klaster: document.getElementById('selKlaster').value,
+        tgl: document.getElementById('arsipTgl').value,
+        file: fileName,
+        link: "#"
+    });
+
+    localStorage.setItem('db_arsip_ilp', JSON.stringify(database));
+    renderTable();
+    updateChart();
+    this.reset();
+    updateSub();
+    alert("Data Berhasil Disimpan & Statistik Diperbarui!");
+};
+
+function renderTable() {
+    const s = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = database.filter(i => i.nama.toLowerCase().includes(s) || i.no.toLowerCase().includes(s));
+    
+    document.getElementById('statTotal').innerText = database.length;
+    document.getElementById('tableBody').innerHTML = filtered.map((x, index) => `
+        <tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-emerald-50/50 dark:hover:bg-slate-800 transition-all">
+            <td class="p-4">
+                <div class="font-mono text-emerald-500 font-bold mb-1">${x.no}</div>
+                <div class="text-slate-800 dark:text-slate-200 font-black uppercase text-[11px]">${x.nama}</div>
+                <div class="text-[8px] text-slate-400 mt-1 uppercase">${x.klaster} | ${x.sub} | <i class="fas fa-file-pdf"></i> ${x.file}</div>
+            </td>
+            <td class="p-4 text-center">
+                <div class="flex justify-center gap-2">
+                    <button onclick="showQR('${x.no}')" class="btn-action bg-emerald-50 text-emerald-600" title="QR Code"><i class="fas fa-qrcode"></i></button>
+                    <button onclick="cetakLabel(${index})" class="btn-action bg-orange-50 text-orange-600" title="Cetak Label"><i class="fas fa-print"></i></button>
+                    <button class="btn-action bg-blue-50 text-blue-400 opacity-50"><i class="fas fa-cloud-download-alt"></i></button>
+                </div>
+            </td>
+            <td class="p-4 text-center">
+                <button onclick="hapus(${index})" class="text-slate-300 hover:text-rose-500"><i class="fas fa-trash-alt"></i></button>
+            </td>
+        </tr>
+    `).join('');
 }
 
-function showQR(l) {
-    if(!l) return alert("Link Drive Kosong");
-    document.getElementById("qrcode").innerHTML = "";
-    new QRCode(document.getElementById("qrcode"), { text: l, width: 150, height: 150 });
-    openModal('qrModal');
+// Fitur Statistik dengan Chart.js
+function initChart() {
+    const ctx = document.getElementById('chartILP').getContext('2d');
+    myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(KLASTER),
+            datasets: [{
+                label: 'Jumlah Arsip',
+                data: Object.keys(KLASTER).map(k => database.filter(d => d.klaster === k).length),
+                backgroundColor: '#10b981'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+        }
+    });
 }
 
-async function delData(id) { if(confirm("Hapus data ini secara permanen?")) { db = db.filter(i => i.id !== id); await syncToCloud(); } }
-
-async function saveAgenda() {
-    const asal = document.getElementById('agAsal').value;
-    const perihal = document.getElementById('agPerihal').value;
-    if(!asal || !perihal) return alert("Isi data surat masuk!");
-    db.unshift({ id: Date.now(), formatNo: `SM-${Date.now().toString().slice(-4)}`, n: `[SURAT MASUK] ${asal} - ${perihal}`, k: 'A', klaster: 'Klaster 5', l: '', t: new Date().toLocaleDateString('id-ID') });
-    closeModal('agendaModal'); await syncToCloud();
-    document.getElementById('agAsal').value = ""; document.getElementById('agPerihal').value = "";
+function updateChart() {
+    myChart.data.datasets[0].data = Object.keys(KLASTER).map(k => database.filter(d => d.klaster === k).length);
+    myChart.update();
 }
 
-async function saveSuratKeluar() {
-    const tujuan = document.getElementById('skTujuan').value;
-    const perihal = document.getElementById('skPerihal').value;
-    if(!tujuan || !perihal) return alert("Isi data surat keluar!");
-    db.unshift({ id: Date.now(), formatNo: `SK-${Date.now().toString().slice(-4)}`, n: `[SURAT KELUAR] ${tujuan} - ${perihal}`, k: 'A', klaster: 'Klaster 5', l: '', t: new Date().toLocaleDateString('id-ID') });
-    closeModal('suratKeluarModal'); await syncToCloud();
-    document.getElementById('skTujuan').value = ""; document.getElementById('skPerihal').value = "";
+function cetakLabel(index) {
+    const data = database[index];
+    const win = window.open('', '_blank', 'width=400,height=300');
+    win.document.write(`
+        <div style="width:70mm; height:40mm; border:1px solid #000; padding:10px; font-family:sans-serif;">
+            <center><b style="font-size:10px;">UPTD PKM KIARAPEDES</b><br><small style="font-size:12px;">${data.no}</small></center>
+            <hr>
+            <div style="font-size:9px;"><b>PERIHAL:</b> ${data.nama}</div>
+            <div style="font-size:8px; margin-top:5px;">KLASIFIKASI: ${data.sub}</div>
+            <div id="q" style="margin-top:5px;"></div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+        <script>new QRCode(document.getElementById("q"), {text:"${data.no}", width:40, height:40}); setTimeout(()=>window.print(), 500);<\/script>
+    `);
 }
 
-function exportToPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('l', 'mm', 'a4');
-    doc.text("DATA ARSIP PKM KIARAPEDES", 14, 15);
-    doc.autoTable({ startY: 25, head: [['NOMOR ARSIP', 'PERIHAL DOKUMEN', 'TANGGAL']], body: db.map(i => [i.formatNo, i.n.toUpperCase(), i.t]) });
-    doc.save('Arsip_PKM_Kiarapedes.pdf');
+function showQR(text) {
+    document.getElementById('modalQR').classList.remove('hidden');
+    document.getElementById('qrTitle').innerText = text;
+    document.getElementById('qrcode').innerHTML = "";
+    new QRCode(document.getElementById("qrcode"), { text: text, width: 160, height: 160 });
 }
+function closeQR() { document.getElementById('modalQR').classList.add('hidden'); }
+function togglePedoman() { document.getElementById('modalPedoman').classList.toggle('hidden'); }
+function toggleDarkMode() { document.body.classList.toggle('dark'); }
+function hapus(i) { if(confirm("Hapus data?")) { database.splice(i,1); localStorage.setItem('db_arsip_ilp', JSON.stringify(database)); renderTable(); updateChart(); } }
+
+function exportToExcel() {
+    if (database.length === 0) {
+        alert("Tidak ada data untuk di-export!");
+        return;
+    }
+
+    // Persiapkan data khusus untuk Excel (menghapus format HTML jika ada)
+    const dataExcel = database.map((x, index) => ({
+        "No. Urut": index + 1,
+        "Nomor Arsip": x.no,
+        "Perihal": x.nama,
+        "Unit/Klaster": x.klaster,
+        "Kode Klasifikasi": x.sub,
+        "Tanggal Surat": x.tgl,
+        "Nama File": x.file
+    }));
+
+    // Buat Workbook & Worksheet
+    const worksheet = XLSX.utils.json_to_sheet(dataExcel);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Data Arsip ILP");
+
+    // Atur lebar kolom agar rapi
+    const wscols = [
+        {wch: 10}, {wch: 30}, {wch: 50}, {wch: 25}, {wch: 25}, {wch: 15}, {wch: 20}
+    ];
+    worksheet['!cols'] = wscols;
+
+    // Download File
+    const tgl = new Date().toISOString().split('T')[0];
+    XLSX.writeFile(workbook, `E-Arsip_PKM_Kiarapedes_${tgl}.xlsx`);}    
 </script>
 </body>
 </html>
