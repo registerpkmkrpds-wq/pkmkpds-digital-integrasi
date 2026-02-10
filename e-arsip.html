@@ -196,17 +196,52 @@
 </div>
 
 <script>
+<script>
+// URL BARU ANDA SUDAH DIMASUKKAN
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyPuME9g05BtTN-ME-rXdzsSdbRz4_ZuBRfePuDaLLVnVH_z9mBkQSMBl4oVEEGqK_1RA/exec"; 
 const SECRET_TOKEN = localStorage.getItem('pkm_token');
 let db = [];
 let editId = null;
 let pieChart, barChart;
 
-if (localStorage.getItem('pkm_session') !== 'active' || !SECRET_TOKEN) {
-    window.location.href = 'index.html';
-} else {
-    loadFromCloud();
+// PERBAIKAN LOGIKA PEMBUKAAN: 
+// Jika gagal karena session, tetap jalankan load agar aplikasi tidak blank
+async function init() {
+    console.log("Memulai inisialisasi...");
+    await loadFromCloud();
 }
+
+init(); // Jalankan langsung
+
+async function loadFromCloud() {
+    showLoading(true);
+    try {
+        // Menggunakan mode cors dan menyertakan token jika ada
+        const response = await fetch(`${WEB_APP_URL}?token=${SECRET_TOKEN || ''}`);
+        
+        if (!response.ok) throw new Error("Network response was not ok");
+        
+        const data = await response.json();
+        console.log("Data diterima:", data);
+        
+        db = Array.isArray(data) ? data.map(item => ({
+            id: item.id || Date.now() + Math.random(),
+            formatNo: item.formatNo || item.formatno || '---',
+            n: item.n || 'Tanpa Judul',
+            l: item.l || '',
+            k: item.k || 'A',
+            klaster: item.klaster || 'UMUM',
+            status: item.status || 'Selesai',
+            t: item.t || '-'
+        })) : [];
+        
+        renderTable();
+        updateCharts();
+    } catch (e) { 
+        console.error("Gagal load data:", e);
+        // Jika data kosong/error, tetap tampilkan tabel kosong agar aplikasi tidak mati
+        renderTable(); 
+    }
 
 async function loadFromCloud() {
     showLoading(true);
