@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Arsip ILP | PKM Kiarapedes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; }
+        .glass-header { background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); }
+        .card-custom { background: white; border-radius: 1.5rem; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+        .input-modern { width: 100%; padding: 0.75rem 1rem; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; transition: 0.2s; }
+        .input-modern:focus { border-color: #10b981; background: white; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+        .tab-active { background: #10b981 !important; color: white !important; }
+        .sub-tab-active { background: #10b981; color: white !important; }
+    </style>
+</head>
+<body class="text-slate-900">
+
+<header class="glass-header text-white pb-32">
+    <div class="container mx-auto px-6 pt-10">
+        <h1 class="font-black text-2xl uppercase tracking-tighter italic">E-Arsip <span class="text-emerald-400">Kiarapedes</span></h1>
+        <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-300">Sistem Integrasi Pelayanan Primer</p>
+    </div>
+</header>
+
+<main class="container mx-auto px-6 -mt-20 pb-20">
+    <div class="flex flex-wrap gap-2 mb-8">
+        <button onclick="switchMainTab('arsip')" id="btn-main-arsip" class="main-tab-link tab-active bg-white text-slate-600 px-6 py-3 rounded-2xl font-black text-[10px] uppercase shadow-sm">Manajemen Arsip</button>
+        <button onclick="switchMainTab('tugas')" id="btn-main-tugas" class="main-tab-link bg-white text-slate-600 px-6 py-3 rounded-2xl font-black text-[10px] uppercase shadow-sm">Buat Surat Tugas</button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="lg:col-span-4">
+            
+            <div id="content-arsip" class="main-content card-custom p-6 sticky top-6">
+                <h3 class="text-xs font-black uppercase tracking-widest text-emerald-600 mb-6">Pengarsipan Dokumen</h3>
+                
+                <div class="flex bg-slate-100 p-1 rounded-xl mb-6">
+                    <button onclick="setJenis('Masuk')" id="btn-sub-masuk" class="sub-tab-link sub-tab-active flex-1 py-2 rounded-lg text-[9px] font-black uppercase">Surat Masuk</button>
+                    <button onclick="setJenis('Keluar')" id="btn-sub-keluar" class="sub-tab-link flex-1 py-2 rounded-lg text-[9px] font-black uppercase text-slate-400">Surat Keluar</button>
+                </div>
+
+                <form id="docForm" class="space-y-4">
+                    <input type="hidden" id="valJenis" value="Masuk">
+                    <select id="inputKlaster" class="input-modern" onchange="updateSub()"></select>
+                    <select id="subKategori" class="input-modern"></select>
+                    <input type="text" id="docName" placeholder="Perihal Surat" class="input-modern" required>
+                    <input type="date" id="docDate" class="input-modern" required>
+                    <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg">Simpan Ke Database</button>
+                </form>
+            </div>
+
+            <div id="content-tugas" class="main-content hidden card-custom p-6 sticky top-6">
+                <h3 class="text-xs font-black uppercase tracking-widest text-indigo-600 mb-6">Generator Surat Tugas</h3>
+                <div class="space-y-3">
+                    <input type="text" id="stNo" placeholder="Nomor Urut (Contoh: 001)" class="input-modern">
+                    <select id="selPegawai" class="input-modern" onchange="addPegawai()"></select>
+                    <div id="listPetugas" class="p-3 bg-slate-50 rounded-xl space-y-2 border border-dashed border-slate-300 min-h-[50px]"></div>
+                    <input type="text" id="stTujuan" placeholder="Tempat Tujuan" class="input-modern">
+                    <input type="date" id="stTgl" class="input-modern">
+                    <textarea id="stMaksud" placeholder="Maksud Tugas" class="input-modern h-20"></textarea>
+                    <button onclick="exportPDF()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg">Cetak Surat Tugas</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-8">
+            <div class="card-custom overflow-hidden bg-white">
+                <div class="p-5 border-b flex justify-between items-center bg-slate-50/50">
+                    <h2 id="tableTitle" class="font-black text-[10px] uppercase text-slate-400 tracking-widest italic">Daftar Surat Masuk</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 border-b text-[9px] text-slate-400 font-black uppercase tracking-tighter">
+                            <tr>
+                                <th class="px-6 py-4">Tanggal</th>
+                                <th class="px-6 py-4">Klaster</th>
+                                <th class="px-6 py-4">Perihal</th>
+                                <th class="px-6 py-4 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-100 text-[11px] font-bold text-slate-600"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+// DATA LOGO (PASTE BASE64 LENGKAP DI SINI)
+const LOGO_KAB = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR4AAAFMCAYAAAAdj9MqAAABAGlDQ1BpY2MAABiVY2BgPMEABCwGDAy5eSVFQe5OChGRUQrsDxgYgRAMEpOLCxhwA6Cqb9cgai/r4lGHC3CmpBYnA+kPQKxSBLQcaKQIkC2SDmFrgNhJELYNiF1eUlACZAeA2EUhQc5AdgqQrZGOxE5CYicXFIHU9wDZNrk5pckIdzPwpOaFBgNpDiCWYShmCGJwZ3AC+R+iJH8RA4PFVwYG5gkIsaSZDAzbWxkYJG4hxFQWMDDwtzAwbDuPEEOESUFiUSJYiAWImdLSGBg+LWdg4I1kYBC+wMDAFQ0LCBxuUwC7zZ0hHwjTGXIYUoEingx5DMkMekCWEYMBgyGDGQCm1j8/yRb+6wAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QA/wD/AP+gvaeTAAABPXpUWHRSYXcgcHJvZmlsZSB0eXBlIGljYwAAKJGdU9mtxCAM/KeKLcH4JOUkJEiv/waeuaJslP3YHYkgOWbGHkz4yzm...";
+const LOGO_PKM = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR4AAAFMCAYAAAAdj9MqAAABAGlDQ1BpY2MAABiVY2BgPMEABCwGDAy5eSVFQe5OChGRUQrsDxgYgRAMEpOLCxhwA6Cqb9cgai/r4lGHC3CmpBYnA+kPQKxSBLQcaKQIkC2SDmFrgNhJELYNiF1eUlACZAeA2EUhQc5AdgqQrZGOxE5CYicXFIHU9wDZNrk5pckIdzPwpOaFBgNpDiCWYShmCGJwZ3AC+R+iJH8RA4PFVwYG5gkIsaSZDAzbWxkYJG4hxFQWMDDwtzAwbDuPEEOESUFiUSJYiAWImdLSGBg+LWdg4I1kYBC+wMDAFQ0LCBxuUwC7zZ0hHwjTGXIYUoEingx5DMkMekCWEYMBgyGDGQCm1j8/yRb+6wAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QA/wD/AP+gvaeTAAABPXpUWHRSYXcgcHJvZmlsZSB0eXBlIGljYwAAKJGdU9mtxCAM/KeKLcH4JOUkJEiv/waeuaJslP3YHYkgOWbGHkz4yzm...";
+
+// DATA PEGAWAI (62 DATA)
+const DATA_PEGAWAI = [
+    { nama: "Ajat Hermawan", nip: "198102202025211054", jabatan: "Operator Layanan Operasional" },
+    { nama: "Anas Muhiban, S.E.", nip: "199703242025211057", jabatan: "Penata Layanan Operasional" },
+    { nama: "apt. Herni Ekaraharjo, S. Farm", nip: "198509272023212004", jabatan: "Ahli Pertama - Apoteker" },
+    { nama: "apt. Tria Wulandari P, S. Farm", nip: "199210082022032009", jabatan: "Apoteker Ahli Muda" },
+    { nama: "Ardiansyah Astriadi, A. Md. AK", nip: "198907272022031007", jabatan: "Pranata Laboratorium Kesehatan Terampil" },
+    { nama: "Ari Niken Palupi, Amd.Keb.", nip: "198501202017042001", jabatan: "Bidan Mahir" },
+    { nama: "Barir Ismaya Shofa, A. Md.", nip: "199307252019032006", jabatan: "Perawat Gigi Pelaksana / Terampil" },
+    { nama: "Ceceng Firmansyah", nip: "198405232025211107", jabatan: "Pengelola Umum Operasional" },
+    { nama: "Cici Wijayanti, Amd.Keb", nip: "198608022024212010", jabatan: "Bidan Terampil" },
+    { nama: "Cindyaningrum, Amd. Keb", nip: "199401272025212073", jabatan: "Bidan Terampil" },
+    { nama: "Cucu Cuhayati, S.Tr. Keb.", nip: "199408202024212013", jabatan: "Bidan Terampil" },
+    { nama: "Cucu Suminar, Amd.Kep", nip: "196804171989032007", jabatan: "Perawat Penyelia" },
+    { nama: "Dewi Novianti, Amk", nip: "198311112023212003", jabatan: "Terampil - Perawat" },
+    { nama: "Dewi Yuliani, AMK", nip: "199103132024212002", jabatan: "Perawat Terampil" },
+    { nama: "Dika Megianty Agustin, S.M.", nip: "199708222025212061", jabatan: "Penata Layanan Operasional" },
+    { nama: "Dodo Widodo", nip: "198410122025211067", jabatan: "Operator Layanan Operasional" },
+    { nama: "dr. Anna Mardyana", nip: "198606172023212005", jabatan: "Ahli Pertama - Dokter" },
+    { nama: "dr. Hendric Hariansyah, M.K.M", nip: "199603282022031009", jabatan: "Dokter Ahli Muda" },
+    { nama: "dr. Rizki Prasetyo", nip: "123456789101112134", jabatan: "Dokter Umum" },
+    { nama: "dr. Zakariya", nip: "197509222006041007", jabatan: "Dokter Ahli Madya" },
+    { nama: "drg. Fitri Nurzanah", nip: "199902032025062009", jabatan: "Dokter Gigi Ahli Pertama" },
+    { nama: "Eka Prisna Nengsih, Amd. Kep", nip: "199605152025212081", jabatan: "Perawat Terampil" },
+    { nama: "Garry Rachman, Amd.Kep", nip: "198509132025211002", jabatan: "Perawat Terampil" },
+    { nama: "H. Ujang Sutrisna, S. Kep., Ners., M. Kep.", nip: "197707132006041011", jabatan: "Kepala Puskesmas Kiarapedes (Pimpinan)" },
+    { nama: "Harbangkit Rizki, Amd. Kes", nip: "199605202022031014", jabatan: "Perekam Medis Terampil" },
+    { nama: "Haris Ridwansyah, S. Kep. Ners.", nip: "198105202008011004", jabatan: "Perawat Penyelia" },
+    { nama: "Imas Teti Sugiharti, Amd.Keb", nip: "198702172017042001", jabatan: "Bidan Mahir" },
+    { nama: "Irma Septiani, Amd. Keb.", nip: "199309082025212079", jabatan: "Bidan Terampil" },
+    { nama: "Juwita Pebrara, Amd. Keb.", nip: "199002092024212007", jabatan: "Bidan Terampil" },
+    { nama: "Kartikasari, Amd. Keb", nip: "199504232025212088", jabatan: "Bidan Terampil" },
+    { nama: "Komariah, Amd.Keb.", nip: "198208202023212002", jabatan: "Terampil - Bidan" },
+    { nama: "Lusi Fitriyani Caturmawati, A. Md. Farm", nip: "199104132022032013", jabatan: "Asisten Apoteker Terampil" },
+    { nama: "Marina, Amd. Keb", nip: "199303052025212078", jabatan: "Bidan Terampil" },
+    { nama: "Merri Diana, S.Tr. Keb.", nip: "197205122006042012", jabatan: "Bidan Penyelia" },
+    { nama: "Mimah Nurhalimah, Amd.Keb", nip: "199106152025212098", jabatan: "Bidan Terampil" },
+    { nama: "Muhamad Haris Romdoni, AMK.", nip: "199502052024211005", jabatan: "Perawat Terampil" },
+    { nama: "Neni Supriyani, Amk", nip: "198204192008012006", jabatan: "Perawat Penyelia" },
+    { nama: "Nining", nip: "198204072025212053", jabatan: "Operator Layanan Operasional" },
+    { nama: "Popy Hasanah, Amd. AK", nip: "199812292024212009", jabatan: "Pranata Laboratorium Kesehatan Terampil" },
+    { nama: "Rahayu Ratnasari, Amg", nip: "199103232019032003", jabatan: "Nutrisionis Mahir" },
+    { nama: "Ratna Dewi, Amd.Keb", nip: "199101142024212015", jabatan: "Bidan Terampil" },
+    { nama: "Rizki Rangga Triyana, A.Md. Kep.", nip: "198903012019031002", jabatan: "Perawat Mahir" },
+    { nama: "Rohman", nip: "198610292025211068", jabatan: "Operator Layanan Operasional" },
+    { nama: "Rudi Subarkat, S. Kep", nip: "199109232023211003", jabatan: "Terampil - Perawat" },
+    { nama: "Samirah, Amd. Keb.", nip: "198905312024212002", jabatan: "Tenaga Promosi Kesehatan Dan Ilmu Perilaku Terampil" },
+    { nama: "Siska Apriliani, Amd. Keb.", nip: "199804132024212005", jabatan: "Bidan Terampil" },
+    { nama: "Siswinarti, S.Kep. Ners.", nip: "198204272009022005", jabatan: "Perawat Ahli Pertama" },
+    { nama: "Siti Fatimah, Amk", nip: "199108042024212012", jabatan: "Perawat Terampil" },
+    { nama: "Siti Rohmah, AMK", nip: "198306252008012002", jabatan: "Perawat Penyelia" },
+    { nama: "Sri Endang Sukmayati", nip: "200206012025212009", jabatan: "Operator Layanan Operasional" },
+    { nama: "Sri Sumarti, SKM", nip: "197503232006042021", jabatan: "Bidan Pelaksana Lanjutan / Mahir" },
+    { nama: "Susilawati, Amd.Keb.", nip: "198404062019032004", jabatan: "Bidan Mahir" },
+    { nama: "Tanti Kemalasari, Amd.Farm.", nip: "199511192024212009", jabatan: "Asisten Apoteker Terampil" },
+    { nama: "Tating Kusmiati, Amd. Keb.", nip: "199310112024212011", jabatan: "Bidan Terampil" },
+    { nama: "Tika Ayu Lestari, Amd. Keb.", nip: "199402012025212076", jabatan: "Bidan Terampil" },
+    { nama: "Tita Rosmiati, Amd.Keb", nip: "197608182006042023", jabatan: "Bidan Pelaksana Lanjutan / Mahir" },
+    { nama: "Titin Sutinah, Amd. Keb", nip: "197701212006042012", jabatan: "Bidan Mahir" },
+    { nama: "Tika Azlia Rachmawati, Amd.Kes", nip: "200209092025062007", jabatan: "Tenaga Sanitasi Lingkungan Terampil" },
+    { nama: "Ujang Kartono", nip: "198103222009011001", jabatan: "Pengadministrasi Umum" },
+    { nama: "Vivit Nopiyanti, Amd.Keb.", nip: "198411042017042001", jabatan: "Bidan Mahir" },
+    { nama: "Widya Kusumawati, S.E.", nip: "199708152025212066", jabatan: "Penata Layanan Operasional" },
+    { nama: "Yeni Heryani", nip: "198510212025212047", jabatan: "Operator Layanan Operasional" }
+];
+
+const KLASTER = {
+    "Klaster 1": ["Kepegawaian (800)", "Keuangan (900)", "Umum (060)"],
+    "Klaster 2": ["KIA/Gizi (441)", "Kes Anak (441.5)"],
+    "Klaster 3": ["Yankes (445)", "Kes Umum (440)"],
+    "Klaster 4": ["P2P (443)", "Kesling (444)"],
+    "Klaster 5": ["Farmasi (442)", "Laborat (445.4)"]
+};
+
+let db = [];
+let dipilih = [];
+
+window.onload = () => {
+    const kSel = document.getElementById('inputKlaster');
+    Object.keys(KLASTER).forEach(k => kSel.innerHTML += `<option value="${k}">${k}</option>`);
+    updateSub();
+
+    const pSel = document.getElementById('selPegawai');
+    pSel.innerHTML = '<option value="">-- Pilih Nama Pegawai --</option>';
+    PEGAWAI.forEach(p => pSel.innerHTML += `<option value="${p.n}">${p.n}</option>`);
+};
+
+function switchMainTab(target) {
+    document.querySelectorAll('.main-content').forEach(c => c.classList.add('hidden'));
+    document.querySelectorAll('.main-tab-link').forEach(l => l.classList.remove('tab-active'));
+    document.getElementById('content-' + target).classList.remove('hidden');
+    document.getElementById('btn-main-' + target).classList.add('tab-active');
+}
+
+function setJenis(j) {
+    document.getElementById('valJenis').value = j;
+    document.getElementById('tableTitle').innerText = "Daftar Surat " + j;
+    document.querySelectorAll('.sub-tab-link').forEach(b => {
+        b.classList.remove('sub-tab-active', 'text-white');
+        b.classList.add('text-slate-400');
+    });
+    const btnActive = j === 'Masuk' ? 'btn-sub-masuk' : 'btn-sub-keluar';
+    document.getElementById(btnActive).classList.add('sub-tab-active', 'text-white');
+    renderTable();
+}
+
+function updateSub() {
+    const k = document.getElementById('inputKlaster').value;
+    document.getElementById('subKategori').innerHTML = KLASTER[k].map(i => `<option value="${i}">${i}</option>`).join('');
+}
+
+function addPegawai() {
+    const n = document.getElementById('selPegawai').value;
+    const p = PEGAWAI.find(x => x.n === n);
+    if (p && !dipilih.includes(p)) {
+        dipilih.push(p);
+        const div = document.getElementById('listPetugas');
+        div.innerHTML = dipilih.map((x, i) => `
+            <div class="flex justify-between items-center bg-white p-2 rounded-lg border text-[10px]">
+                <span>${x.n}</span>
+                <button onclick="dipilih.splice(${i},1);addPegawai()" class="text-rose-500">×</button>
+            </div>
+        `).join('');
+    }
+}
+
+function renderTable() {
+    const j = document.getElementById('valJenis').value;
+    const filtered = db.filter(x => x.jenis === j);
+    document.getElementById('tableBody').innerHTML = filtered.map(x => `
+        <tr>
+            <td class="px-6 py-4">${x.tgl}</td>
+            <td class="px-6 py-4 text-emerald-600">${x.klas}</td>
+            <td class="px-6 py-4 uppercase">${x.nama}</td>
+            <td class="px-6 py-4 text-center"><i class="fas fa-check-circle text-emerald-400"></i></td>
+        </tr>
+    `).join('');
+}
+
+document.getElementById('docForm').onsubmit = (e) => {
+    e.preventDefault();
+    db.push({
+        jenis: document.getElementById('valJenis').value,
+        klas: document.getElementById('inputKlaster').value,
+        nama: document.getElementById('docName').value,
+        tgl: document.getElementById('docDate').value
+    });
+    renderTable();
+    e.target.reset();
+};
+
+async function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    
+    // Header Kop
+    doc.addImage(LOGO_KAB, 'PNG', 15, 10, 22, 28);
+    doc.addImage(LOGO_PKM, 'PNG', 170, 10, 22, 22);
+    doc.setFont("times", "bold").setFontSize(14);
+    doc.text("PEMERINTAH KABUPATEN PURWAKARTA", 100, 16, {align:"center"});
+    doc.text("DINAS KESEHATAN", 100, 22, {align:"center"});
+    doc.setFontSize(16).text("UPTD PUSKESMAS KIARAPEDES", 100, 29, {align:"center"});
+    doc.setFontSize(9).setFont("times", "normal");
+    doc.text("Jalan Raya Kiarapedes No.2 Km. 28 Kecamatan Kiarapedes", 100, 34, {align:"center"});
+    doc.text("Email: pkmkiarapedes20@gmail.com Kode Pos: 41175", 100, 39, {align:"center"});
+    doc.line(15, 41, 195, 41);
+
+    // Penomoran & Tanggal Otomatis
+    const tglInput = new Date(document.getElementById('stTgl').value);
+    const blnRomawi = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][tglInput.getMonth()];
+    const hari = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][tglInput.getDay()];
+
+    doc.setFont("times", "bold").setFontSize(12).text("SURAT TUGAS", 100, 50, {align:"center"});
+    doc.setFont("times", "normal").text(`No: ${document.getElementById('stNo').value}/ST/PKM-KPDS/${blnRomawi}/${tglInput.getFullYear()}`, 100, 55, {align:"center"});
+
+    // TTD Kepala
+    doc.text("Nama     : H. Ujang Sutrisna,S.Kep.,Ners.,M.Kep", 25, 72);
+    doc.text("NIP      : 197707132006041011", 25, 77);
+    doc.text("Jabatan  : Kepala UPTD Puskesmas Kiarapedes", 25, 82);
+
+    doc.autoTable({
+        startY: 102,
+        head: [['No', 'Nama', 'NIP', 'Jabatan']],
+        body: dipilih.map((p, i) => [i+1, p.n, p.nip, p.j]),
+        theme: 'grid', styles: {font: "times"}
+    });
+
+    let fY = doc.lastAutoTable.finalY + 10;
+    doc.text(`Untuk ${document.getElementById('stMaksud').value}`, 20, fY);
+    doc.text(`Hari : ${hari}`, 25, fY + 8);
+    doc.text(`Tempat : ${document.getElementById('stTujuan').value}`, 25, fY + 16);
+
+    doc.save(`Surat_Tugas_${document.getElementById('stNo').value}.pdf`);
+}
+</script>
+</body>
+</html>
