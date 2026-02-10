@@ -12,65 +12,56 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        :root { --primary: #10b981; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; }
-        .glass-header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding-top: 4rem !important; }
-        .card-custom { background: white; border-radius: 1.5rem; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; margin: 0; padding: 0; }
+        .glass-header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        .card-custom { background: white; border-radius: 1rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         .input-modern { width: 100%; padding: 0.75rem 1rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; }
-        .input-modern:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
-        @media print { .no-print { display: none !important; } }
+        .input-modern:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+        .chart-wrapper { position: relative; height: 300px; width: 100%; }
+        /* Memastikan tabel tidak meluber */
+        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     </style>
 </head>
 <body class="text-slate-900">
 
-<div id="loading" class="hidden fixed inset-0 z-[9999] bg-emerald-600/95 backdrop-blur-md flex flex-col items-center justify-center text-white">
-    <div class="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin mb-4"></div>
-    <p class="font-bold text-xs tracking-[0.3em] uppercase animate-pulse">Menghubungkan ke Cloud...</p>
+<div id="loading" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex flex-col items-center justify-center text-white">
+    <div class="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+    <p class="font-bold text-xs tracking-widest uppercase">Sinkronisasi Data...</p>
 </div>
 
-<header class="glass-header text-white pb-32 no-print">
+<header class="glass-header text-white pt-10 pb-28 no-print">
     <div class="container mx-auto px-6">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div>
+        <div class="flex flex-col lg:flex-row justify-between items-center gap-6">
+            <div class="text-center lg:text-left">
                 <h1 class="font-black text-2xl uppercase tracking-tighter flex items-center gap-3">
-                    <i class="fas fa-folder-tree text-emerald-400"></i> E-Arsip Digital
+                    <i class="fas fa-archive text-emerald-400"></i> E-Arsip Digital
                 </h1>
                 <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-400 mt-1">PKM KIARAPEDES</p>
             </div>
             
-            <div class="flex flex-wrap items-center gap-2">
-                <a href="index.html" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl font-bold text-[10px] uppercase border border-white/10 flex items-center gap-2">
+            <div class="flex flex-wrap items-center justify-center gap-2">
+                <a href="index.html" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
                     <i class="fas fa-home"></i> Menu
                 </a>
-                <button onclick="openModal('agendaModal')" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2">
+                <button onclick="openModal('statsModal')" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
+                    <i class="fas fa-chart-pie"></i> Statistik
+                </button>
+                <button onclick="openModal('masukModal')" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
                     <i class="fas fa-inbox"></i> Surat Masuk
                 </button>
-                <button onclick="openModal('suratKeluarModal')" class="bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2">
+                <button onclick="openModal('keluarModal')" class="bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
                     <i class="fas fa-paper-plane"></i> Surat Keluar
                 </button>
-                <button onclick="exportToPDF()" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2">
-                    <i class="fas fa-file-pdf"></i> PDF
+                <button onclick="exportToPDF()" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 transition-all">
+                    <i class="fas fa-file-pdf"></i> Export PDF
                 </button>
             </div>
         </div>
-
-        <div id="statsContainer" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mt-10"></div>
+        <div id="quickStats" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mt-10"></div>
     </div>
 </header>
 
-<main class="container mx-auto px-6 -mt-20 pb-20">
-    
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div class="card-custom p-6 lg:col-span-2">
-            <h4 class="text-[10px] font-black uppercase text-slate-400 mb-4">Tren Arsip Bulanan</h4>
-            <div class="h-[200px] w-full"><canvas id="arsipChart"></canvas></div>
-        </div>
-        <div class="card-custom p-6">
-            <h4 class="text-[10px] font-black uppercase text-slate-400 mb-4">Proporsi Grup (A-F)</h4>
-            <div class="h-[200px] w-full"><canvas id="pieChartGrup"></canvas></div>
-        </div>
-    </div>
-
+<main class="container mx-auto px-6 -mt-16 pb-20">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         <div class="lg:col-span-4">
@@ -79,24 +70,14 @@
                 <form id="docForm" class="space-y-4">
                     <div class="grid grid-cols-2 gap-2">
                         <select id="docGroup" class="input-modern">
-                            <option value="A">GRUP A</option>
-                            <option value="B">GRUP B</option>
-                            <option value="C">GRUP C</option>
-                            <option value="D">GRUP D</option>
-                            <option value="E">GRUP E</option>
-                            <option value="F">GRUP F</option>
+                            <option value="A">GRUP A</option><option value="B">GRUP B</option><option value="C">GRUP C</option>
+                            <option value="D">GRUP D</option><option value="E">GRUP E</option><option value="F">GRUP F</option>
                         </select>
-                        <select id="docCatType" class="input-modern">
-                            <option value="BA">Berita Acara (BA)</option>
-                            <option value="SK">Surat Keputusan (SK)</option>
-                            <option value="SOP">Prosedur (SOP)</option>
-                            <option value="ST">Surat Tugas(ST)</option>
-                            <option value="SKT">Surat Keterangan (SKT)</option>
-                            <option value="SL">Surat Lainnya (SL)</option>
-                            <option value="UND">Undangan (UND)</option>
+                        <select id="docType" class="input-modern">
+                            <option value="BA">BA</option><option value="SK">SK</option><option value="SOP">SOP</option>
+                            <option value="ST">ST</option><option value="UND">UND</option>
                         </select>
                     </div>
-
                     <select id="inputKlaster" class="input-modern">
                         <option value="Klaster 1">Klaster 1: Manajemen</option>
                         <option value="Klaster 2">Klaster 2: Ibu & Anak</option>
@@ -104,19 +85,9 @@
                         <option value="Klaster 4">Klaster 4: Penanggulangan Penyakit</option>
                         <option value="Klaster 5">Klaster 5: Lintas Klaster</option>
                     </select>
-
-                    <select id="docStatus" class="input-modern">
-                        <option value="Selesai">✅ Selesai</option>
-                        <option value="Proses">⏳ Proses</option>
-                        <option value="Penting">🚨 Penting</option>
-                    </select>
-
                     <input type="text" id="docName" placeholder="Perihal Dokumen" class="input-modern" required>
-                    <input type="url" id="docLink" placeholder="Link Drive" class="input-modern">
-
-                    <button type="submit" id="btnSubmit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg hover:bg-emerald-700 transition-all">
-                        Simpan Data
-                    </button>
+                    <input type="url" id="docLink" placeholder="Link Google Drive" class="input-modern">
+                    <button type="submit" id="btnSubmit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg hover:bg-emerald-700 transition-all">Simpan Data</button>
                     <button type="button" id="btnCancel" onclick="cancelEdit()" class="hidden w-full bg-slate-200 text-slate-600 py-2 rounded-xl font-bold uppercase text-[10px] mt-2">Batal Edit</button>
                 </form>
             </div>
@@ -124,35 +95,22 @@
 
         <div class="lg:col-span-8 space-y-6">
             <div class="card-custom p-4 bg-white grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input type="text" id="search" oninput="renderTable()" placeholder="Cari perihal/nomor..." class="input-modern">
-                <select id="filterKlaster" onchange="renderTable()" class="input-modern">
-                    <option value="">Semua Klaster</option>
-                    <option value="Klaster 1">Klaster 1</option>
-                    <option value="Klaster 2">Klaster 2</option>
-                    <option value="Klaster 3">Klaster 3</option>
-                    <option value="Klaster 4">Klaster 4</option>
-                    <option value="Klaster 5">Klaster 5</option>
-                </select>
-                <select id="filterBulan" onchange="renderTable()" class="input-modern">
-                    <option value="">Semua Bulan</option>
-                    <option value="/01/">Januari</option><option value="/02/">Februari</option><option value="/03/">Maret</option>
-                    <option value="/04/">April</option><option value="/05/">Mei</option><option value="/06/">Juni</option>
-                    <option value="/07/">Juli</option><option value="/08/">Agustus</option><option value="/09/">September</option>
-                    <option value="/10/">Oktober</option><option value="/11/">November</option><option value="/12/">Desember</option>
-                </select>
+                <input type="text" id="search" oninput="renderTable()" placeholder="Cari..." class="input-modern">
+                <select id="fKlaster" onchange="renderTable()" class="input-modern"><option value="">Semua Klaster</option><option value="Klaster 1">Klaster 1</option><option value="Klaster 2">Klaster 2</option><option value="Klaster 3">Klaster 3</option><option value="Klaster 4">Klaster 4</option><option value="Klaster 5">Klaster 5</option></select>
+                <select id="fBulan" onchange="renderTable()" class="input-modern"><option value="">Semua Bulan</option><option value="/01/">Januari</option><option value="/02/">Februari</option><option value="/03/">Maret</option></select>
             </div>
 
             <div class="card-custom overflow-hidden bg-white">
-                <div class="overflow-x-auto">
+                <div class="table-container">
                     <table class="w-full text-left">
                         <thead class="bg-slate-50 border-b text-[10px] text-slate-400 font-black uppercase">
                             <tr>
                                 <th class="px-6 py-5">No. Arsip</th>
-                                <th class="px-6 py-5">Detail</th>
+                                <th class="px-6 py-5">Detail Dokumen</th>
                                 <th class="px-6 py-5 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="tableBody" class="divide-y divide-slate-50 text-xs font-semibold"></tbody>
+                        <tbody id="tableBody" class="divide-y divide-slate-100 text-xs font-semibold"></tbody>
                     </table>
                 </div>
             </div>
@@ -160,81 +118,69 @@
     </div>
 </main>
 
-<div id="qrModal" class="fixed inset-0 z-[110] bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white p-8 rounded-[2.5rem] text-center max-w-xs w-full">
-        <div id="qrcode" class="flex justify-center mb-6"></div>
-        <p id="qrTitle" class="text-xs font-bold uppercase"></p>
-        <button onclick="closeModal('qrModal')" class="mt-4 w-full bg-slate-100 py-2 rounded-xl text-[10px] font-bold">TUTUP</button>
-    </div>
-</div>
-
-<div id="agendaModal" class="fixed inset-0 z-[100] bg-slate-900/60 hidden flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8">
-        <h2 class="font-black text-xs uppercase mb-4 text-blue-600">Surat Masuk Baru</h2>
-        <input type="text" id="agAsal" placeholder="Asal Surat" class="input-modern mb-2">
-        <input type="text" id="agPerihal" placeholder="Perihal" class="input-modern mb-4">
-        <div class="flex gap-2">
-            <button onclick="closeModal('agendaModal')" class="flex-1 py-3 text-[10px] font-bold">BATAL</button>
-            <button onclick="saveAgenda()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-[10px]">SIMPAN</button>
+<div id="statsModal" class="fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-5xl rounded-[2rem] p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="font-black text-indigo-600 uppercase tracking-widest">Statistik & Grafik</h2>
+            <button onclick="closeModal('statsModal')" class="text-slate-400 hover:text-red-500 text-2xl font-bold">&times;</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-slate-50 p-6 rounded-2xl"><div class="chart-wrapper"><canvas id="lineChart"></canvas></div></div>
+            <div class="bg-slate-50 p-6 rounded-2xl"><div class="chart-wrapper"><canvas id="pieChart"></canvas></div></div>
         </div>
     </div>
 </div>
 
-<div id="suratKeluarModal" class="fixed inset-0 z-[100] bg-slate-900/60 hidden flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8">
-        <h2 class="font-black text-xs uppercase mb-4 text-rose-600">Surat Keluar Baru</h2>
+<div id="masukModal" class="fixed inset-0 z-[100] bg-slate-900/60 hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-[2rem] p-8 shadow-2xl">
+        <h2 class="font-black text-blue-600 uppercase text-xs mb-6">Input Surat Masuk</h2>
+        <input type="text" id="smAsal" placeholder="Asal Surat" class="input-modern mb-2">
+        <input type="text" id="smPerihal" placeholder="Perihal" class="input-modern mb-6">
+        <button onclick="saveSM()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-xs uppercase shadow-lg">Simpan Surat Masuk</button>
+    </div>
+</div>
+
+<div id="keluarModal" class="fixed inset-0 z-[100] bg-slate-900/60 hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-[2rem] p-8 shadow-2xl">
+        <h2 class="font-black text-rose-600 uppercase text-xs mb-6">Input Surat Keluar</h2>
         <input type="text" id="skTujuan" placeholder="Tujuan Surat" class="input-modern mb-2">
-        <input type="text" id="skPerihal" placeholder="Perihal" class="input-modern mb-4">
-        <div class="flex gap-2">
-            <button onclick="closeModal('suratKeluarModal')" class="flex-1 py-3 text-[10px] font-bold">BATAL</button>
-            <button onclick="saveSuratKeluar()" class="flex-1 py-3 bg-rose-600 text-white rounded-xl font-bold text-[10px]">SIMPAN</button>
-        </div>
+        <input type="text" id="skPerihal" placeholder="Perihal" class="input-modern mb-6">
+        <button onclick="saveSK()" class="w-full bg-rose-600 text-white py-4 rounded-xl font-bold text-xs uppercase shadow-lg">Simpan Surat Keluar</button>
+    </div>
+</div>
+
+<div id="qrModal" class="fixed inset-0 z-[110] bg-slate-900/80 hidden flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-[2rem] text-center shadow-2xl">
+        <div id="qrcode" class="flex justify-center mb-6"></div>
+        <button onclick="closeModal('qrModal')" class="bg-slate-100 px-6 py-2 rounded-full font-bold text-[10px] uppercase">Tutup</button>
     </div>
 </div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyPuME9g05BtTN-ME-rXdzsSdbRz4_ZuBRfePuDaLLVnVH_z9mBkQSMBl4oVEEGqK_1RA/exec"; 
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwLzBas4iCCvs2wsLA2XcjHmAqILMFHu3Ff8twtRiQzJHrEYgfp2dJ1g_KTWcK97anumg/exec"; 
 const SECRET_TOKEN = localStorage.getItem('pkm_token');
 let db = [];
 let editId = null;
-let myChart, pieChart;
+let charts = { line: null, pie: null };
 
-if (!SECRET_TOKEN) { window.location.href = 'index.html'; } else { loadFromCloud(); }
+if (!SECRET_TOKEN) { window.location.href = 'index.html'; } else { loadData(); }
 
-async function loadFromCloud() {
+async function loadData() {
     showLoading(true);
     try {
         const res = await fetch(`${WEB_APP_URL}?token=${SECRET_TOKEN}`);
-        const data = await res.json();
-        db = Array.isArray(data) ? data : [];
-        refreshUI();
-    } catch (e) { console.error(e); }
+        db = await res.json();
+        renderTable();
+        updateStats();
+    } catch (e) { alert("Koneksi Cloud Gagal"); }
     showLoading(false);
-}
-
-async function syncToCloud() {
-    showLoading(true);
-    try {
-        await fetch(WEB_APP_URL, {
-            method: "POST",
-            body: JSON.stringify({ action: "saveAll", db: db, token: SECRET_TOKEN })
-        });
-        refreshUI();
-    } catch (e) { alert("Gagal Simpan ke Cloud"); }
-    showLoading(false);
-}
-
-function refreshUI() {
-    renderTable();
-    renderCharts();
-    updateStats();
 }
 
 function renderTable() {
     const b = document.getElementById('tableBody');
     const s = document.getElementById('search').value.toLowerCase();
-    const fK = document.getElementById('filterKlaster').value;
-    const fB = document.getElementById('filterBulan').value;
+    const fK = document.getElementById('fKlaster').value;
+    const fB = document.getElementById('fBulan').value;
     
     const filtered = db.filter(i => {
         const txt = ((i.n||"") + (i.formatNo||i.formatno||"")).toLowerCase();
@@ -242,130 +188,176 @@ function renderTable() {
     });
 
     b.innerHTML = filtered.map(i => `
-        <tr class="hover:bg-slate-50 border-l-4 ${i.status === 'Penting' ? 'border-rose-500' : 'border-emerald-500'}">
-            <td class="px-6 py-4 font-mono font-bold text-slate-500 text-[10px]">${i.formatNo || i.formatno}</td>
+        <tr class="hover:bg-slate-50">
+            <td class="px-6 py-4 font-mono font-bold text-emerald-600">${i.formatNo || i.formatno}</td>
             <td class="px-6 py-4">
                 <div class="font-bold uppercase text-slate-800 leading-tight">${i.n}</div>
-                <div class="text-[9px] text-slate-400 mt-1 uppercase">${i.t} | GRUP ${i.k} | ${i.klaster || 'UMUM'}</div>
+                <div class="text-[9px] text-slate-400 mt-1 uppercase">${i.t} | GRUP ${i.k} | ${i.klaster}</div>
             </td>
-            <td class="px-6 py-4">
-                <div class="flex justify-center gap-2">
-                    ${i.l ? `<a href="${i.l}" target="_blank" class="p-2 bg-blue-50 text-blue-600 rounded-lg"><i class="fas fa-link text-[10px]"></i></a>` : ''}
-                    <button onclick="showQR('${i.l}','${i.n}')" class="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><i class="fas fa-qrcode text-[10px]"></i></button>
-                    <button onclick="editData(${i.id})" class="p-2 bg-amber-50 text-amber-600 rounded-lg"><i class="fas fa-pen text-[10px]"></i></button>
-                    <button onclick="delData(${i.id})" class="p-2 bg-rose-50 text-rose-600 rounded-lg"><i class="fas fa-trash text-[10px]"></i></button>
-                </div>
+            <td class="px-6 py-4 flex justify-center gap-2">
+                <button onclick="showQR('${i.l}')" class="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><i class="fas fa-qrcode"></i></button>
+                <button onclick="editData(${i.id})" class="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-600 hover:text-white transition-all"><i class="fas fa-pen"></i></button>
+                <button onclick="delData(${i.id})" class="p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-all"><i class="fas fa-trash"></i></button>
             </td>
         </tr>`).join('');
 }
 
-function renderCharts() {
-    // Line Chart
-    let mon = new Array(12).fill(0);
-    db.forEach(i => { if(i.t) { const m = parseInt(i.t.split('/')[1]) - 1; if(m >= 0) mon[m]++; } });
-    if(myChart) myChart.destroy();
-    myChart = new Chart(document.getElementById('arsipChart').getContext('2d'), {
-        type: 'line',
-        data: { labels: ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"], datasets: [{ label: 'Arsip', data: mon, borderColor: '#10b981', tension: 0.4, fill: true, backgroundColor: 'rgba(16, 185, 129, 0.1)' }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-    });
-
-    // Pie Chart
-    const gData = ['A','B','C','D','E','F'].map(k => db.filter(i => i.k === k).length);
-    if(pieChart) pieChart.destroy();
-    pieChart = new Chart(document.getElementById('pieChartGrup').getContext('2d'), {
-        type: 'doughnut',
-        data: { labels: ['A','B','C','D','E','F'], datasets: [{ data: gData, backgroundColor: ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899'] }] },
-        options: { responsive: true, maintainAspectRatio: false }
-    });
-}
-
 function updateStats() {
     const cats = ['TOTAL', 'A', 'B', 'C', 'D', 'E', 'F'];
-    document.getElementById('statsContainer').innerHTML = cats.map(k => {
+    document.getElementById('quickStats').innerHTML = cats.map(k => {
         const val = k === 'TOTAL' ? db.length : db.filter(i => i.k === k).length;
-        return `<div class="bg-white/10 p-4 rounded-2xl text-center border border-white/10 backdrop-blur-md"><div class="text-[8px] font-black uppercase text-white/50">${k}</div><div class="text-xl font-bold text-white">${val}</div></div>`;
+        return `<div class="bg-white/10 p-3 rounded-xl border border-white/10 text-center"><div class="text-[8px] font-bold text-white/50 uppercase">${k}</div><div class="text-lg font-bold text-white">${val}</div></div>`;
     }).join('');
+}
+
+function initCharts() {
+    console.log("Memulai pembuatan grafik dengan data:", db.length); // Untuk debugging
+    
+    if(charts.line) charts.line.destroy();
+    if(charts.pie) charts.pie.destroy();
+    
+    let mon = new Array(12).fill(0);
+    db.forEach(i => { 
+        if(i.t) { 
+            // Memastikan mengambil angka bulan dari format DD/MM/YYYY
+            const parts = i.t.split('/');
+            if(parts.length > 1) {
+                const m = parseInt(parts[1]) - 1; 
+                if(m >= 0 && m < 12) mon[m]++; 
+            }
+        } 
+    });
+
+    // Render Line Chart
+    const ctxLine = document.getElementById('lineChart').getContext('2d');
+    charts.line = new Chart(ctxLine, { 
+        type: 'line', 
+        data: { 
+            labels: ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"], 
+            datasets: [{ 
+                label: 'Data Arsip', 
+                data: mon, 
+                borderColor: '#10b981', 
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                fill: true 
+            }] 
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // Render Pie Chart
+    const gData = ['A','B','C','D','E','F'].map(k => db.filter(i => i.k === k).length);
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    charts.pie = new Chart(ctxPie, { 
+        type: 'doughnut', 
+        data: { 
+            labels: ['Grup A','Grup B','Grup C','Grup D','Grup E','Grup F'], 
+            datasets: [{ 
+                data: gData, 
+                backgroundColor: ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899'] 
+            }] 
+        }, 
+        options: { responsive: true, maintainAspectRatio: false } 
+    });
 }
 
 document.getElementById('docForm').onsubmit = async (e) => {
     e.preventDefault();
-    const date = new Date();
-    const romawi = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][date.getMonth()];
-    const cat = document.getElementById('docCatType').value;
-
+    const d = new Date();
+    const rom = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][d.getMonth()];
     if (editId) {
         const idx = db.findIndex(i => i.id === editId);
-        if (idx !== -1) {
-            db[idx].n = document.getElementById('docName').value;
-            db[idx].l = document.getElementById('docLink').value;
-            db[idx].k = document.getElementById('docGroup').value;
-            db[idx].klaster = document.getElementById('inputKlaster').value;
-            db[idx].status = document.getElementById('docStatus').value;
-        }
+        db[idx] = {...db[idx], n: document.getElementById('docName').value, l: document.getElementById('docLink').value, k: document.getElementById('docGroup').value, klaster: document.getElementById('inputKlaster').value };
         cancelEdit();
     } else {
-        const fullNo = `${(db.length+1).toString().padStart(3,'0')}/${cat}/PKM-KPDS/${romawi}/${date.getFullYear()}`;
-        db.unshift({ id: Date.now(), formatNo: fullNo, n: document.getElementById('docName').value, k: document.getElementById('docGroup').value, klaster: document.getElementById('inputKlaster').value, l: document.getElementById('docLink').value, status: document.getElementById('docStatus').value, t: date.toLocaleDateString('id-ID') });
+        const fNo = `${(db.length+1).toString().padStart(3,'0')}/${document.getElementById('docType').value}/PKM-KPDS/${rom}/${d.getFullYear()}`;
+        db.unshift({ id: Date.now(), formatNo: fNo, n: document.getElementById('docName').value, k: document.getElementById('docGroup').value, klaster: document.getElementById('inputKlaster').value, l: document.getElementById('docLink').value, t: d.toLocaleDateString('id-ID') });
     }
-    await syncToCloud();
-    e.target.reset();
+    await sync();
 };
 
+async function sync() {
+    showLoading(true);
+    try {
+        await fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "saveAll", db: db, token: SECRET_TOKEN }) });
+        renderTable(); updateStats();
+    } catch (e) lse);
+}{ alert("Gagal Simpan ke Cloud"); }
+    showLoading(fa
+function openModal(id) { 
+    document.getElementById(id).classList.remove('hidden'); 
+    
+    // Jika yang dibuka adalah modal statistik, jalankan inisialisasi grafik
+    if(id === 'statsModal') {
+        // Gunakan sedikit jeda (300ms) agar transisi CSS selesai
+        setTimeout(() => {
+            if (db.length > 0) {
+                initCharts();
+            } else {
+                alert("Data belum dimuat, silakan tunggu sebentar.");
+            }
+        }, 300); 
+    } 
+}
+
 function editData(id) {
-    const item = db.find(i => i.id === id);
-    if(!item) return; editId = id;
-    document.getElementById('docName').value = item.n;
-    document.getElementById('docLink').value = item.l || "";
-    document.getElementById('docGroup').value = item.k;
-    document.getElementById('inputKlaster').value = item.klaster || "Klaster 1";
-    document.getElementById('docStatus').value = item.status || "Selesai";
-    document.getElementById('formTitle').innerText = "Edit Dokumen";
-    document.getElementById('btnSubmit').innerText = "Update Data";
-    document.getElementById('btnSubmit').classList.replace('bg-emerald-600', 'bg-amber-600');
+    const i = db.find(x => x.id === id);
+    editId = id;
+    document.getElementById('docName').value = i.n;
+    document.getElementById('docLink').value = i.l || "";
+    document.getElementById('docGroup').value = i.k;
+    document.getElementById('formTitle').innerText = "EDIT DOKUMEN";
+    document.getElementById('btnSubmit').innerText = "UPDATE DATA";
     document.getElementById('btnCancel').classList.remove('hidden');
-    window.scrollTo({top: 400, behavior: 'smooth'});
+    window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 function cancelEdit() {
     editId = null; document.getElementById('docForm').reset();
-    document.getElementById('formTitle').innerText = "Input Dokumen Baru";
-    document.getElementById('btnSubmit').innerText = "Simpan Data";
-    document.getElementById('btnSubmit').classList.replace('bg-amber-600', 'bg-emerald-600');
+    document.getElementById('formTitle').innerText = "INPUT DOKUMEN BARU";
+    document.getElementById('btnSubmit').innerText = "SIMPAN DATA";
     document.getElementById('btnCancel').classList.add('hidden');
 }
 
-async function saveAgenda() {
-    const date = new Date();
-    db.unshift({ id: Date.now(), formatNo: `SM-${Date.now().toString().slice(-4)}`, n: `[MASUK] ${document.getElementById('agAsal').value} - ${document.getElementById('agPerihal').value}`, k: 'A', l: '', status: 'Selesai', t: date.toLocaleDateString('id-ID'), klaster: 'Klaster 5' });
-    closeModal('agendaModal'); await syncToCloud();
-}
-
-async function saveSuratKeluar() {
-    const date = new Date();
-    db.unshift({ id: Date.now(), formatNo: `SK-${Date.now().toString().slice(-4)}`, n: `[KELUAR] ${document.getElementById('skTujuan').value} - ${document.getElementById('skPerihal').value}`, k: 'A', l: '', status: 'Selesai', t: date.toLocaleDateString('id-ID'), klaster: 'Klaster 5' });
-    closeModal('suratKeluarModal'); await syncToCloud();
-}
-
-function showQR(l, t) {
-    if(!l) return alert("Link Kosong!");
+function showQR(l) {
+    // Validasi apakah link ada dan valid
+    if(!l || l.trim() === "") {
+        return alert("Maaf, link Google Drive belum diisi untuk dokumen ini.");
+    }
+    
     document.getElementById("qrcode").innerHTML = "";
-    new QRCode(document.getElementById("qrcode"), { text: l, width: 150, height: 150 });
-    document.getElementById('qrTitle').innerText = t;
-    openModal('qrModal');
+    try {
+        new QRCode(document.getElementById("qrcode"), { 
+            text: l, 
+            width: 140, 
+            height: 140,
+            correctLevel : QRCode.CorrectLevel.H
+        });
+        openModal('qrModal');
+    } catch (err) {
+        alert("Gagal membuat QR Code. Pastikan format link benar.");
+    }
+}
 }
 
-async function delData(id) { if(confirm("Hapus data?")) { db = db.filter(i => i.id !== id); await syncToCloud(); } }
-function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-function showLoading(s) { document.getElementById('loading').classList.toggle('hidden', !s); }
+async function delData(id) { if(confirm("Hapus data ini?")) { db = db.filter(x => x.id !== id); await sync(); } }
+
+async function saveSM() {
+    db.unshift({ id: Date.now(), formatNo: `SM-${Date.now().toString().slice(-4)}`, n: `[MASUK] ${document.getElementById('smAsal').value} - ${document.getElementById('smPerihal').value}`, k: 'A', klaster: 'Klaster 5', l: '', t: new Date().toLocaleDateString('id-ID') });
+    closeModal('masukModal'); await sync();
+}
+
+async function saveSK() {
+    db.unshift({ id: Date.now(), formatNo: `SK-${Date.now().toString().slice(-4)}`, n: `[KELUAR] ${document.getElementById('skTujuan').value} - ${document.getElementById('skPerihal').value}`, k: 'A', klaster: 'Klaster 5', l: '', t: new Date().toLocaleDateString('id-ID') });
+    closeModal('keluarModal'); await sync();
+}
 
 function exportToPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('l', 'mm', 'a4');
-    doc.text("LAPORAN ARSIP PKM KIARAPEDES", 14, 15);
-    doc.autoTable({ startY: 25, head: [['NO ARSIP', 'PERIHAL', 'TANGGAL']], body: db.map(i => [i.formatNo, i.n.toUpperCase(), i.t]) });
-    doc.save('Arsip_Digital.pdf');
+    doc.text("LAPORAN ARSIP DIGITAL PKM KIARAPEDES", 14, 15);
+    doc.autoTable({ startY: 25, head: [['NO', 'PERIHAL', 'TANGGAL']], body: db.map(i => [i.formatNo, i.n.toUpperCase(), i.t]) });
+    doc.save('Arsip.pdf');
 }
 </script>
 </body>
