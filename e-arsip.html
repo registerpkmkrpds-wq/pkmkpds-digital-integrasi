@@ -169,7 +169,40 @@
 </div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwLzBas4iCCvs2wsLA2XcjHmAqILMFHu3Ff8twtRiQzJHrEYgfp2dJ1g_KTWcK97anumg/exec"; 
+    // Pengaturan Waktu (30 menit = 30 * 60 * 1000 milidetik)
+const INACTIVITY_LIMIT = 30 * 60 * 1000; 
+
+function resetTimer() {
+    // Simpan waktu aktivitas terakhir ke localStorage
+    localStorage.setItem('last_activity', Date.now());
+}
+
+function checkInactivity() {
+    const lastActivity = localStorage.getItem('last_activity');
+    const currentTime = Date.now();
+
+    if (lastActivity && (currentTime - lastActivity > INACTIVITY_LIMIT)) {
+        alert("Sesi Anda telah berakhir karena tidak ada aktivitas selama 30 menit.");
+        logoutManually(); // Panggil fungsi logout
+    }
+}
+
+function logoutManually() {
+    localStorage.clear();
+    window.location.href = 'index.html';
+}
+
+// Pantau pergerakan mouse atau ketikan keyboard
+window.onload = resetTimer;
+window.onmousemove = resetTimer;
+window.onmousedown = resetTimer; 
+window.onclick = resetTimer;     
+window.onkeydown = resetTimer;   
+
+// Cek setiap 1 menit
+setInterval(checkInactivity, 60000);
+    
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyPuME9g05BtTN-ME-rXdzsSdbRz4_ZuBRfePuDaLLVnVH_z9mBkQSMBl4oVEEGqK_1RA/exec"; 
 
 // 1. Ambil token dari penyimpanan browser
 const SESSION_TOKEN = localStorage.getItem('pkm_token');
