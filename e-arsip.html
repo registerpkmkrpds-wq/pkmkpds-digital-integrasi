@@ -18,8 +18,10 @@
         .card-custom { background: var(--bg-card); border-radius: 1.25rem; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
         .input-modern { width: 100%; padding: 0.75rem 1rem; background: rgba(0,0,0,0.05); border: 2px solid transparent; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; color: var(--text-main); }
         .input-modern:focus { border-color: #10b981; background: var(--bg-card); }
-        .box-marquee { background: #064e3b; border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem; height: 32px; display: flex; align-items: center; border: 2px solid #10b981; }
-        .box-marquee marquee { color: #ffffff; font-weight: 800; font-size: 11px; line-height: 32px; letter-spacing: 0.5px; }
+        
+        .top-marquee { background: #064e3b; border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem; height: 32px; display: flex; align-items: center; border: 2px solid #10b981; }
+        .top-marquee marquee { color: #ffffff; font-weight: 800; font-size: 11px; line-height: 32px; letter-spacing: 0.5px; }
+        
         .theme-switch { position: relative; width: 45px; height: 22px; background: #334155; border-radius: 20px; cursor: pointer; display: flex; align-items: center; padding: 0 4px; }
         .theme-switch .dot { width: 14px; height: 14px; background: white; border-radius: 50%; transition: 0.3s; }
         .dark .theme-switch .dot { transform: translateX(23px); }
@@ -32,6 +34,10 @@
 </head>
 <body class="pb-10">
 
+<div class="top-marquee">q    
+    <marquee id="marqueeText" scrollamount="4"> MEMUAT INFORMASI SISTEM... </marquee>
+</div> 
+    
 <header class="glass-header text-white pb-24">
     <div class="container mx-auto px-6 pt-10">
         <div class="flex justify-between items-center">
@@ -74,7 +80,7 @@
             </div>
         </div>
     </div>
-
+       
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div class="lg:col-span-4">
             <div class="card-custom p-6 sticky top-6">
@@ -82,10 +88,10 @@
                     <i class="fas fa-pen-to-square"></i> Registrasi Arsip Baru
                 </h3>
 
-                <div class="box-marquee">
-                    <marquee id="marqueeText" scrollamount="4"> MEMUAT INFORMASI SISTEM... </marquee>
-                </div> 
-
+                <button type="button" onclick="togglePedoman()" class="w-full text-[11px] font-bold text-emerald-500 mt-2 hover:text-orange-500 transition-colors">
+                <i class="fas fa-angle-double-right"></i> KODE KLASIFIKASI ARSIP <i class="fas fa-angle-double-left"></i>
+                </button>
+                
                 <form id="formArsip" class="space-y-4">
                     <div class="bg-emerald-50 dark:bg-emerald-950/40 p-4 rounded-xl border border-emerald-100 dark:border-emerald-900">
                         <p class="text-[9px] font-black text-emerald-700 uppercase">Preview Nomor Otomatis:</p>
@@ -125,10 +131,6 @@
 
                     <button type="submit" id="btnSimpan" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none uppercase text-xs tracking-widest">
                         <i class="fas fa-cloud-arrow-up mr-2"></i> Simpan ke Cloud
-                    </button>
-                    
-                    <button type="button" onclick="togglePedoman()" class="w-full text-[9px] font-bold text-slate-400 mt-2 hover:text-emerald-500 transition-colors">
-                        <i class="fas fa-circle-info"></i> PELAJARI KODE KLASIFIKASI ILP
                     </button>
                 </form>
             </div>
@@ -222,21 +224,59 @@
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyPuME9g05BtTN-ME-rXdzsSdbRz4_ZuBRfePuDaLLVnVH_z9mBkQSMBl4oVEEGqK_1RA/exec"; 
 const ACCESS_TOKEN = "2026"; // PIN KEAMANAN
 const KLASTER = {
-    "Klaster 1 (Manajemen)": ["800 (Kepegawaian)", "900 (Keuangan)", "060 (Ortala)", "045 (Kearsipan)", "400.7.1 (Manajemen PKM)"],
-    "Klaster 2 (Ibu & Anak)": ["400.7.5 (KIA)", "400.7.5 (Gizi)", "400.7.5 (Imunisasi)", "400.7.5 (Remaja/Catin)"],
-    "Klaster 3 (Dewasa & Lansia)": ["400.7.2 (PTM)", "400.7.3 (Penyakit Menular)", "400.7.5 (Kesehatan Kerja)", "400.7.2 (Lansia)"],
-    "Klaster 4 (P2P & Kesling)": ["400.7.3 (Surveilans)", "400.7.6 (Kesling/Sanitasi)", "400.7.3 (Kesehatan Jiwa)"],
-    "Lintas Klaster": ["400.7.1 (Farmasi/Obat)", "400.7.2 (Laboratorium)", "400.7.2 (UGD/Tindakan)"]
+    "Klaster 1: Manajemen": [
+        "440.11 (RUK)", "440.12 (RPK)", "440.2 (Org & Tata Laksana)", 
+        "440.3 (Profil Kesehatan)", "440.4 (Litbangkes)", 
+        "005 (Undangan/Minlok)", "800 (Kepegawaian/SK)", "900 (BOK/JKN/Retribusi)"
+    ],
+    "Klaster 2: Ibu & Anak": [
+        "441.11 (ANC/Ibu Hamil)", "441.12 (Persalinan/PNC)", "441.13 (KB)", 
+        "441.21 (Imunisasi Dasar)", "441.22 (Stunting/SDIDTK)", "441.23 (MTBS)",
+        "441.31 (UKS/Penjaringan)", "441.32 (TTD Remaja Putri)"
+    ],
+    "Klaster 3: Dewasa & Lansia": [
+        "440.51 (Skrining PTM/DM/Hipertensi)", "440.52 (IVA Test/Sadanis)", 
+        "440.53 (Keswa & Napza)", "441.61 (Posyandu Lansia)", "441.62 (Skrining Geriatri)"
+    ],
+    "Klaster 4: P2P & Kesling": [
+        "443.11 (TBC & Kusta)", "443.12 (HIV/AIDS & IMS)", "443.13 (ISPA & Diare)",
+        "443.21 (DBD/Fogging)", "443.22 (Malaria & Rabies)", 
+        "448.1 (STBM/Sanitasi)", "448.2 (IKL/TFU)"
+    ],
+    "Lintas Klaster": [
+        "442.1 (Pengelolaan Obat/BMHP)", "442.2 (Farmasi Klinik/Resep)", 
+        "445.1 (Laboratorium)", "445.2 (Kalibrasi Alkes)",
+        "440.61 (Penyuluhan)", "440.62 (Pemberdayaan/Kader)"
+    ]
 };
 
 const CLUSTER_STYLES = {
-    "Klaster 1 (Manajemen)": { icon: "fa-users-gear", color: "text-blue-600", bg: "bg-blue-50" },
-    "Klaster 2 (Ibu & Anak)": { icon: "fa-baby", color: "text-pink-600", bg: "bg-pink-50" },
-    "Klaster 3 (Dewasa & Lansia)": { icon: "fa-person-cane", color: "text-amber-600", bg: "bg-amber-50" },
-    "Klaster 4 (P2P & Kesling)": { icon: "fa-mound", color: "text-emerald-600", bg: "bg-emerald-50" },
+    "Klaster 1: Manajemen": { icon: "fa-users-gear", color: "text-blue-600", bg: "bg-blue-50" },
+    "Klaster 2: Ibu & Anak": { icon: "fa-baby", color: "text-pink-600", bg: "bg-pink-50" },
+    "Klaster 3: Dewasa & Lansia": { icon: "fa-person-cane", color: "text-amber-600", bg: "bg-amber-50" },
+    "Klaster 4: P2P & Kesling": { icon: "fa-mound", color: "text-emerald-600", bg: "bg-emerald-50" },
     "Lintas Klaster": { icon: "fa-hand-holding-medical", color: "text-purple-600", bg: "bg-purple-50" }
 };
 
+const KLASTER_DETAIL = {
+    "440.11": "Rencana Usulan Kegiatan (RUK)", "440.12": "Rencana Pelaksanaan Kegiatan (RPK)",
+    "440.2": "Organisasi dan Tata Laksana Puskesmas", "440.3": "Data dan Informasi Kesehatan (Profil)",
+    "440.4": "Penelitian dan Pengembangan Kesehatan", "005": "Undangan Rapat / Notulensi Minilokarya",
+    "800": "Kepegawaian (SK Penugasan/STR/SIP)", "900": "Keuangan (BOK/JKN/Retribusi)",
+    "441.11": "Kesehatan Ibu Hamil (ANC)", "441.12": "Persalinan dan Nifas (PNC)",
+    "441.13": "Pelayanan Keluarga Berencana (KB)", "441.21": "Imunisasi Dasar Lengkap",
+    "441.22": "Pemantauan Pertumbuhan/Stunting (SDIDTK)", "441.23": "Manajemen Terpadu Balita Sakit (MTBS)",
+    "441.31": "UKS / Penjaringan Kesehatan Sekolah", "441.32": "Tablet Tambah Darah (TTD) Remaja Putri",
+    "440.51": "Skrining Obesitas, Hipertensi, Diabetes", "440.52": "Skrining Kanker (IVA Test / Sadanis)",
+    "440.53": "Kesehatan Jiwa dan Napza", "441.61": "Pelayanan Santun Lansia / Posyandu",
+    "441.62": "Skrining Geriatri", "443.11": "TB (TBC) dan Kusta", "443.12": "HIV/AIDS dan IMS",
+    "443.13": "ISPA dan Diare", "443.21": "Demam Berdarah (DBD) / Fogging", "443.22": "Malaria dan Rabies",
+    "448.1": "Penyehatan Air dan Sanitasi Dasar (STBM)", "448.2": "Inspeksi Kesling (IKL) & TFU",
+    "442.1": "Pengelolaan Obat dan BMHP", "442.2": "Pelayanan Farmasi Klinik (Resep)",
+    "445.1": "Laboratorium Kesehatan", "445.2": "Kalibrasi Alat Kesehatan",
+    "440.61": "Penyuluhan Kesehatan Masyarakat", "440.62": "Pemberdayaan Masyarakat (UKBM/Kader)"
+};
+    
 let database = JSON.parse(localStorage.getItem('db_arsip_ilp_final')) || [];
 let myChart;
 let isAdmin = false;
@@ -244,17 +284,10 @@ let loginCallback = null;
 let fileData = null; 
 let editIndex = null;
 
-// ==========================================
-// INISIALISASI
-// ==========================================
 window.onload = () => {
     const kSel = document.getElementById('selKlaster');
     Object.keys(KLASTER).forEach(k => kSel.innerHTML += `<option value="${k}">${k}</option>`);
-    
-    updateSub();
-    initChart();
-    renderTable();
-    updateRunningText();
+    updateSub(); initChart(); renderTable(); updateRunningText();
 };
 
 function updateSub() {
@@ -265,18 +298,24 @@ function updateSub() {
 
 function generatePreview() {
     const fullSub = document.getElementById('selSub').value;
-    const kode = fullSub.split(' ')[0];
+    const kode = fullSub.split(' ')[0]; // Mengambil angka (misal: 441.11)
+    const arti = KLASTER_DETAIL[kode] || "";
+    
     const no = (document.getElementById('noUrut').value || "0").padStart(3, '0');
     const tglInput = document.getElementById('arsipTgl').value;
-    const thn = tglInput ? new Date(tglInput).getFullYear() : 2026;
-    const nomor = `${kode} / ${no} / PKM-KPDS / ${thn}`;
-    document.getElementById('displayNomor').innerText = nomor;
-    return nomor;
+    const thn = tglInput ? new Date(tglInput).getFullYear() : new Date().getFullYear();
+    
+    const nomorLengkap = `${kode} / ${no} / PKM-KPDS / ${thn}`;
+    
+    // Update tampilan preview dengan keterangan detail
+    document.getElementById('displayNomor').innerHTML = `
+        <span class="block">${nomorLengkap}</span>
+        <span class="text-[9px] text-emerald-500 block mt-1 font-normal italic">ℹ️ ${arti}</span>
+    `;
+    
+    return nomorLengkap;
 }
 
-// ==========================================
-// CORE LOGIC (SIMPAN & SYNC)
-// ==========================================
 document.getElementById('arsipFile').onchange = function(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -350,42 +389,49 @@ function resetForm() {
 
 function renderTable() {
     const s = document.getElementById('searchInput').value.toLowerCase();
-    
-    // Filter pencarian ditingkatkan agar peka terhadap Nama, Nomor, dan Klaster
-    const filtered = database.filter(i => 
-        i.nama.toLowerCase().includes(s) || 
-        i.no.toLowerCase().includes(s) || 
-        i.klaster.toLowerCase().includes(s) ||
-        i.sub.toLowerCase().includes(s)
-    );
+    const f = document.getElementById('filterKlaster').value;
+    const filtered = database.filter(i => {
+    const matchSearch = i.nama.toLowerCase().includes(s) || 
+                          i.no.toLowerCase().includes(s) || 
+                          i.sub.toLowerCase().includes(s);    
+    const matchFilter = (f === "Semua") || (i.klaster.includes(f.split(' ')[1])); 
+        
+        return matchSearch && matchFilter;
+    });
 
     const tableBody = document.getElementById('tableBody');
     document.getElementById('statTotal').innerText = database.length;
     document.getElementById('noData').classList.toggle('hidden', filtered.length > 0);
     
     tableBody.innerHTML = filtered.map((x, index) => {
-        const isCloud = x.link && x.link.includes('google.com');
-        const style = CLUSTER_STYLES[x.klaster] || { color: "text-slate-500" };
-        
+        const style = CLUSTER_STYLES[x.klaster] || { color: "text-slate-500", icon: "fa-folder" };
+        const kodeUtama = x.no.split('/')[0].trim();
+
         return `
-        <tr class="border-b border-slate-50 dark:border-slate-800/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/10 transition-all">
+        <tr class="border-b dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all">
             <td class="p-4">
-                <div class="flex items-center gap-2 mb-1">
-                    <span class="font-mono text-emerald-600 font-black tracking-tight">${x.no}</span>
-                    ${isCloud ? '<i class="fas fa-cloud text-blue-400" title="Cloud Sync"></i>' : '<i class="fas fa-laptop text-slate-300" title="Local Only"></i>'}
+                <div class="flex items-center gap-2 mb-1 group relative">
+                    <span class="font-mono text-emerald-600 font-black tracking-tight cursor-help border-b border-dotted border-emerald-300">
+                        ${x.no}
+                    </span>
+                    <div class="absolute bottom-full left-0 mb-2 hidden group-hover:block z-50 w-48 p-2 bg-slate-800 text-white text-[9px] rounded-lg shadow-xl">
+                        ${KLASTER_DETAIL[kodeMurni] || "Detail tidak ditemukan"}
+                        <div class="absolute top-full left-4 border-8 border-transparent border-t-slate-800"></div>
+                    </div>
                 </div>
                 <div class="text-slate-800 dark:text-slate-200 font-extrabold uppercase text-[10px] leading-tight">${x.nama}</div>
-                <div class="text-[8px] mt-1 uppercase font-bold">
-                    <span class="${style.color}">${x.klaster}</span> 
-                    <span class="text-slate-400"> • ${x.sub} • ${x.tgl}</span>
+                <div class="text-[8px] mt-1 uppercase font-bold text-slate-400">
+                    <span class="${style.color}">${x.klaster}</span> • ${x.tgl}
                 </div>
             </td>
             <td class="p-4">
-                <div class="flex justify-center gap-1.5">
+                <div class="flex justify-center gap-2">
                     <button onclick="showQR('${x.no}')" class="btn-action bg-emerald-50 text-emerald-600 border border-emerald-100"><i class="fas fa-qrcode"></i></button>
                     <button onclick="editData(${index})" class="btn-action bg-yellow-50 text-yellow-600 border border-yellow-100"><i class="fas fa-pen"></i></button>
                     <button onclick="cetakLabel(${index})" class="btn-action bg-orange-50 text-orange-600 border border-orange-100"><i class="fas fa-print"></i></button>
-                    <a href="${x.link}" target="_blank" class="btn-action ${isCloud ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-slate-50 text-slate-300 pointer-events-none border-slate-100'}"><i class="fas fa-file-pdf"></i></a>
+                    <a href="${x.link}" target="_blank" class="btn-action ${x.link !== '#' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-slate-100 text-slate-300 pointer-events-none'}">
+                        <i class="fas fa-file-pdf"></i>
+                    </a>
                 </div>
             </td>
             <td class="p-4 text-center">
@@ -393,11 +439,9 @@ function renderTable() {
             </td>
         </tr>`;
     }).join('');
+    
     updateActivityLog();
 }
-// ==========================================
-// UI & SECURITY
-// ==========================================
 function updateRunningText() {
     const total = database.length;
     const hariIni = new Date().toISOString().split('T')[0];
@@ -426,35 +470,82 @@ function verifikasiPin() {
 }
 
 function renderPedoman() {
+    const dataPedoman = [
+        {
+            judul: "1. KLASTER 1: MANAJEMEN & ADMINISTRASI",
+            deskripsi: "Tata kelola, perencanaan (P1, P2, P3), dan pelaporan.",
+            poin: [
+                "440.11 s/d 440.12 (Perencanaan RUK/RPK)",
+                "440.2 (Organisasi/Tata Laksana)",
+                "440.3 (Data & Informasi/Profil)",
+                "005 (Notulensi Minlok)",
+                "800 (Kepegawaian/STR/SIP)",
+                "900 (Keuangan/BOK/JKN)"
+            ]
+        },
+        {
+            judul: "2. KLASTER 2: IBU DAN ANAK",
+            deskripsi: "Layanan siklus hidup masa kehamilan hingga remaja.",
+            poin: [
+                "441.11 (ANC), 441.12 (PNC), 441.13 (KB)",
+                "441.21 (Imunisasi), 441.22 (Stunting), 441.23 (MTBS)",
+                "441.31 (UKS), 441.32 (TTD Remaja)"
+            ]
+        },
+        {
+            judul: "3. KLASTER 3: DEWASA DAN LANJUT USIA",
+            deskripsi: "Pencegahan PTM dan skrining kesehatan.",
+            poin: [
+                "440.51 (Skrining PTM), 440.52 (IVA/Sadanis)",
+                "440.53 (Keswa & Napza)",
+                "441.61 (Santun Lansia), 441.62 (Skrining Geriatri)"
+            ]
+        },
+        {
+            judul: "4. KLASTER 4: P2P & KESLING",
+            deskripsi: "Pencegahan penyakit menular dan penyehatan lingkungan.",
+            poin: [
+                "443.11 (TB/Kusta), 443.12 (HIV), 443.13 (Diare)",
+                "443.21 (DBD), 443.22 (Malaria/Rabies)",
+                "448.1 (STBM), 448.2 (IKL TFU)"
+            ]
+        },
+        {
+            judul: "5. KLASTER 5: LINTAS KLASTER (PENUNJANG)",
+            deskripsi: "Farmasi, Lab, dan Pemberdayaan Masyarakat.",
+            poin: [
+                "442.1 (Obat/BMHP), 442.2 (Resep)",
+                "445.1 (Lab), 445.2 (Kalibrasi)",
+                "440.61 (Penyuluhan), 440.62 (Kader)"
+            ]
+        }
+    ];
+
     let h = `
-        <div class="bg-blue-50 dark:bg-blue-950/30 p-6 rounded-3xl mb-6 border border-blue-100 dark:border-blue-900">
-            <h3 class="font-black text-blue-800 dark:text-blue-300 text-xs mb-1 uppercase italic flex items-center gap-2">
-                <i class="fas fa-circle-info"></i> Format Nomor Perbup 12/2024:
-            </h3>
-            <p class="font-mono text-[11px] text-blue-600 dark:text-blue-400 bg-white/50 dark:bg-black/20 p-2 rounded-lg border border-blue-100 dark:border-blue-800">
-                [KODE KLASIFIKASI] / [NO URUT] / PKM-KPDS / [TAHUN]
-            </p>
+        <div class="bg-blue-600 p-4 rounded-t-2xl text-white">
+            <h2 class="font-black text-xs uppercase tracking-widest">Pedoman Perbup 135/2023</h2>
+            <p class="text-[10px] opacity-80">Klasifikasi Arsip Integrasi Layanan Primer (ILP)</p>
         </div>
-        <div class="space-y-4">
+        <div class="p-4 bg-white dark:bg-slate-900 space-y-6">
     `;
 
-    Object.keys(KLASTER).forEach(k => {
-        const style = CLUSTER_STYLES[k] || { icon: "fa-folder", color: "text-slate-500", bg: "bg-slate-50" };
+    dataPedoman.forEach(item => {
         h += `
-            <div class="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="w-8 h-8 rounded-lg ${style.bg} ${style.color} flex items-center justify-center text-sm">
-                        <i class="fas ${style.icon}"></i>
-                    </div>
-                    <h4 class="font-black text-slate-700 dark:text-slate-200 text-[11px] uppercase">${k}</h4>
-                </div>
-                <div class="flex flex-wrap gap-1">
-                    ${KLASTER[k].map(s => `
-                        <span class="px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-[9px] font-bold text-slate-500">${s}</span>
+            <div>
+                <h3 class="font-black text-[11px] text-emerald-600 border-b border-emerald-100 pb-1 mb-2 uppercase">${item.judul}</h3>
+                <p class="text-[10px] text-slate-500 mb-2 italic font-semibold">${item.deskripsi}</p>
+                <div class="grid grid-cols-1 gap-1">
+                    ${item.poin.map(p => `
+                        <div class="flex items-start gap-2 text-[10px] font-bold text-slate-700 dark:text-slate-300">
+                            <i class="fas fa-check-circle text-emerald-500 mt-1"></i>
+                            <span>${p}</span>
+                        </div>
                     `).join('')}
                 </div>
-            </div>`;
+            </div>
+        `;
     });
+
     h += `</div>`;
     document.getElementById('pedomanContent').innerHTML = h;
 }
@@ -469,9 +560,6 @@ function togglePedoman() {
     }
 }
 
-// ==========================================
-// FUNGSI PENDUKUNG LAINNYA
-// ==========================================
 function initChart() {
     const ctx = document.getElementById('chartILP').getContext('2d');
     myChart = new Chart(ctx, {
