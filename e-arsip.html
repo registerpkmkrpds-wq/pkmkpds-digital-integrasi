@@ -140,6 +140,19 @@
                     <i class="fas fa-magnifying-glass text-slate-400 mr-3"></i>
                     <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari berdasarkan nomor, perihal, atau klaster..." class="w-full bg-transparent outline-none font-bold text-sm">
                 </div>
+
+                <div class="card-custom p-4 flex items-center flex-1 min-w-[150px]">
+                    <i class="fas fa-filter text-emerald-500 mr-3"></i>
+                    <select id="filterKlaster" onchange="renderTable()" class="w-full bg-transparent outline-none font-bold text-xs text-slate-600 appearance-none cursor-pointer">
+                        <option value="Semua">─ SEMUA KLASTER ─</option>
+                        <option value="Klaster 1 (Manajemen)">📂 Klaster 1 (Manajemen)</option>
+                        <option value="Klaster 2 (Ibu & Anak)">👶 Klaster 2 (Ibu & Anak)</option>
+                        <option value="Klaster 3 (Dewasa & Lansia)">🧓 Klaster 3 (Dewasa & Lansia)</option>
+                        <option value="Klaster 4 (P2P & Kesling)">🧼 Klaster 4 (P2P & Kesling)</option>
+                        <option value="Lintas Klaster">🔄 Lintas Klaster</option>
+                       </select>
+                </div>
+                
                 <button onclick="handleExport()" class="card-custom px-6 bg-white dark:bg-slate-800 text-emerald-600 font-black text-xs flex items-center gap-2 hover:bg-emerald-50 transition-all border-emerald-100">
                     <i class="fas fa-file-excel"></i> EXPORT
                 </button>
