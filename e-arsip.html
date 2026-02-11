@@ -39,24 +39,26 @@
    <header class="glass-header text-white pb-24">
     <div class="container mx-auto px-6 pt-10">
         <div class="flex justify-between items-center">
-            <div>
-                <h1 class="font-black text-2xl tracking-tighter italic uppercase">Arsip <span class="text-emerald-400">Digital</span></h1>
-                <p class="text-[9px] font-bold uppercase tracking-[0.3em] text-emerald-300"> PUSKESMAS KIARAPEDES </p>
-            </div>
-                 <div class="flex items-center gap-3">
-                    <button onclick="toggleTheme()" class="bg-white/10 hover:bg-white/20 p-3 rounded-full border border-white/20 transition-all">
-                        <i id="themeIcon" class="fas fa-moon"></i>
-                    </button>
-                    <button onclick="exportToExcel()" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full border border-white/20 text-[10px] font-black uppercase">
-                        <i class="fas fa-file-excel mr-2"></i> Export
-                    </button>
-                    <button onclick="syncFromGAS()" class="flex items-center gap-2 bg-red-700 hover:bg-red-600 px-4 py-2 rounded-full border border-emerald-400/30 transition-all text-[10px] font-black uppercase">
-                        <i id="syncIcon" class="fas fa-sync-alt"></i> Sync
-                    </button>
-                    <button onclick="toggleBantuan()" class="flex items-center gap-2 bg-blue-500 hover:bg-orange-500 px-4 py-2 rounded-full border border-blue-400/30 transition-all">
-    <i class="fas fa-question-circle text-[10px] text-blue-200"></i>
-    <span class="text-[10px] font-bold uppercase text-white">Bantuan</span>
-</button>
+            
+    <div class="flex items-center gap-3">
+    <i class="fas fa-folder-open" style="font-size:38px;color:yellow/20"></i><div>
+    <h1 class="font-black text-2xl tracking-tighter italic uppercase leading-none">Arsip <span class="text-emerald-400">Digital</span></h1>
+    <p class="text-[9px] font-bold uppercase tracking-[0.3em] text-emerald-300">PUSKESMAS KIARAPEDES</p></div>
+</div>
+</div>
+
+        <div class="flex items-center gap-3">
+            <button onclick="exportToExcel()" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full border border-white/20 text-[10px] font-black uppercase">
+                <i class="fas fa-file-excel mr-2"></i> Export
+                </button>
+            <button onclick="syncFromGAS()" class="flex items-center gap-2 bg-red-700 hover:bg-red-600 px-4 py-2 rounded-full border border-emerald-400/30 transition-all text-[10px] font-black uppercase">
+                <i id="syncIcon" class="fas fa-sync-alt"></i> Sync
+                 </button>
+            <button onclick="toggleBantuan()" class="flex items-center gap-2 bg-blue-500 hover:bg-orange-500 px-4 py-2 rounded-full border border-blue-400/30 transition-all">
+                <i class="fas fa-question-circle text-[10px] text-blue-200"></i><span class="text-[10px] font-bold uppercase text-white">Bantuan</span>
+               <button onclick="toggleTheme()" class="text-white hover:opacity-75 transition-all focus:outline-none p-2">
+                  <i id="theme-icon" class="fas fa-moon" style="font-size:20px"></i>
+                </button>
                 </div>
             </div>
         </div>
@@ -102,12 +104,7 @@
                             </label>
                         </div>
 
-                        <button type="submit" id="btnSimpan" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg shadow-emerald-200/50 hover:bg-emerald-500 transition-all">Simpan & Upload Ke Cloud</button>
-                    
-                    <button type="button" onclick="togglePedoman()" class="w-full text-[9px] font-bold text-slate-400 mt-2 hover:text-emerald-500 transition-colors">
-    <i class="fas fa-circle-info"></i> KODE KLASIFIKASI ARSIP
-</button>
-                    
+                        <button type="submit" id="btnSimpan" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg shadow-emerald-200/50 hover:bg-emerald-500 transition-all">Simpan & Upload Ke Cloud</button>                              
                     </form>
                 </div>
             </div>
@@ -154,7 +151,7 @@
                 <i class="fas fa-circle-info text-2xl"></i>
                 <div>
                     <h2 class="font-black text-sm uppercase italic">Panduan</h2>
-                    <p class="text-[9px] opacity-80 uppercase tracking-widest">E-Arsip Digital PKM Kiarapedes</p>
+                    <p class="text-[9px] opacity-80 uppercase tracking-widest">E-Arsip Digital PKM Kiarapedes</p><strong>Perbup 135/2023</strong>
                 </div>
             </div>
             <button onclick="toggleBantuan()" class="text-2xl font-bold hover:scale-110 transition-transform">&times;</button>
@@ -415,55 +412,6 @@ function hapus(i) {
 function toggleBantuan() {
     const m = document.getElementById('modalBantuan');
     m.classList.toggle('hidden');
-}
-
-function renderPedoman() {
-    let h = `
-        <div class="bg-blue-50 dark:bg-blue-950/30 p-6 rounded-3xl mb-6 border border-blue-100 dark:border-blue-900">
-            <h3 class="font-black text-blue-800 dark:text-blue-300 text-xs mb-1 uppercase italic flex items-center gap-2">
-                <i class="fas fa-circle-info"></i> Format Nomor Perbup 12/2024:
-            </h3>
-            <p class="font-mono text-[11px] text-blue-600 dark:text-blue-400 bg-white/50 dark:bg-black/20 p-2 rounded-lg border border-blue-100 dark:border-blue-800">
-                [KODE KLASIFIKASI] / [NO URUT] / PKM-KPDS / [TAHUN]
-            </p>
-        </div>
-        <div class="space-y-4">
-    `;
-
-    Object.keys(KLASTER).forEach(k => {
-        const style = CLUSTER_STYLES[k] || { icon: "fa-folder", color: "text-slate-500", bg: "bg-slate-50" };
-        
-        h += `
-            <div class="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="w-8 h-8 rounded-lg ${style.bg} ${style.color} flex items-center justify-center text-sm">
-                        <i class="fas ${style.icon}"></i>
-                    </div>
-                    <h4 class="font-black text-slate-700 dark:text-slate-200 text-[11px] uppercase">${k}</h4>
-                </div>
-                <div class="flex flex-wrap gap-1">
-                    ${KLASTER[k].map(s => `
-                        <span class="px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-[9px] font-bold text-slate-500">
-                            ${s}
-                        </span>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-    });
-
-    h += `</div>`;
-    document.getElementById('pedomanContent').innerHTML = h;
-}
-
-function togglePedoman() {
-    const modal = document.getElementById('modalPedoman');
-    if (modal.classList.contains('hidden')) {
-        renderPedoman(); // Pastikan data dirender ulang saat dibuka
-        modal.classList.remove('hidden');
-    } else {
-        modal.classList.add('hidden');
-    }
 }
 
 </script>
