@@ -38,15 +38,14 @@
             <div>
                 <h1 class="font-black text-2xl tracking-tighter italic uppercase">Arsip <span class="text-emerald-400">Digital</span></h1>
                 <p class="text-[9px] font-bold uppercase tracking-[0.3em] text-emerald-300"> PUSKESMAS KIARAPEDES </p>
-                <p class="text-[7px] font-bold uppercase tracking-[0.3em] text-emerald-300"> MANAJEMEN ARSIP @ DATA & INFORMASI </p>
-            </div>
+              </div>
             <div class="flex items-center gap-4">
-             <a href="index.html" class="px-5 py-2.5 rounded-2xl bg-emerald-700 hover:bg-emerald-500 text-white text-[9px] font-black shadow-lg transition-all">
-                <i class="fas fa-home mr-2 text-white-400"></i>Menu
-            </a>
+                <a href="index.html" class="px-5 py-2.5 rounded-2xl bg-emerald-700 hover:bg-emerald-500 text-white text-[9px] font-black shadow-lg transition-all">
+                    <i class="fas fa-home mr-2 text-white-400"></i>Menu
+                </a>
                 <button onclick="syncFromGAS()" class="flex items-center gap-2 bg-emerald-700/50 hover:bg-emerald-600 px-4 py-2 rounded-full border border-emerald-400/30 transition-all">
                     <i id="syncIcon" class="fas fa-sync-alt text-[10px] text-emerald-300"></i>
-                    <span class="text-[10px] font-bold uppercase text-white">Sync Cloud</span>
+                    <span class="text-[10px] font-bold uppercase text-white">Sinkronisasi</span>
                 </button>
                 <div class="theme-switch" onclick="toggleDarkMode()"><div class="dot"></div></div>
             </div>
@@ -84,7 +83,7 @@
                 </h3>
 
                 <div class="box-marquee">
-                    <marquee scrollamount="4"> SELAMAT DATANG DI SISTEM E-ARSIP ILP PUSKESMAS KIARAPEDES — PASTIKAN FORMAT NOMOR SESUAI <strong>PERBUP NO. 12 TAHUN 2024</strong> — Simpan dokumen dengan teliti demi tertib administrasi — TATA NASKAH ARSIP DIGITAL PKM KIARAPEDES SESUAI PERBUP PURWAKARTA <font-bold>NO 135/2023</font-bold></marquee>
+                    <marquee id="marqueeText" scrollamount="4"> MEMUAT INFORMASI SISTEM... </marquee>
                 </div> 
 
                 <form id="formArsip" class="space-y-4">
@@ -180,8 +179,8 @@
         <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <i class="fas fa-shield-halved text-2xl"></i>
         </div>
-        <h4 class="text-xs font-black uppercase text-slate-800 mb-2">Otorisasi Admin</h4>
-        <p class="text-[10px] text-slate-400 mb-6 leading-relaxed">Fitur hapus dan ekspor memerlukan PIN keamanan Admin.</p>
+        <h4 class="text-xs font-black uppercase text-slate-800 mb-2">Verifikasi Otorisasi</h4>
+        <p class="text-[10px] text-slate-400 mb-6 leading-relaxed">Masukkan Kode Akses Unit untuk melanjutkan tindakan ini.</p>
         <input type="password" id="pinInput" class="input-modern text-center text-3xl tracking-[0.5em] mb-6 border-b-4 border-emerald-500" placeholder="****" maxlength="4">
         <div class="flex gap-2">
             <button onclick="closeLogin()" class="flex-1 bg-slate-100 text-slate-500 py-3 rounded-xl font-bold uppercase text-[10px]">Batal</button>
@@ -191,13 +190,13 @@
 </div>
 
 <div id="modalPedoman" class="hidden fixed inset-0 bg-black/60 z-[998] flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-white rounded-[2.5rem] max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
-        <div class="p-8 border-b flex justify-between items-center bg-emerald-50">
-            <h2 class="font-black text-xl text-emerald-800 uppercase italic">Pedoman Klaster ILP</h2>
+    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
+        <div class="p-8 border-b dark:border-slate-800 flex justify-between items-center bg-emerald-50 dark:bg-emerald-950/30">
+            <h2 class="font-black text-xl text-emerald-800 dark:text-emerald-400 uppercase italic">Pedoman Klaster ILP</h2>
             <button onclick="togglePedoman()" class="text-slate-400 hover:text-rose-500 text-2xl">&times;</button>
         </div>
-        <div id="pedomanContent" class="p-8 overflow-y-auto space-y-4"></div>
-        <div class="p-6 bg-slate-50 text-center">
+        <div id="pedomanContent" class="p-8 overflow-y-auto"></div>
+        <div class="p-6 bg-slate-50 dark:bg-slate-800/50 text-center">
             <button onclick="togglePedoman()" class="bg-slate-800 text-white px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest">Selesai</button>
         </div>
     </div>
@@ -207,8 +206,8 @@
 // ==========================================
 // KONFIGURASI & DATABASE
 // ==========================================
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyPuME9g05BtTN-ME-rXdzsSdbRz4_ZuBRfePuDaLLVnVH_z9mBkQSMBl4oVEEGqK_1RA/exec"; // Ganti dengan URL Deployment Apps Script Anda
-const ADMIN_PIN = "2026"; // Ganti dengan PIN rahasia Anda
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyPuME9g05BtTN-ME-rXdzsSdbRz4_ZuBRfePuDaLLVnVH_z9mBkQSMBl4oVEEGqK_1RA/exec"; 
+const ACCESS_TOKEN = "2026"; // PIN KEAMANAN
 const KLASTER = {
     "Klaster 1 (Manajemen)": ["800 (Kepegawaian)", "900 (Keuangan)", "060 (Ortala)", "045 (Kearsipan)", "400.7.1 (Manajemen PKM)"],
     "Klaster 2 (Ibu & Anak)": ["400.7.5 (KIA)", "400.7.5 (Gizi)", "400.7.5 (Imunisasi)", "400.7.5 (Remaja/Catin)"],
@@ -217,10 +216,20 @@ const KLASTER = {
     "Lintas Klaster": ["400.7.1 (Farmasi/Obat)", "400.7.2 (Laboratorium)", "400.7.2 (UGD/Tindakan)"]
 };
 
+const CLUSTER_STYLES = {
+    "Klaster 1 (Manajemen)": { icon: "fa-users-gear", color: "text-blue-600", bg: "bg-blue-50" },
+    "Klaster 2 (Ibu & Anak)": { icon: "fa-baby", color: "text-pink-600", bg: "bg-pink-50" },
+    "Klaster 3 (Dewasa & Lansia)": { icon: "fa-person-cane", color: "text-amber-600", bg: "bg-amber-50" },
+    "Klaster 4 (P2P & Kesling)": { icon: "fa-mound", color: "text-emerald-600", bg: "bg-emerald-50" },
+    "Lintas Klaster": { icon: "fa-hand-holding-medical", color: "text-purple-600", bg: "bg-purple-50" }
+};
+
 let database = JSON.parse(localStorage.getItem('db_arsip_ilp_final')) || [];
 let myChart;
 let isAdmin = false;
 let loginCallback = null;
+let fileData = null; 
+let editIndex = null;
 
 // ==========================================
 // INISIALISASI
@@ -232,10 +241,7 @@ window.onload = () => {
     updateSub();
     initChart();
     renderTable();
-    renderPedoman();
-    
-    // Auto-Sync saat pertama kali buka
-    if(GAS_URL !== "https://script.google.com/macros/s/AKfycbyPuME9g05BtTN-ME-rXdzsSdbRz4_ZuBRfePuDaLLVnVH_z9mBkQSMBl4oVEEGqK_1RA/exec") syncFromGAS();
+    updateRunningText();
 };
 
 function updateSub() {
@@ -258,15 +264,9 @@ function generatePreview() {
 // ==========================================
 // CORE LOGIC (SIMPAN & SYNC)
 // ==========================================
-// Tambahkan variabel global di bagian atas
-let fileData = null; 
-let editIndex = null;
-
-// Handler untuk membaca file saat dipilih
 document.getElementById('arsipFile').onchange = function(e) {
     const file = e.target.files[0];
     if (!file) return;
-    
     const reader = new FileReader();
     reader.onload = (event) => {
         fileData = {
@@ -278,13 +278,11 @@ document.getElementById('arsipFile').onchange = function(e) {
     reader.readAsDataURL(file);
 };
 
-// Fungsi Submit yang disatukan
 document.getElementById('formArsip').onsubmit = async function(e) {
     e.preventDefault();
     const btn = document.getElementById('btnSimpan');
     const originalText = btn.innerHTML;
     
-    // Animasi Loading
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';
 
@@ -302,26 +300,23 @@ document.getElementById('formArsip').onsubmit = async function(e) {
 
     try {
         if (editIndex !== null) {
-            // MODE EDIT
             database[editIndex] = { ...database[editIndex], ...payload, link: database[editIndex].link };
-            alert("Data berhasil diperbarui secara lokal!");
+            alert("Data berhasil diperbarui!");
         } else {
-            // MODE INPUT BARU
             const localEntry = { ...payload, link: "#" };
             delete localEntry.fileData; 
             database.unshift(localEntry);
             
-            // Kirim ke Cloud jika URL valid
             if (GAS_URL.includes("exec")) {
                 await fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
             }
         }
 
-        // Finalisasi
         localStorage.setItem('db_arsip_ilp_final', JSON.stringify(database));
         resetForm();
         renderTable();
         updateChart();
+        updateRunningText();
         
     } catch (err) {
         alert("Terjadi kesalahan: " + err.message);
@@ -342,19 +337,23 @@ function resetForm() {
 
 function renderTable() {
     const s = document.getElementById('searchInput').value.toLowerCase();
+    
+    // Filter pencarian ditingkatkan agar peka terhadap Nama, Nomor, dan Klaster
     const filtered = database.filter(i => 
-        i.nama.toLowerCase().includes(s) || i.no.toLowerCase().includes(s) || i.klaster.toLowerCase().includes(s)
+        i.nama.toLowerCase().includes(s) || 
+        i.no.toLowerCase().includes(s) || 
+        i.klaster.toLowerCase().includes(s) ||
+        i.sub.toLowerCase().includes(s)
     );
 
     const tableBody = document.getElementById('tableBody');
-    const statTotal = document.getElementById('statTotal');
-    const noData = document.getElementById('noData');
-
-    statTotal.innerText = database.length;
-    noData.classList.toggle('hidden', filtered.length > 0);
+    document.getElementById('statTotal').innerText = database.length;
+    document.getElementById('noData').classList.toggle('hidden', filtered.length > 0);
     
     tableBody.innerHTML = filtered.map((x, index) => {
         const isCloud = x.link && x.link.includes('google.com');
+        const style = CLUSTER_STYLES[x.klaster] || { color: "text-slate-500" };
+        
         return `
         <tr class="border-b border-slate-50 dark:border-slate-800/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/10 transition-all">
             <td class="p-4">
@@ -363,52 +362,102 @@ function renderTable() {
                     ${isCloud ? '<i class="fas fa-cloud text-blue-400" title="Cloud Sync"></i>' : '<i class="fas fa-laptop text-slate-300" title="Local Only"></i>'}
                 </div>
                 <div class="text-slate-800 dark:text-slate-200 font-extrabold uppercase text-[10px] leading-tight">${x.nama}</div>
-                <div class="text-[8px] text-slate-400 mt-1 uppercase font-bold">
-                    <span class="text-emerald-500">${x.klaster}</span> • ${x.sub} • ${x.tgl}
+                <div class="text-[8px] mt-1 uppercase font-bold">
+                    <span class="${style.color}">${x.klaster}</span> 
+                    <span class="text-slate-400"> • ${x.sub} • ${x.tgl}</span>
                 </div>
             </td>
             <td class="p-4">
                 <div class="flex justify-center gap-1.5">
-                    <button onclick="showQR('${x.no}')" class="btn-action bg-emerald-50 text-emerald-600 border border-emerald-100" title="QR Code">
-                        <i class="fas fa-qrcode"></i>
-                    </button>
-                    <button onclick="editData(${index})" class="btn-action bg-yellow-50 text-yellow-600 border border-yellow-100" title="Edit Data">
-                        <i class="fas fa-pen"></i>
-                    </button>
-                    <button onclick="cetakLabel(${index})" class="btn-action bg-orange-50 text-orange-600 border border-orange-100" title="Cetak Label">
-                        <i class="fas fa-print"></i>
-                    </button>
-                    <a href="${x.link}" target="_blank" class="btn-action ${isCloud ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-slate-50 text-slate-300 pointer-events-none border-slate-100'}" title="Lihat Dokumen">
-                        <i class="fas fa-file-pdf"></i>
-                    </a>
+                    <button onclick="showQR('${x.no}')" class="btn-action bg-emerald-50 text-emerald-600 border border-emerald-100"><i class="fas fa-qrcode"></i></button>
+                    <button onclick="editData(${index})" class="btn-action bg-yellow-50 text-yellow-600 border border-yellow-100"><i class="fas fa-pen"></i></button>
+                    <button onclick="cetakLabel(${index})" class="btn-action bg-orange-50 text-orange-600 border border-orange-100"><i class="fas fa-print"></i></button>
+                    <a href="${x.link}" target="_blank" class="btn-action ${isCloud ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-slate-50 text-slate-300 pointer-events-none border-slate-100'}"><i class="fas fa-file-pdf"></i></a>
                 </div>
             </td>
             <td class="p-4 text-center">
-                <button onclick="hapus(${index})" class="text-slate-300 hover:text-rose-500 transition-colors">
-                    <i class="fas fa-trash-can"></i>
-                </button>
+                <button onclick="hapus(${index})" class="text-slate-300 hover:text-rose-500 transition-colors"><i class="fas fa-trash-can"></i></button>
             </td>
         </tr>`;
     }).join('');
-    
     updateActivityLog();
 }
-function updateActivityLog() {
-    const log = document.getElementById('activityLog');
-    if (!database.length) return;
-    log.innerHTML = database.slice(0, 5).map(x => `
-        <div class="flex gap-3 border-b border-slate-50 dark:border-slate-800 pb-2">
-            <div class="min-w-[4px] h-4 rounded bg-emerald-500 mt-1"></div>
-            <div>
-                <p class="font-bold text-slate-700 dark:text-slate-300">${x.nama.substring(0, 25)}...</p>
-                <p class="text-[7px] text-slate-400 uppercase font-black">${x.klaster}</p>
-            </div>
+// ==========================================
+// UI & SECURITY
+// ==========================================
+function updateRunningText() {
+    const total = database.length;
+    const hariIni = new Date().toISOString().split('T')[0];
+    const jmlHariIni = database.filter(item => item.tgl === hariIni).length;
+    
+    const pesan = `
+        <i class="fas fa-chart-line mr-2"></i> TOTAL ARSIP: ${total} DOKUMEN — 
+        <i class="fas fa-calendar-check mr-2"></i> INPUT HARI INI: ${jmlHariIni} — 
+        <i class="fas fa-shield-check mr-2"></i> STATUS: TERLINDUNGI — 
+        <i class="fas fa-key mr-2"></i> KODE AKSES: ${ACCESS_TOKEN} — 
+        <i class="fas fa-info-circle mr-2"></i> E-ARSIP PKM KIARAPEDES 2026
+    `;
+    document.getElementById('marqueeText').innerHTML = pesan;
+}
+
+function verifikasiPin() {
+    const input = document.getElementById('pinInput').value;
+    if (input === ACCESS_TOKEN) {
+        isAdmin = true;
+        closeLogin();
+        if (loginCallback) loginCallback();
+    } else {
+        alert("KODE AKSES SALAH!");
+        document.getElementById('pinInput').value = "";
+    }
+}
+
+function renderPedoman() {
+    let h = `
+        <div class="bg-blue-50 dark:bg-blue-950/30 p-6 rounded-3xl mb-6 border border-blue-100 dark:border-blue-900">
+            <h3 class="font-black text-blue-800 dark:text-blue-300 text-xs mb-1 uppercase italic flex items-center gap-2">
+                <i class="fas fa-circle-info"></i> Format Nomor Perbup 12/2024:
+            </h3>
+            <p class="font-mono text-[11px] text-blue-600 dark:text-blue-400 bg-white/50 dark:bg-black/20 p-2 rounded-lg border border-blue-100 dark:border-blue-800">
+                [KODE KLASIFIKASI] / [NO URUT] / PKM-KPDS / [TAHUN]
+            </p>
         </div>
-    `).join('');
+        <div class="space-y-4">
+    `;
+
+    Object.keys(KLASTER).forEach(k => {
+        const style = CLUSTER_STYLES[k] || { icon: "fa-folder", color: "text-slate-500", bg: "bg-slate-50" };
+        h += `
+            <div class="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-8 h-8 rounded-lg ${style.bg} ${style.color} flex items-center justify-center text-sm">
+                        <i class="fas ${style.icon}"></i>
+                    </div>
+                    <h4 class="font-black text-slate-700 dark:text-slate-200 text-[11px] uppercase">${k}</h4>
+                </div>
+                <div class="flex flex-wrap gap-1">
+                    ${KLASTER[k].map(s => `
+                        <span class="px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-[9px] font-bold text-slate-500">${s}</span>
+                    `).join('')}
+                </div>
+            </div>`;
+    });
+    h += `</div>`;
+    document.getElementById('pedomanContent').innerHTML = h;
+}
+
+function togglePedoman() {
+    const modal = document.getElementById('modalPedoman');
+    if (modal.classList.contains('hidden')) {
+        renderPedoman();
+        modal.classList.remove('hidden');
+    } else {
+        modal.classList.add('hidden');
+    }
 }
 
 // ==========================================
-// STATISTIK (CHART.JS)
+// FUNGSI PENDUKUNG LAINNYA
 // ==========================================
 function initChart() {
     const ctx = document.getElementById('chartILP').getContext('2d');
@@ -440,71 +489,86 @@ function updateChart() {
     myChart.update();
 }
 
-// ==========================================
-// SECURITY & EXPORT
-// ==========================================
-function handleExport() {
-    if (!isAdmin) showLogin(() => exportToExcel());
-    else exportToExcel();
+function updateActivityLog() {
+    const log = document.getElementById('activityLog');
+    if (!database.length) return;
+    log.innerHTML = database.slice(0, 5).map(x => `
+        <div class="flex gap-3 border-b border-slate-50 dark:border-slate-800 pb-2">
+            <div class="min-w-[4px] h-4 rounded bg-emerald-500 mt-1"></div>
+            <div>
+                <p class="font-bold text-slate-700 dark:text-slate-300">${x.nama.substring(0, 25)}...</p>
+                <p class="text-[7px] text-slate-400 uppercase font-black">${x.klaster}</p>
+            </div>
+        </div>
+    `).join('');
 }
 
-function exportToExcel() {
-    if(!database.length) return alert("Data kosong!");
-    const ws = XLSX.utils.json_to_sheet(database.map(x => ({
-        "NOMOR ARSIP": x.no,
-        "PERIHAL": x.nama,
-        "KLASTER": x.klaster,
-        "KODE": x.sub,
-        "TANGGAL": x.tgl,
-        "LINK CLOUD": x.link
-    })));
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Arsip_ILP");
-    XLSX.writeFile(wb, `E-Arsip_PKM_KPDS_${new Date().toLocaleDateString()}.xlsx`);
+function editData(index) {
+    const data = database[index];
+    editIndex = index;
+    document.getElementById('selKlaster').value = data.klaster;
+    updateSub();
+    document.getElementById('selSub').value = data.sub;
+    const parts = data.no.split(' / ');
+    document.getElementById('noUrut').value = parts[1];
+    document.getElementById('arsipTgl').value = data.tgl;
+    document.getElementById('arsipNama').value = data.nama;
+
+    const btn = document.getElementById('btnSimpan');
+    btn.innerHTML = '<i class="fas fa-check-double mr-2"></i> Update Data';
+    btn.classList.replace('bg-emerald-600', 'bg-yellow-500');
+    btn.classList.replace('hover:bg-emerald-700', 'hover:bg-yellow-600');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function hapus(i) {
-    if (!isAdmin) {
-        showLogin(() => { if(confirm("Hapus data ini secara permanen?")) eksekusiHapus(i); });
-    } else {
-        if(confirm("Hapus data ini secara permanen?")) eksekusiHapus(i);
-    }
-}
-
-function eksekusiHapus(i) {
-    database.splice(i, 1);
-    localStorage.setItem('db_arsip_ilp_final', JSON.stringify(database));
-    renderTable();
-    updateChart();
-}
-
-function verifikasiPin() {
-    const input = document.getElementById('pinInput').value;
-    if (input === ADMIN_PIN) {
-        isAdmin = true;
-        closeLogin();
-        if (loginCallback) loginCallback();
-    } else {
-        alert("PIN SALAH!");
-        document.getElementById('pinInput').value = "";
-    }
-}
-
-// ==========================================
-// PENUNJANG UI
-// ==========================================
-function renderPedoman() {
-    let h = `<div class="bg-blue-50 p-6 rounded-3xl mb-6 border border-blue-100">
-        <h3 class="font-black text-blue-800 text-xs mb-1 uppercase italic">Format Nomor Perbup 12/2024:</h3>
-        <p class="font-mono text-[11px] text-blue-600">[KODE KLASIFIKASI] / [NO URUT] / PKM-KPDS / [TAHUN]</p>
-    </div>`;
-    Object.keys(KLASTER).forEach(k => {
-        h += `<div class="mb-5 pb-4 border-b border-slate-100">
-            <h4 class="font-black text-emerald-700 text-xs uppercase mb-1">${k}</h4>
-            <p class="text-slate-500 text-[10px] leading-relaxed">Mencakup Layanan: ${KLASTER[k].join(', ')}</p>
-        </div>`;
+    showLogin(() => {
+        if(confirm("Hapus data ini secara permanen?")) {
+            database.splice(i, 1);
+            localStorage.setItem('db_arsip_ilp_final', JSON.stringify(database));
+            renderTable();
+            updateChart();
+            updateRunningText();
+        }
     });
-    document.getElementById('pedomanContent').innerHTML = h;
+}
+
+function handleExport() {
+    showLogin(() => {
+        if(!database.length) return alert("Data kosong!");
+        const ws = XLSX.utils.json_to_sheet(database.map(x => ({
+            "NOMOR ARSIP": x.no,
+            "PERIHAL": x.nama,
+            "KLASTER": x.klaster,
+            "KODE": x.sub,
+            "TANGGAL": x.tgl,
+            "LINK CLOUD": x.link
+        })));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Arsip_ILP");
+        XLSX.writeFile(wb, `E-Arsip_PKM_KPDS_${new Date().toLocaleDateString()}.xlsx`);
+    });
+}
+
+async function syncFromGAS() {
+    const icon = document.getElementById('syncIcon');
+    icon.classList.add('fa-spin');
+    try {
+        const response = await fetch(GAS_URL);
+        const cloudData = await response.json();
+        if (cloudData && cloudData.length > 0) {
+            database = cloudData;
+            localStorage.setItem('db_arsip_ilp_final', JSON.stringify(database));
+            renderTable();
+            updateChart();
+            updateRunningText();
+            alert("Sinkronisasi Cloud Berhasil!");
+        }
+    } catch (err) {
+        console.error("Sync gagal:", err);
+    } finally {
+        icon.classList.remove('fa-spin');
+    }
 }
 
 function cetakLabel(i) {
@@ -530,37 +594,11 @@ function showQR(t) {
     document.getElementById('qrcode').innerHTML = "";
     new QRCode(document.getElementById("qrcode"), { text: t, width: 180, height: 180 });
 }
+
 function closeQR() { document.getElementById('modalQR').classList.add('hidden'); }
 function showLogin(cb) { loginCallback = cb; document.getElementById('modalLogin').classList.remove('hidden'); document.getElementById('pinInput').focus(); }
 function closeLogin() { document.getElementById('modalLogin').classList.add('hidden'); document.getElementById('pinInput').value = ""; }
-function togglePedoman() { document.getElementById('modalPedoman').classList.toggle('hidden'); }
 function toggleDarkMode() { document.body.classList.toggle('dark'); }
-
-    function editData(index) {
-    const data = database[index];
-    editIndex = index;
-
-    // Isi Form dengan data lama
-    document.getElementById('selKlaster').value = data.klaster;
-    updateSub(); // Update pilihan sub sesuai klaster
-    document.getElementById('selSub').value = data.sub;
-    
-    // Ambil No Urut dari string nomor arsip (misal: 400.7.5 / 001 / ...)
-    const parts = data.no.split(' / ');
-    document.getElementById('noUrut').value = parts[1];
-    document.getElementById('arsipTgl').value = data.tgl;
-    document.getElementById('arsipNama').value = data.nama;
-
-    // Ubah UI Form jadi Mode Edit
-    const btn = document.getElementById('btnSimpan');
-    btn.innerHTML = '<i class="fas fa-check-double mr-2"></i> Update Data';
-    btn.classList.replace('bg-emerald-600', 'bg-yellow-500');
-    btn.classList.replace('hover:bg-emerald-700', 'hover:bg-yellow-600');
-    
-    // Scroll ke atas agar user tahu form sudah terisi
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-    
 </script>
 </body>
 </html>
