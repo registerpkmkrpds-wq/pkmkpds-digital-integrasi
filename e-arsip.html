@@ -9,17 +9,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
      <script>
+    <script>
     (function() {
-        const sessionToken = localStorage.getItem('pkm_session');
+        const sessionToken = localStorage.getItem('pkm_session'); // Harus 'pkm_session'
         const loginTime = localStorage.getItem('pkm_session_time');
-        const expiryTime = 4 * 60 * 60 * 1000; // 4 Jam dalam milidetik
         const now = new Date().getTime();
-        if (!sessionToken || !loginTime || (now - loginTime > expiryTime)) {
-            localStorage.clear(); // Bersihkan sisa data lama
-            alert("Sesi Anda telah berakhir (Batas 4 Jam). Silakan login kembali.");
+        const expiry = 4 * 60 * 60 * 1000; // 4 Jam
+
+        // Jika token kosong ATAU waktu habis, tendang ke login
+        if (!sessionToken || !loginTime || (now - loginTime > expiry)) {
+            localStorage.clear();
             window.location.replace("index.html");
         }
     })();
+</script>
 </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
