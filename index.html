@@ -184,44 +184,76 @@
 </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycby-9A5qG4YBAIBr9xxiJEpJqeJCToz6WTPiJEoc1BvaAqHxpPenO81i9hMRaKIfrW0H/exec"; // <--- PASTIKAN URL INI BENAR
+    // 1. KONFIGURASI
+    const GAS_URL = "URL_WEB_APP_GAS_ANDA"; // Ganti dengan URL /exec Anda
 
-async function auth() {
-    const user = document.getElementById('user').value;
-    const pass = document.getElementById('pass').value;
-    const btn = document.getElementById('authBtn');
+    // 2. FUNGSI LOGIN (AUTH)
+    async function auth() {
+        const user = document.getElementById('user').value;
+        const pass = document.getElementById('pass').value;
+        const btn = document.getElementById('authBtn');
 
-    if (!user || !pass) {
-        alert("Isi username dan password!");
-        return;
+        if (!user || !pass) {
+            alert("Username dan Password wajib diisi!");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fas fa-spinner animate-spin mr-2"></i> LOADING...`;
+
+        try {
+            const response = await fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "login",
+                    user: user,
+                    pass: pass
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.status === "success") {
+                // Simpan Sesi di Browser
+                localStorage.setItem('pkm_session', result.token);
+                localStorage.setItem('pkm_session_time', new Date().getTime());
+                
+                // Pindah ke Dashboard
+                renderHub();
+            } else {
+                alert("GAGAL: " + result.message);
+                btn.disabled = false;
+                btn.innerHTML = "Verifikasi Akses";
+            }
+        } catch (error) {
+            console.error("Detail Error:", error);
+            alert("Koneksi gagal. Cek internet atau URL script.");
+            btn.disabled = false;
+            btn.innerHTML = "Verifikasi Akses";
+        }
     }
 
-    btn.disabled = true;
-    btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> Loading...`;
+    // 3. FUNGSI MENAMPILKAN MENU
+    function renderHub() {
+        const loginSection = document.getElementById('loginSection');
+        const hubSection = document.getElementById('hubSection');
+        if (loginSection && hubSection) {
+            loginSection.classList.add('hidden');
+            hubSection.classList.remove('hidden');
+        }
+    }
 
-    try {
-        const response = await fetch(GAS_URL, {
-            method: "POST",
-            body: JSON.stringify({
-                action: "login",
-                user: user,
-                pass: pass
-            })
-        });
+    // 4. CEK APAKAH SUDAH LOGIN SAAT REFRESH
+    window.onload = function() {
+        const session = localStorage.getItem('pkm_session');
+        const sessionTime = localStorage.getItem('pkm_session_time');
+        const now = new Date().getTime();
+        const expiry = 4 * 60 * 60 * 1000; // 4 Jam
 
-        const result = await response.json();
-
-        // Ganti bagian simpan sesi di index.html dengan ini:
-if (result.status === "success") {
-    localStorage.setItem('pkm_session', result.token);
-    localStorage.setItem('pkm_session_time', new Date().getTime().toString());
-    
-    // Gunakan pengalihan yang lebih aman untuk GitHub Pages
-    setTimeout(() => {
-        // Menggunakan path relatif agar tetap di folder yang sama
-        window.location.href = "./e-arsip.html"; 
-    }, 500);
-}
+        if (session && (now - sessionTime < expiry)) {
+            renderHub();
+        }
+    };
             
             // Pindah ke dashboard (Jika pakai renderHub)
             if (typeof renderHub === "function") {
