@@ -6,6 +6,7 @@
     <title>E-Arsip Digital | PKM Kiarapedes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
@@ -17,7 +18,6 @@
         .input-modern { width: 100%; padding: 0.75rem 1rem; background: rgba(0,0,0,0.05); border: 2px solid transparent; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; color: var(--text-main); }
         .input-modern:focus { border-color: #10b981; background: var(--bg-card); }
         .btn-action { width: 32px; height: 32px; border-radius: 8px; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-        .pedoman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
         .kode-tag { display: inline-block; padding: 2px 8px; background: white; color: #475569; border-radius: 4px; font-family: monospace; font-size: 9px; font-weight: bold; margin: 2px; border: 1px solid #e2e8f0; }
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
@@ -40,19 +40,17 @@
 <div id="mainContent" class="hidden">
     <header class="glass-header text-white pb-24 pt-10 px-6">
         <div class="container mx-auto flex flex-col lg:flex-row justify-between items-center gap-8">
-            <div class="flex items-center gap-3">
-                <div <i class="fas fa-folder-open text-5xl text-yellow-500 hover:text-orange-600"></i>
-                </div>
+            <div class="flex items-center gap-4">
+                <i class="fas fa-folder-open text-5xl text-yellow-400"></i>
                 <div>
-                    <h1 class="text-3xl font-black italic uppercase leading-none">Arsip <span class="text-emerald-400">Digital</span></h1>
+                    <h1 class="text-3xl font-black italic uppercase leading-none">Arsip <span class="text-emerald-300">Digital</span></h1>
                     <p class="text-[11px] font-bold uppercase tracking-[0.3em] text-emerald-300">Puskesmas Kiarapedes</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <div <a href="index.html" id="themeIcon" class="fas fa-home"class="text-3x1 text-white-500 hover:text-emerald-500"></div>
                 <button onclick="toggleTheme()" class="bg-white/10 hover:bg-white/20 p-3 rounded-full border border-white/20"><i id="themeIcon" class="fas fa-moon"></i></button>
                 <button onclick="togglePedoman()" class="bg-amber-500 hover:bg-amber-400 px-4 py-2 rounded-full text-[10px] font-black uppercase shadow-lg"><i class="fas fa-book-open mr-2"></i> Pedoman</button>
-                <button onclick="syncFromGAS()" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded-full text-[10px] font-black uppercase"><i id="syncIcon" class="fas fa-sync-alt mr-2"></i> Sync Cloud</button>
+                <button onclick="syncFromGAS()" class="bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-full text-[10px] font-black uppercase"><i id="syncIcon" class="fas fa-sync-alt mr-2"></i> Sync</button>
                 <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-full text-[10px] font-black uppercase flex items-center gap-2 shadow-lg"><i class="fas fa-file-excel"></i> Export</button>
                 <button onclick="logout()" class="w-10 h-10 bg-rose-600 hover:bg-rose-700 rounded-full flex items-center justify-center"><i class="fas fa-power-off"></i></button>
             </div>
@@ -61,42 +59,65 @@
 
     <main class="container mx-auto px-6 -mt-16">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div class="lg:col-span-4 space-y-6">
+            <div class="lg:col-span-4">
                 <div class="card-custom p-6 sticky top-6">
                     <form id="formArsip" class="space-y-4">
-                        <div class="bg-emerald-50 dark:bg-emerald-950/40 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                        <div class="bg-emerald-50 dark:bg-emerald-950/40 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800 text-center">
                             <p class="text-[9px] font-black text-emerald-700 uppercase mb-1 italic">Preview Nomor:</p>
                             <h4 id="displayNomor" class="font-mono font-bold text-xs text-slate-700 dark:text-emerald-300">---</h4>
                         </div>
+
                         <select id="selKlaster" class="input-modern" onchange="updateSub()"></select>
                         <select id="selSub" class="input-modern" onchange="generatePreview()"></select>
+
                         <div class="grid grid-cols-2 gap-4">
-                            <input type="number" id="noUrut" class="input-modern" placeholder="No Urut" oninput="generatePreview()">
+                            <input type="number" id="noUrut" class="input-modern" placeholder="No Urut *" oninput="generatePreview()">
                             <input type="date" id="arsipTgl" class="input-modern" onchange="generatePreview()">
                         </div>
-                        <textarea id="arsipNama" class="input-modern h-16" placeholder="PERIHAL / NAMA DOKUMEN..."></textarea>
+
+                        <textarea id="arsipNama" class="input-modern h-16" placeholder="PERIHAL / NAMA DOKUMEN (Min. 5 Huruf) *"></textarea>
 
                         <input type="file" id="arsipFile" class="hidden" accept="application/pdf">
-                        <label for="arsipFile" id="labelFile" class="w-full flex items-center justify-center gap-3 p-4 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 text-[10px] font-bold">
-                            <i class="fas fa-cloud-arrow-up text-xl text-emerald-500"></i> PILIH FILE PDF
+                        <label for="arsipFile" id="labelFile" class="w-full flex flex-col items-center justify-center gap-2 p-4 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 text-[10px] font-bold uppercase">
+                            <i class="fas fa-cloud-arrow-up text-xl text-emerald-500"></i> Pilih PDF Dokumen *
                         </label>
 
-                        <button type="submit" id="btnSimpan" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg">Simpan Ke Cloud</button>
+                        <div id="progressContainer" class="hidden">
+                            <div class="w-full bg-slate-200 rounded-full h-1.5 dark:bg-slate-700">
+                                <div id="progressBar" class="bg-emerald-600 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <p id="progressText" class="text-[8px] font-black text-emerald-600 mt-1 uppercase text-center">Proses...</p>
+                        </div>
+
+                        <button type="submit" id="btnSimpan" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg hover:bg-emerald-500 transition-colors">Simpan Ke Cloud</button>
                         <button type="button" id="btnBatal" onclick="resetForm()" class="hidden w-full text-[10px] font-black text-rose-500 uppercase">Batal Edit</button>
                     </form>
+
+                    <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i class="fas fa-history text-emerald-500 text-xs"></i>
+                            <h3 class="text-[9px] font-black uppercase text-slate-400 tracking-widest">Log Aktivitas</h3>
+                        </div>
+                        <div id="logContainer" class="max-h-32 overflow-y-auto custom-scrollbar space-y-2">
+                             <p class="text-[8px] text-slate-400 italic">Klik 'Sync' untuk memuat riwayat...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="lg:col-span-8">
                 <div class="card-custom p-4 mb-6 flex items-center gap-4">
                     <i class="fas fa-search text-slate-300 ml-2"></i>
-                    <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari data..." class="w-full bg-transparent outline-none font-bold text-xs">
+                    <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari nomor dokumen atau perihal..." class="w-full bg-transparent outline-none font-bold text-xs">
                 </div>
                 <div class="card-custom overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-[11px]">
                             <thead class="bg-slate-50 dark:bg-slate-800 uppercase font-black text-slate-500 text-[9px]">
-                                <tr><th class="p-4">Dokumen</th><th class="p-4 text-center">QR</th><th class="p-4 text-center">Aksi</th></tr>
+                                <tr>
+                                    <th class="p-4">Dokumen</th>
+                                    <th class="p-4 text-center">Aksi</th>
+                                </tr>
                             </thead>
                             <tbody id="tableBody"></tbody>
                         </table>
@@ -110,22 +131,23 @@
 <div id="modalPedoman" class="fixed inset-0 bg-black/80 z-[9999] hidden flex items-center justify-center p-4 backdrop-blur-md">
     <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] max-w-4xl w-full max-h-[85vh] overflow-hidden flex flex-col">
         <div class="p-8 border-b dark:border-slate-800 flex justify-between items-center bg-emerald-600 text-white">
-            <h2 class="text-xl font-black uppercase italic">Pedoman Penomoran (Perbup No. 135 Th 2023)</h2>
+            <h2 class="text-xl font-black uppercase italic">Pedoman Penomoran</h2>
             <button onclick="togglePedoman()" class="w-10 h-10 rounded-full bg-white/20"><i class="fas fa-times"></i></button>
         </div>
-        <div id="pedomanContent" class="p-8 overflow-y-auto custom-scrollbar pedoman-grid"></div>
+        <div id="pedomanContent" class="p-8 overflow-y-auto custom-scrollbar grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
 </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxPbU6vLP1FPWpFTJaPVCNTqYjp94w21dmYLrpPUvtifoCpHOEtc25udlvqVpnNyocU7Q/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxKVIbEuJ_xP5VML4PiTBPeEv-NQgYLBtE0Gfar9UD7qPYhV4gkHW35914yOPPuEgZU1w/exec";
 const PIN_HASH = "MjAyNg==";
 let database = JSON.parse(localStorage.getItem('db_arsip_kpds')) || [];
+let activityLogs = [];
 let editIndex = null;
 let fileData = null;
 
 const KLASTER = {
-    "Klaster 1: Manajemen": ["440.11 (RUK)", "440.12 (RPK)", "800 (S.Tugas)", "900 (Keuangan)"],
+    "Klaster 1: Manajemen": ["440.11 (RUK)", "440.12 (RPK)", "800 (Kepegawaian)", "900 (Keuangan)"],
     "Klaster 2: Ibu & Anak": ["441.11 (ANC)", "441.21 (Imunisasi)", "441.22 (Stunting)"],
     "Klaster 3: Dewasa & Lansia": ["440.51 (PTM)", "440.53 (Jiwa)", "441.61 (Lansia)"],
     "Klaster 4: P2P & Kesling": ["443.11 (TB)", "443.21 (DBD)", "448.1 (STBM)"],
@@ -151,7 +173,8 @@ function verifikasiPin() {
 function initApp() {
     const kSel = document.getElementById('selKlaster');
     kSel.innerHTML = Object.keys(KLASTER).map(k => `<option value="${k}">${k}</option>`).join('');
-    updateSub(); renderTable();
+    updateSub();
+    renderTable();
 }
 
 function updateSub() {
@@ -164,7 +187,8 @@ function generatePreview() {
     const s = document.getElementById('selSub').value;
     const kode = s.split(' ')[0];
     const no = (document.getElementById('noUrut').value || "0").padStart(3, '0');
-    const thn = new Date(document.getElementById('arsipTgl').value || new Date()).getFullYear();
+    const tglVal = document.getElementById('arsipTgl').value;
+    const thn = tglVal ? new Date(tglVal).getFullYear() : new Date().getFullYear();
     const nomor = `${kode}/${no}/PKM-KPDS/${thn}`;
     document.getElementById('displayNomor').innerText = nomor;
     return nomor;
@@ -173,106 +197,161 @@ function generatePreview() {
 document.getElementById('arsipFile').onchange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+        alert("File Maksimal 5MB!"); e.target.value = ""; return;
+    }
     document.getElementById('labelFile').innerHTML = `<i class="fas fa-file-circle-check text-emerald-500"></i> ${file.name}`;
     const reader = new FileReader();
     reader.onload = (ev) => fileData = { base64: ev.target.result.split(',')[1], name: file.name, type: file.type };
     reader.readAsDataURL(file);
 };
 
+// SIMPAN DENGAN VALIDASI & LOG
 document.getElementById('formArsip').onsubmit = async (e) => {
     e.preventDefault();
+    const noUrut = document.getElementById('noUrut').value;
+    const tgl = document.getElementById('arsipTgl').value;
+    const nama = document.getElementById('arsipNama').value.trim();
+
+    if (!noUrut) return alert("Nomor Urut wajib diisi!");
+    if (!tgl) return alert("Pilih tanggal dokumen!");
+    if (nama.length < 5) return alert("Nama/Perihal minimal 5 karakter!");
+    if (!fileData && editIndex === null) return alert("File PDF wajib diunggah!");
+
     const btn = document.getElementById('btnSimpan');
+    const progCont = document.getElementById('progressContainer');
+    const progBar = document.getElementById('progressBar');
+
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> PROSES CLOUD...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROSES...';
+    progCont.classList.remove('hidden');
 
     const payload = {
         token: "2026",
         action: editIndex !== null ? "update" : "upload",
         no: generatePreview(),
-        nama: document.getElementById('arsipNama').value.toUpperCase(),
+        nama: nama.toUpperCase(),
         klaster: document.getElementById('selKlaster').value,
         sub: document.getElementById('selSub').value,
-        tgl: document.getElementById('arsipTgl').value,
+        tgl: tgl,
         fileData: fileData ? fileData.base64 : null,
         fileName: fileData ? fileData.name : "",
-        fileType: fileData ? fileData.type : "",
-        link: editIndex !== null ? database[editIndex].link : "#"
+        fileType: fileData ? fileData.type : ""
     };
 
     try {
-        const resp = await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
+        const resp = await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify(payload),
+            headers: { "Content-Type": "text/plain;charset=utf-8" }
+        });
         const res = await resp.json();
-
         if (res.status === "success") {
-            const entry = { ...payload, link: res.url };
-            delete entry.fileData;
-            if (editIndex !== null) database[editIndex] = entry; else database.unshift(entry);
-            localStorage.setItem('db_arsip_kpds', JSON.stringify(database));
-            alert("Data Berhasil Disimpan di Cloud!");
-            location.reload();
-        } else { alert("Error: " + res.message); }
-    } catch (err) { alert("Cek Koneksi atau URL GAS Anda!"); }
-    finally { btn.disabled = false; btn.innerHTML = "Simpan Ke Cloud"; }
+            progBar.style.width = '100%';
+            alert("Berhasil!");
+            syncFromGAS();
+            resetForm();
+        } else { alert("Gagal: " + res.message); }
+    } catch (err) {
+        alert("Sedang diproses di Cloud. Silakan Klik Sync nanti.");
+        location.reload();
+    }
 };
-
-function renderTable() {
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = database.filter(x => x.no.toLowerCase().includes(q) || x.nama.toLowerCase().includes(q));
-    document.getElementById('tableBody').innerHTML = filtered.map((x, i) => `
-        <tr class="border-b dark:border-slate-800">
-            <td class="p-4">
-                <div class="font-mono text-emerald-600 font-black text-xs">${x.no}</div>
-                <div class="font-bold uppercase text-slate-700 dark:text-slate-200">${x.nama}</div>
-            </td>
-            <td class="p-4 text-center">
-                <button onclick="alert('Cetak Label QR untuk: ${x.no}')" class="btn-action bg-slate-100 dark:bg-slate-800 mx-auto"><i class="fas fa-qrcode"></i></button>
-            </td>
-            <td class="p-4 flex justify-center gap-2">
-                <button onclick="editData(${i})" class="btn-action bg-amber-50 text-amber-600"><i class="fas fa-pen"></i></button>
-                <a href="${x.link}" target="_blank" class="btn-action bg-blue-50 text-blue-600"><i class="fas fa-link"></i></a>
-                <button onclick="hapus(${i})" class="btn-action bg-rose-50 text-rose-600"><i class="fas fa-trash"></i></button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-async function hapus(i) {
-    const pinUser = prompt("Masukkan PIN Otorisasi untuk menghapus:");
-    if (btoa(pinUser) !== PIN_HASH) {
-        alert("PIN Salah! Akses dihapus ditolak.");
-        return;
-    }
-
-    if(confirm("Hapus data ini dari Cloud & Lokal secara permanen?")) {
-        const noArsip = database[i].no;
-        try {
-            await fetch(GAS_URL, {
-                method: "POST",
-                body: JSON.stringify({
-                    action: "delete",
-                    no: noArsip,
-                    token: pinUser // Mengirim PIN asli untuk divalidasi oleh GAS
-                })
-            });
-            database.splice(i, 1);
-            localStorage.setItem('db_arsip_kpds', JSON.stringify(database));
-            renderTable();
-            alert("Data berhasil dihapus.");
-        } catch (e) {
-            alert("Gagal menghapus data di Cloud. Periksa koneksi.");
-        }
-    }
-}
 
 async function syncFromGAS() {
     const icon = document.getElementById('syncIcon');
     icon.classList.add('fa-spin');
     try {
         const res = await fetch(GAS_URL);
-        database = await res.json();
+        const cloudData = await res.json();
+        database = cloudData.database || [];
+        activityLogs = cloudData.logs || [];
         localStorage.setItem('db_arsip_kpds', JSON.stringify(database));
         renderTable();
-    } finally { icon.classList.remove('fa-spin'); }
+        renderLogs();
+    } catch(e) { console.log("Sync Gagal"); }
+    finally { icon.classList.remove('fa-spin'); }
+}
+
+function renderTable() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = database.filter(x => x.no.toLowerCase().includes(q) || x.nama.toLowerCase().includes(q));
+    document.getElementById('tableBody').innerHTML = filtered.map((x, i) => `
+        <tr class="border-b dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+            <td class="p-4">
+                <div class="font-mono text-emerald-600 font-black text-[10px]">${x.no}</div>
+                <div class="font-bold uppercase text-slate-700 dark:text-slate-200">${x.nama}</div>
+                <div class="text-[9px] text-slate-400 font-bold uppercase">${x.klaster} | ${x.tgl}</div>
+            </td>
+            <td class="p-4">
+                <div class="flex justify-center gap-2">
+                    <button onclick="cetakBarcode(${i})" class="btn-action bg-slate-100 text-slate-600" title="Cetak Label"><i class="fas fa-qrcode"></i></button>
+                    <button onclick="editData(${i})" class="btn-action bg-amber-50 text-amber-600"><i class="fas fa-pen"></i></button>
+                    <a href="${x.link}" target="_blank" class="btn-action bg-blue-50 text-blue-600"><i class="fas fa-eye"></i></a>
+                    <button onclick="hapus(${i})" class="btn-action bg-rose-50 text-rose-600"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function renderLogs() {
+    const cont = document.getElementById('logContainer');
+    if (activityLogs.length === 0) return;
+    cont.innerHTML = activityLogs.map(l => `
+        <div class="flex justify-between items-center p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg text-[9px] border-l-2 ${l.aksi === 'HAPUS' ? 'border-rose-500' : 'border-emerald-500'}">
+            <span class="text-slate-400 font-mono">${l.waktu}</span>
+            <span class="font-black uppercase ${l.aksi === 'HAPUS' ? 'text-rose-600' : 'text-emerald-600'}">${l.aksi}</span>
+            <span class="text-slate-600 dark:text-slate-300 font-bold">${l.nomor}</span>
+        </div>
+    `).join('');
+}
+
+async function hapus(i) {
+    const d = database[i];
+    const pin = prompt(`Hapus ${d.no}?\nKetik PIN Otorisasi:`);
+    if (btoa(pin) === PIN_HASH) {
+        if(confirm("Hapus permanen dari Drive & Sheet?")) {
+            database.splice(i, 1);
+            renderTable();
+            try {
+                fetch(GAS_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    body: JSON.stringify({ action: "delete", no: d.no, token: "2026" })
+                });
+                alert("Perintah hapus dikirim ke Cloud.");
+                setTimeout(syncFromGAS, 3000);
+            } catch(e) {}
+        }
+    } else if(pin) { alert("PIN SALAH!"); }
+}
+
+function cetakBarcode(i) {
+    const data = database[i];
+    const printWindow = window.open('', '_blank', 'width=450,height=550');
+    printWindow.document.write(`
+        <html><head><title>Label ${data.no}</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+        <style>
+            body { font-family: sans-serif; text-align: center; padding: 30px; }
+            .label-box { border: 3px solid #000; padding: 20px; border-radius: 15px; display: inline-block; width: 280px; }
+            #qr { margin: 20px auto; display: flex; justify-content: center; }
+            .no { font-weight: 900; font-size: 16px; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px; }
+            .nama { font-size: 10px; font-weight: bold; text-transform: uppercase; margin-top: 10px; line-height: 1.4; }
+            @media print { .btn { display: none; } }
+        </style></head>
+        <body>
+            <div class="label-box">
+                <div class="no">${data.no}</div>
+                <div id="qr"></div>
+                <div class="nama">${data.nama}</div>
+            </div><br><br>
+            <button class="btn" onclick="window.print()" style="padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">CETAK LABEL</button>
+            <script>new QRCode(document.getElementById("qr"), { text: "${data.link}", width: 140, height: 140 });<\/script>
+        </body></html>
+    `);
+    printWindow.document.close();
 }
 
 function editData(i) {
@@ -289,14 +368,24 @@ function editData(i) {
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
+function resetForm() {
+    editIndex = null;
+    document.getElementById('formArsip').reset();
+    document.getElementById('btnSimpan').innerText = "Simpan Ke Cloud";
+    document.getElementById('btnBatal').classList.add('hidden');
+    document.getElementById('progressContainer').classList.add('hidden');
+    document.getElementById('labelFile').innerHTML = `<i class="fas fa-cloud-arrow-up text-xl text-emerald-500"></i> Pilih PDF Dokumen *`;
+    updateSub();
+}
+
 function togglePedoman() {
     const m = document.getElementById('modalPedoman');
     if(m.classList.contains('hidden')) {
         let h = "";
         Object.keys(KLASTER).forEach(k => {
             const s = CLUSTER_STYLES[k];
-            h += `<div class="p-4 ${s.bg} rounded-2xl border border-slate-100">
-                <div class="flex items-center gap-3 mb-2 font-black text-xs ${s.color}"><i class="fas ${s.icon}"></i> ${k}</div>
+            h += `<div class="p-4 ${s.bg} rounded-2xl border border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-3 mb-2 font-black text-[10px] ${s.color}"><i class="fas ${s.icon}"></i> ${k}</div>
                 <div class="flex flex-wrap gap-1">${KLASTER[k].map(c => `<span class="kode-tag">${c}</span>`).join('')}</div>
             </div>`;
         });
@@ -305,49 +394,21 @@ function togglePedoman() {
     } else { m.classList.add('hidden'); }
 }
 
-function toggleTheme() { document.documentElement.classList.toggle('dark'); }
-function logout() { localStorage.clear(); location.reload(); }
-function exportToExcel() {
-    if (database.length === 0) {
-        alert("Tidak ada data untuk dicetak!");
-        return;
-    }
-
-    // Persiapkan data untuk Excel
-    const dataExcel = database.map((x, index) => ({
-        "No": index + 1,
-        "Nomor Dokumen": x.no,
-        "Nama Dokumen / Perihal": x.nama,
-        "Klaster": x.klaster,
-        "Sub Klasifikasi": x.sub,
-        "Tanggal Arsip": x.tgl,
-        "Link Digital": x.link
-    }));
-
-    // Membuat Worksheet
-    const ws = XLSX.utils.json_to_sheet(dataExcel);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Laporan Arsip Puskesmas Kiarapedes");
-
-    // Atur lebar kolom agar rapi
-    const wscols = [
-        {wch: 5},  // No
-        {wch: 25}, // Nomor Dokumen
-        {wch: 40}, // Nama
-        {wch: 20}, // Klaster
-        {wch: 20}, // Sub
-        {wch: 15}, // Tanggal
-        {wch: 50}  // Link
-    ];
-    ws['!cols'] = wscols;
-
-    // Nama file berdasarkan bulan dan tahun saat ini
-    const date = new Date();
-    const fileName = `Laporan_Arsip_PKM_KPDS_${date.getMonth() + 1}_${date.getFullYear()}.xlsx`;
-
-    // Download file
-    XLSX.writeFile(wb, fileName);
+function toggleTheme() {
+    document.documentElement.classList.toggle('dark');
+    const icon = document.getElementById('themeIcon');
+    icon.className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
 }
+
+function exportToExcel() {
+    if (database.length === 0) return alert("Data Kosong!");
+    const ws = XLSX.utils.json_to_sheet(database);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Arsip");
+    XLSX.writeFile(wb, `Arsip_PKM_KPDS_${new Date().toLocaleDateString()}.xlsx`);
+}
+
+function logout() { localStorage.clear(); location.reload(); }
 </script>
 </body>
 </html>
