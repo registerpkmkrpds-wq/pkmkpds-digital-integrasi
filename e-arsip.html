@@ -49,6 +49,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-3">
+                <div <a href="index.html" id="themeIcon" class="fas fa-home"class="text-3x1 text-white-500 hover:text-emerald-500"></div>
                 <button onclick="toggleTheme()" class="bg-white/10 hover:bg-white/20 p-3 rounded-full border border-white/20"><i id="themeIcon" class="fas fa-moon"></i></button>
                 <button onclick="togglePedoman()" class="bg-amber-500 hover:bg-amber-400 px-4 py-2 rounded-full text-[10px] font-black uppercase shadow-lg"><i class="fas fa-book-open mr-2"></i> Pedoman</button>
                 <button onclick="syncFromGAS()" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded-full text-[10px] font-black uppercase"><i id="syncIcon" class="fas fa-sync-alt mr-2"></i> Sync Cloud</button>
@@ -117,7 +118,7 @@
 </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwZwgH315dXBkve-1RPzBZxbs_VYTLjPBDjwlhJQHlS93UdWfyJC3i07I63gBC0in5Mzw/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwxIXh6SCrhr_KvfD2Usb4kYFbkd5u_4nzizpE34Vl4_n1P-tfrm4aW3R5GMoiXl2okPw/exec";
 const PIN_HASH = "MjAyNg==";
 let database = JSON.parse(localStorage.getItem('db_arsip_kpds')) || [];
 let editIndex = null;
