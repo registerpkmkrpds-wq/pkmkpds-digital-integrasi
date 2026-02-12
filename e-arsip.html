@@ -8,7 +8,20 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+    // PROTEKSI HALAMAN: Cek sesi dari index.html
+    (function() {
+        const token = localStorage.getItem('pkm_session');
+        const time = localStorage.getItem('pkm_session_time');
+        const now = new Date().getTime();
+        const expiry = 4 * 60 * 60 * 1000;
 
+        if (!token || !time || (now - time > expiry)) {
+            localStorage.clear();
+            window.location.replace("./index.html");
+        }
+    })();
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         :root { --bg-body: #f8fafc; --bg-card: #ffffff; --text-main: #1e293b; --border-color: #e2e8f0; }
@@ -19,6 +32,13 @@
         .input-modern { width: 100%; padding: 0.75rem 1rem; background: rgba(0,0,0,0.05); border: 2px solid transparent; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; color: var(--text-main); }
         .input-modern:focus { border-color: #10b981; background: var(--bg-card); }
         .btn-action { width: 32px; height: 32px; border-radius: 8px; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+
+        /* Pedoman Styles */
+        .pedoman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+        .klaster-box { padding: 1rem; border-radius: 1rem; border: 1px solid #e2e8f0; transition: all 0.3s; }
+        .klaster-box:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .kode-tag { display: inline-block; padding: 2px 8px; background: #f1f5f9; color: #475569; border-radius: 4px; font-family: monospace; font-size: 10px; font-weight: bold; margin: 2px; border: 1px solid #e2e8f0; }
+        .dark .kode-tag { background: #0f172a; color: #cbd5e1; border-color: #334155; }
     </style>
 </head>
 <body class="pb-10">
@@ -48,7 +68,9 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="toggleTheme()" class="bg-white/10 hover:bg-white/20 p-3 rounded-full border border-white/20"><i id="themeIcon" class="fas fa-moon"></i></button>
-                    <button onclick="togglePedoman()" class="bg-blue-600 hover:bg-blue-500 p-3 rounded-full border border-blue-400 shadow-lg"><i class="fas fa-book-open text-xs"></i></button>
+                    <button onclick="togglePedoman()" class="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 px-4 py-2 rounded-full text-[10px] font-black uppercase transition-all shadow-lg shadow-amber-200">
+                        <i class="fas fa-circle-info"></i> Bantuan & Pedoman
+                    </button>
                     <button onclick="syncFromGAS()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-full text-[10px] font-black uppercase flex items-center gap-2">
                         <i id="syncIcon" class="fas fa-sync-alt"></i> Sync Cloud
                     </button>
@@ -127,18 +149,68 @@
     </div>
 </div>
 
-<div id="modalPedoman" class="fixed inset-0 bg-black/80 z-[9500] hidden flex items-center justify-center p-4 backdrop-blur-md">
-    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col">
-        <div class="p-8 border-b dark:border-slate-800 flex justify-between">
-            <h2 class="text-xl font-black uppercase text-emerald-600 italic">Pedoman Penomoran</h2>
-            <button onclick="togglePedoman()"><i class="fas fa-times text-slate-400"></i></button>
+<div id="modalPedoman" class="fixed inset-0 bg-slate-900/90 z-[9999] hidden backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-4xl max-h-[90vh] rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col">
+        <div class="p-6 border-b dark:border-slate-800 flex justify-between items-center bg-emerald-600 text-white">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-book-bookmark text-2xl"></i>
+                <div>
+                    <h2 class="font-black uppercase tracking-tight leading-none">Pedoman Operasional</h2>
+                    <p class="text-[10px] opacity-80 uppercase font-bold tracking-widest mt-1">E-Arsip PKM Kiarapedes v2.0</p>
+                </div>
+            </div>
+            <button onclick="togglePedoman()" class="w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-all">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
-        <div id="pedomanContent" class="p-8 overflow-y-auto custom-scrollbar space-y-4"></div>
+
+        <div class="p-8 overflow-y-auto custom-scrollbar space-y-8">
+            <section>
+                <h3 class="text-emerald-600 font-black uppercase text-xs mb-4 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-[10px]">1</span>
+                    Alur Kerja Digitalisasi
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+                        <i class="fas fa-file-signature text-emerald-500 mb-2 text-xl"></i>
+                        <p class="text-[10px] font-black uppercase leading-tight">Siapkan Fisik & No Urut</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+                        <i class="fas fa-file-pdf text-emerald-500 mb-2 text-xl"></i>
+                        <p class="text-[10px] font-black uppercase leading-tight">Scan ke PDF (Max 2MB)</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+                        <i class="fas fa-cloud-upload-alt text-emerald-500 mb-2 text-xl"></i>
+                        <p class="text-[10px] font-black uppercase leading-tight">Upload & Simpan Cloud</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+                        <i class="fas fa-qrcode text-emerald-500 mb-2 text-xl"></i>
+                        <p class="text-[10px] font-black uppercase leading-tight">Cetak Label QR</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3 class="text-emerald-600 font-black uppercase text-xs mb-4 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-[10px]">2</span>
+                    Daftar Kode Klasifikasi Klaster
+                </h3>
+                <div id="pedomanContent" class="pedoman-grid">
+                    </div>
+            </section>
+        </div>
+
+        <div class="p-6 bg-slate-50 dark:bg-slate-800 border-t dark:border-slate-700 text-center">
+            <button onclick="togglePedoman()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-10 py-3 rounded-xl font-black uppercase text-xs shadow-lg shadow-emerald-200 transition-all">
+                Selesai Membaca
+            </button>
+        </div>
     </div>
 </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxleegy4EoSyyYRh2_A_E-P48UdcWhxsNJsmizzRzvov_svVJok1uUBHQ99GEjKIq-sIA/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbw_5xcQjFWaF4Utv6jxrJMpQtc_a3MaFIT94IS405dNLcsO90ACZlMqUZa6Y4NuQItbrQ/exec";
 const PIN_HASH = "MjAyNg==";
 let fileData = null;
 let editIndex = null;
@@ -152,8 +224,13 @@ const KLASTER = {
     "Lintas Klaster": ["442.1 (Obat)", "445.1 (Lab)", "440.61 (Promkes)"]
 };
 
-const KLASTER_DETAIL = {
-    "440.11": "Rencana Usulan Kegiatan", "440.12": "Rencana Pelaksanaan Kegiatan", "440.2": "Organisasi", "005": "Minilokarya", "800": "Kepegawaian", "900": "Keuangan", "441.11": "Ibu Hamil", "443.11": "TB/Kusta"
+// Styling untuk Ikon di Pedoman
+const CLUSTER_STYLES = {
+    "Klaster 1: Manajemen": { icon: "fa-users-gear", color: "text-blue-500", bg: "bg-blue-50" },
+    "Klaster 2: Ibu & Anak": { icon: "fa-baby-carriage", color: "text-rose-500", bg: "bg-rose-50" },
+    "Klaster 3: Dewasa & Lansia": { icon: "fa-person-cane", color: "text-amber-500", bg: "bg-amber-50" },
+    "Klaster 4: P2P & Kesling": { icon: "fa-virus-slash", color: "text-emerald-500", bg: "bg-emerald-50" },
+    "Lintas Klaster": { icon: "fa-layer-group", color: "text-purple-500", bg: "bg-purple-50" }
 };
 
 function verifikasiPin() {
@@ -201,7 +278,6 @@ document.getElementById('formArsip').onsubmit = async (e) => {
     e.preventDefault();
     const btn = document.getElementById('btnSimpan');
 
-    // Validasi Dasar
     if (!fileData && editIndex === null) {
         alert("Mohon pilih file PDF terlebih dahulu!");
         return;
@@ -224,7 +300,6 @@ document.getElementById('formArsip').onsubmit = async (e) => {
     };
 
     try {
-        // PERHATIAN: Jangan gunakan mode: "no-cors" jika ingin membaca respon JSON
         const response = await fetch(GAS_URL, {
             method: "POST",
             body: JSON.stringify(payload)
@@ -237,7 +312,7 @@ document.getElementById('formArsip').onsubmit = async (e) => {
                 ...payload,
                 link: result.url || (editIndex !== null ? database[editIndex].link : "#")
             };
-            delete entry.fileData; // Hapus base64 agar penyimpanan lokal tidak penuh
+            delete entry.fileData;
 
             if (editIndex !== null) {
                 database[editIndex] = entry;
@@ -247,14 +322,13 @@ document.getElementById('formArsip').onsubmit = async (e) => {
 
             localStorage.setItem('db_arsip_ilp_final', JSON.stringify(database));
             alert("✅ Berhasil! Data telah tersimpan di Cloud.");
-            resetFormAfterSave();
-            renderTable();
+            location.reload(); // Refresh untuk reset semua state
         } else {
             throw new Error(result.message || "Gagal menyimpan di Server.");
         }
     } catch (err) {
         console.error(err);
-        alert("❌ ERROR: " + err.message + "\n\nPastikan koneksi internet stabil dan GAS URL benar.");
+        alert("❌ ERROR: " + err.message + "\n\nPastikan koneksi internet stabil dan URL GAS benar.");
     } finally {
         btn.disabled = false;
         btn.innerHTML = 'Simpan & Upload Ke Cloud';
@@ -274,15 +348,14 @@ function renderTable() {
             </td>
             <td class="p-4 text-center">
                 <div class="flex justify-center gap-2">
-                    <button onclick="showQR('${x.no}')" class="btn-action bg-slate-100"><i class="fas fa-qrcode"></i></button>
-                    <button onclick="printLabel(${i})" class="btn-action bg-emerald-50 text-emerald-600"><i class="fas fa-tag"></i></button>
+                    <button onclick="showQR('${x.no}')" class="btn-action bg-slate-100 hover:bg-slate-200"><i class="fas fa-qrcode"></i></button>
                 </div>
             </td>
             <td class="p-4">
                 <div class="flex justify-center gap-2">
-                    <a href="${x.link}" target="_blank" class="btn-action bg-blue-50 text-blue-600"><i class="fas fa-eye"></i></a>
-                    <button onclick="editData(${i})" class="btn-action bg-amber-50 text-amber-600"><i class="fas fa-edit"></i></button>
-                    <button onclick="hapus(${i})" class="btn-action bg-rose-50 text-rose-600"><i class="fas fa-trash"></i></button>
+                    <a href="${x.link}" target="_blank" class="btn-action bg-blue-50 text-blue-600 hover:bg-blue-100"><i class="fas fa-eye"></i></a>
+                    <button onclick="editData(${i})" class="btn-action bg-amber-50 text-amber-600 hover:bg-amber-100"><i class="fas fa-edit"></i></button>
+                    <button onclick="hapus(${i})" class="btn-action bg-rose-50 text-rose-600 hover:bg-rose-100"><i class="fas fa-trash"></i></button>
                 </div>
             </td>
         </tr>`).join('');
@@ -294,12 +367,12 @@ function editData(i) {
     document.getElementById('noUrut').value = item.no.split('/')[1];
     document.getElementById('arsipTgl').value = item.tgl;
     editIndex = i;
-    document.getElementById('btnSimpan').innerText = "Update Data";
+    document.getElementById('btnSimpan').innerText = "Update Data di Cloud";
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 function hapus(i) {
-    if(confirm("Hapus data ini?")) {
+    if(confirm("Hapus data ini dari tampilan lokal? (Data di Cloud tetap ada)")) {
         database.splice(i, 1);
         localStorage.setItem('db_arsip_ilp_final', JSON.stringify(database));
         renderTable();
@@ -311,11 +384,12 @@ async function syncFromGAS() {
     icon.classList.add('fa-spin');
     try {
         const res = await fetch(GAS_URL);
-        database = await res.json();
+        const cloudData = await res.json();
+        database = cloudData;
         localStorage.setItem('db_arsip_ilp_final', JSON.stringify(database));
         renderTable();
         alert("Sinkronisasi Berhasil!");
-    } catch(e) { alert("Gagal Sync!"); }
+    } catch(e) { alert("Gagal Sync! Periksa koneksi atau URL GAS."); }
     finally { icon.classList.remove('fa-spin'); }
 }
 
@@ -326,25 +400,45 @@ function showQR(t) {
     new QRCode(document.getElementById("qrcode"), { text: t, width: 150, height: 150 });
 }
 
+function renderPedoman() {
+    let html = "";
+    Object.keys(KLASTER).forEach(k => {
+        const style = CLUSTER_STYLES[k] || { icon: "fa-folder", color: "text-slate-500", bg: "bg-slate-50" };
+
+        html += `
+            <div class="klaster-box ${style.bg}">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center ${style.color} shadow-sm">
+                        <i class="fas ${style.icon}"></i>
+                    </div>
+                    <h4 class="font-black text-[11px] uppercase text-slate-700 dark:text-slate-200">${k}</h4>
+                </div>
+                <div class="flex flex-wrap gap-1">
+                    ${KLASTER[k].map(kode => `<span class="kode-tag">${kode}</span>`).join('')}
+                </div>
+            </div>
+        `;
+    });
+    document.getElementById('pedomanContent').innerHTML = html;
+}
+
 function togglePedoman() {
-    const m = document.getElementById('modalPedoman');
-    if(m.classList.contains('hidden')) {
-        let h = `<div class="bg-blue-50 p-4 rounded-xl mb-4 text-[11px] font-mono text-blue-700 border border-blue-200">FORMAT: [KODE] / [NO URUT] / PKM-KPDS / [TAHUN]</div>`;
-        Object.keys(KLASTER).forEach(k => {
-            const s = CLUSTER_STYLES[k];
-            h += `<div class="p-4 border dark:border-slate-800 rounded-xl">
-                <div class="flex items-center gap-2 mb-2 font-black text-xs ${s.color}"><i class="fas ${s.icon}"></i> ${k}</div>
-                <div class="flex flex-wrap gap-1">${KLASTER[k].map(c => `<span class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-[9px] font-bold">${c}</span>`).join('')}</div>
-            </div>`;
-        });
-        document.getElementById('pedomanContent').innerHTML = h;
-        m.classList.remove('hidden');
-    } else { m.classList.add('hidden'); }
+    const modal = document.getElementById('modalPedoman');
+    if (modal.classList.contains('hidden')) {
+        renderPedoman();
+        modal.classList.remove('hidden');
+    } else {
+        modal.classList.add('hidden');
+    }
 }
 
 function closeQR() { document.getElementById('modalQR').classList.add('hidden'); }
-function logout() { localStorage.clear(); window.location.href = 'index.html'; }
-function toggleTheme() { document.documentElement.classList.toggle('dark'); }
+function logout() { localStorage.removeItem('db_arsip_ilp_final'); location.reload(); }
+function toggleTheme() {
+    document.documentElement.classList.toggle('dark');
+    const isDark = document.documentElement.classList.contains('dark');
+    document.getElementById('themeIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+}
 
 </script>
 </body>
