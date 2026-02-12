@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generator Surat Tugas | PKM Kiarapedes</title>
+    <title>Generator Surat Tugas TTE | PKM Kiarapedes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -11,16 +11,29 @@
         :root { --bg-body: #f8fafc; --bg-card: #ffffff; --text-main: #1e293b; --border-color: #e2e8f0; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-body); color: var(--text-main); }
         .glass-header { background: linear-gradient(135deg, #064e3b 0%, #059669 100%); }
-        .card-custom { background: var(--bg-card); border-radius: 1.25rem; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .card-custom { background: var(--bg-card); border-radius: 1.25rem; border: 1px solid var(--border-color); }
         .input-modern { width: 100%; padding: 0.75rem 1rem; background: rgba(0,0,0,0.05); border: 2px solid transparent; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; }
         .input-modern:focus { border-color: #10b981; background: #fff; }
         
-        /* Style khusus cetak */
+        /* Pengaturan Ukuran Kertas F4/Folio untuk Cetak */
         @media print {
+            @page { 
+                size: 215mm 330mm; /* Standar F4 / Folio */
+                margin: 2cm; 
+            }
             body * { visibility: hidden; }
             #areaCetak, #areaCetak * { visibility: visible; }
-            #areaCetak { position: absolute; left: 0; top: 0; width: 100%; }
+            #areaCetak { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%; 
+                padding: 0 !important; 
+                box-shadow: none !important;
+            }
             .no-print { display: none; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid black !important; padding: 6px 8px; }
         }
     </style>
 </head>
@@ -29,158 +42,216 @@
 <header class="glass-header text-white pb-24 pt-10 px-6 no-print">
     <div class="container mx-auto flex justify-between items-center">
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-md">
-                <i class="fas fa-file-signature text-xl"></i>
-            </div>
-            <div>
-                <h1 class="text-2xl font-black italic uppercase">Generator <span class="text-emerald-400">Surat Tugas</span></h1>
-                <p class="text-[10px] font-bold tracking-[0.2em] opacity-80">UPTD PUSKESMAS KIARAPEDES</p>
-            </div>
+            <h1 class="text-2xl font-black italic uppercase">E-Surat <span class="text-emerald-400">Tugas</span></h1>
+            <p class="text-[10px] bg-emerald-900/40 px-3 py-1 rounded-full border border-emerald-400/30">SUPPORT TTE (QR-CODE)</p>
         </div>
-        <button onclick="window.history.back()" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full text-[10px] font-black uppercase border border-white/20">
-            <i class="fas fa-arrow-left mr-2"></i> Kembali ke Arsip
-        </button>
+        <button onclick="window.history.back()" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full text-[10px] font-black border border-white/20 uppercase">Kembali</button>
     </div>
 </header>
 
 <main class="container mx-auto px-6 -mt-16 no-print">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <div class="lg:col-span-5">
-            <div class="card-custom p-6 space-y-4">
-                <h3 class="text-sm font-black uppercase text-slate-400 mb-4 border-b pb-2">Data Surat Tugas</h3>
+        <div class="lg:col-span-4">
+            <div class="card-custom p-6 space-y-4 shadow-xl sticky top-4">
+                <h3 class="text-xs font-black uppercase text-emerald-600 border-b pb-2 italic">Data Surat</h3>
                 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="text-[10px] font-black uppercase text-slate-400 ml-2">No Urut</label>
-                        <input type="number" id="noUrut" class="input-modern" placeholder="Contoh: 045" oninput="updatePreview()">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">No Urut</label>
+                        <input type="number" id="noUrut" class="input-modern" placeholder="001" oninput="updatePreview()">
                     </div>
                     <div>
-                        <label class="text-[10px] font-black uppercase text-slate-400 ml-2">Tanggal Surat</label>
+                        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Tgl Surat</label>
                         <input type="date" id="tglSurat" class="input-modern" onchange="updatePreview()">
                     </div>
                 </div>
 
-                <div>
-                    <label class="text-[10px] font-black uppercase text-slate-400 ml-2">Nama Pegawai (Yang Ditugaskan)</label>
-                    <input type="text" id="namaPegawai" class="input-modern" placeholder="NAMA LENGKAP & GELAR" oninput="updatePreview()">
-                    <input type="text" id="nipPegawai" class="input-modern mt-2" placeholder="NIP (Jika ada)" oninput="updatePreview()">
-                </div>
-
-                <div>
-                    <label class="text-[10px] font-black uppercase text-slate-400 ml-2">Maksud / Tujuan Tugas</label>
-                    <textarea id="maksudTugas" class="input-modern h-20" placeholder="Contoh: Melaksanakan kegiatan Fogging di Desa Kiarapedes..." oninput="updatePreview()"></textarea>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[10px] font-black uppercase text-slate-400 ml-2">Tempat Tujuan</label>
-                        <input type="text" id="tempatTugas" class="input-modern" placeholder="Lokasi Tugas" oninput="updatePreview()">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black uppercase text-slate-400 ml-2">Lama Tugas (Hari)</label>
-                        <input type="text" id="lamaTugas" class="input-modern" placeholder="Contoh: 1 (Satu) Hari" oninput="updatePreview()">
+                <div class="bg-slate-50 p-4 rounded-xl border border-dashed border-slate-300">
+                    <h4 class="text-[9px] font-black uppercase text-slate-500 mb-3 text-center">Personel yang Ditugaskan</h4>
+                    <div class="space-y-2">
+                        <input type="text" id="namaPegawai" list="listPegawai" class="input-modern" placeholder="Cari Pegawai..." oninput="autoIsiPegawai()">
+                        <datalist id="listPegawai"></datalist>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="nipPegawai" class="input-modern text-[11px] bg-white/50" placeholder="NIP" readonly>
+                            <input type="text" id="jabatanPegawai" class="input-modern text-[11px] bg-white/50" placeholder="Jabatan" readonly>
+                        </div>
+                        <button onclick="tambahPegawai()" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-lg text-xs hover:bg-emerald-700 transition-all">
+                            <i class="fas fa-user-plus mr-1"></i> Masukkan Daftar
+                        </button>
                     </div>
                 </div>
 
-                <button onclick="window.print()" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg shadow-emerald-200 hover:bg-emerald-500 transition-all mt-4">
-                    <i class="fas fa-print mr-2"></i> Cetak Surat Tugas
+                <div id="daftarTerpilih" class="space-y-2 max-h-40 overflow-y-auto py-2"></div>
+
+                <textarea id="maksudTugas" class="input-modern h-24" placeholder="Maksud / Tujuan Tugas..." oninput="updatePreview()"></textarea>
+
+                <button onclick="window.print()" class="w-full bg-slate-800 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg hover:bg-black">
+                    <i class="fas fa-print mr-2"></i> Cetak (F4/Folio)
                 </button>
             </div>
         </div>
 
-        <div class="lg:col-span-7">
-            <div class="card-custom p-8 bg-white shadow-2xl overflow-auto min-h-[800px]">
-                <div id="areaCetak" class="text-black leading-relaxed text-sm mx-auto" style="max-width: 21cm; font-family: 'Times New Roman', Times, serif;">
+        <div class="lg:col-span-8">
+            <div class="card-custom p-10 bg-white shadow-2xl border-none">
+                <div id="areaCetak" class="text-black mx-auto" style="width: 100%; max-width: 21.5cm; font-family: 'Times New Roman', serif;">
                     
-                    <div class="flex items-center border-b-[3px] border-black pb-2 mb-6">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Logo_Kabupaten_Purwakarta.png" class="w-20 h-24 object-contain mr-4">
-                        <div class="text-center w-full">
+                    <div class="flex items-center border-b-[4px] border-double border-black pb-2 mb-6">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Seal_of_Purwakarta_Regency.svg/330px-Seal_of_Purwakarta_Regency.svg.png" class="w-16 h-20 object-contain">
+                        <div class="flex-1 text-center">
                             <h2 class="text-lg font-bold uppercase leading-tight">Pemerintah Kabupaten Purwakarta</h2>
-                            <h2 class="text-xl font-black uppercase leading-tight">Dinas Kesehatan</h2>
+                            <h2 class="text-xl font-bold uppercase leading-tight">Dinas Kesehatan</h2>
                             <h2 class="text-2xl font-black uppercase leading-tight">UPTD Puskesmas Kiarapedes</h2>
-                            <p class="text-xs">Jl. Raya Kiarapedes No. 1 Kec. Kiarapedes Kode Pos 41175</p>
-                            <p class="text-xs italic">Email: pkmkiarapedes@gmail.com</p>
+                            <p class="text-[11px]">Jl. Raya Kiarapedes No. 2 Kec. Kiarapedes Kode Pos 41175</p>
+                            <p class="text-[10px] italic">Email: pkmkiarapedes20@gmail.com</p>
                         </div>
+                        <img src="https://images.seeklogo.com/logo-png/35/1/puskesmas-logo-png_seeklogo-359624.png" class="w-18 h-18 object-contain">
                     </div>
 
-                    <div class="text-center mb-8">
-                        <h3 class="font-bold underline uppercase text-base">Surat Tugas</h3>
-                        <p id="p_nomor">Nomor: 800/000/PKM-KPDS/2026</p>
+                    <div class="text-center mb-6">
+                        <h3 class="font-bold underline uppercase text-lg">Surat Tugas</h3>
+                        <p id="p_nomor" class="font-bold">Nomor: 800/000/PKM-KPDS/2026</p>
                     </div>
 
-                    <div class="space-y-4">
-                        <p>Yang bertanda tangan di bawah ini Kepala UPTD Puskesmas Kiarapedes Kabupaten Purwakarta, memberikan tugas kepada:</p>
-                        
-                        <div class="ml-8 grid grid-cols-12 gap-1 font-bold">
-                            <div class="col-span-3">Nama</div><div class="col-span-1">:</div><div class="col-span-8 uppercase" id="p_nama">..................................</div>
-                            <div class="col-span-3">NIP</div><div class="col-span-1">:</div><div class="col-span-8" id="p_nip">..................................</div>
-                        </div>
+                    <p class="text-[14px] mb-4 text-justify">Yang bertanda tangan di bawah ini Kepala UPTD Puskesmas Kiarapedes Kabupaten Purwakarta, memberikan tugas kepada:</p>
+                    
+                    <table class="w-full mb-6 text-[13px] border-collapse border border-black">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="border border-black p-2 w-8 text-center">No</th>
+                                <th class="border border-black p-2 text-center">Nama Lengkap</th>
+                                <th class="border border-black p-2 text-center w-40">NIP</th>
+                                <th class="border border-black p-2 text-center">Jabatan </th>
+                            </tr>
+                        </thead>
+                        <tbody id="p_tabel_pegawai">
+                            <tr><td colspan="4" class="border border-black p-4 text-center italic text-gray-400">Daftar Personel Masih Kosong</td></tr>
+                        </tbody>
+                    </table>
 
-                        <p>Untuk melaksanakan tugas sebagai berikut:</p>
-                        
-                        <div class="ml-8 space-y-2">
-                            <div class="flex gap-2">
-                                <span class="font-bold">1. Maksud:</span>
-                                <span id="p_maksud">.........................................................................................................................</span>
-                            </div>
-                            <div class="flex gap-2">
-                                <span class="font-bold">2. Tempat:</span>
-                                <span id="p_tempat">..................................</span>
-                            </div>
-                            <div class="flex gap-2">
-                                <span class="font-bold">3. Waktu:</span>
-                                <span id="p_waktu">..................................</span>
-                            </div>
+                    <div class="text-[14px] space-y-4">
+                        <div class="flex items-start">
+                            <span class="w-24">Maksud :</span>
+                            <span id="p_maksud" class="flex-1 text-justify">..................................................................</span>
                         </div>
-
-                        <p>Demikian surat tugas ini diberikan agar dilaksanakan dengan penuh rasa tanggung jawab.</p>
+                        <p class="mt-6">Demikian surat tugas ini diberikan agar dilaksanakan dengan penuh rasa tanggung jawab.</p>
                     </div>
 
                     <div class="mt-16 flex justify-end">
-                        <div class="text-center mr-8">
+                        <div class="text-center w-72 text-[14px]">
                             <p>Kiarapedes, <span id="p_tgl">..................</span></p>
-                            <p class="font-bold mb-20 uppercase">Kepala UPTD Puskesmas Kiarapedes</p>
-                            <p class="font-bold underline uppercase">H. Nama Kepala Puskesmas, SKM</p>
-                            <p>NIP. 19700000 000000 0 000</p>
+                            <p class="font-bold uppercase leading-tight mt-1">Kepala UPTD Puskesmas<br>Kiarapedes</p>
+                            
+                            <div class="my-6 border border-dashed border-slate-200 h-24 flex items-center justify-center text-[8px] text-slate-300">
+                                [ AREA TANDA TANGAN ELEKTRONIK ]
+                            </div>
+
+                            <p class="text-[11px] italic text-slate-500 leading-tight">
+                                Dokumen ini telah ditandatangani secara elektronik menggunakan sertifikat elektronik yang diterbitkan oleh BSrE.
+                            </p>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
-
     </div>
 </main>
 
 <script>
-    function updatePreview() {
-        // Ambil Data
-        const noUrut = (document.getElementById('noUrut').value || "000").padStart(3, '0');
-        const tgl = document.getElementById('tglSurat').value;
-        const nama = document.getElementById('namaPegawai').value || "..................................";
-        const nip = document.getElementById('nipPegawai').value || "..................................";
-        const maksud = document.getElementById('maksudTugas').value || "....................................................................................";
-        const tempat = document.getElementById('tempatTugas').value || "..................................";
-        const lama = document.getElementById('lamaTugas').value || "..................................";
+    const DATA_PEGAWAI = [
+        { nama: "H. Ujang Sutrisna, S. Kep., Ners., M. Kep.", nip: "19770713 200604 1 011", jabatan: "Kepala Puskesmas" },
+        { nama: "dr. Hendric Hariansyah, M.K.M", nip: "19960328 202203 1 009", jabatan: "Dokter Ahli Muda" },
+        { nama: "Ajat Hermawan", nip: "19810220 202521 1 054", jabatan: "Operator Layanan" },
+        { nama: "Anas Muhiban, S.E.", nip: "19970324 202521 1 057", jabatan: "Penata Layanan" },
+        { nama: "apt. Herni Ekaraharjo, S. Farm", nip: "19850927 202321 2 004", jabatan: "Apoteker" }
+    ];
 
-        // Format Tanggal Indonesia
-        let tglIndo = "..................";
-        let tahun = "2026";
-        if(tgl) {
-            const d = new Date(tgl);
-            const opsi = { day: 'numeric', month: 'long', year: 'numeric' };
-            tglIndo = d.toLocaleDateString('id-ID', opsi);
-            tahun = d.getFullYear();
+    let listTerpilih = [];
+
+    window.onload = () => {
+        const dl = document.getElementById('listPegawai');
+        DATA_PEGAWAI.forEach(p => {
+            let o = document.createElement('option');
+            o.value = p.nama;
+            dl.appendChild(o);
+        });
+    };
+
+    function autoIsiPegawai() {
+        const val = document.getElementById('namaPegawai').value;
+        const p = DATA_PEGAWAI.find(x => x.nama === val);
+        if(p) {
+            document.getElementById('nipPegawai').value = p.nip;
+            document.getElementById('jabatanPegawai').value = p.jabatan;
+        }
+    }
+
+    function tambahPegawai() {
+        const n = document.getElementById('namaPegawai').value;
+        const nip = document.getElementById('nipPegawai').value;
+        const j = document.getElementById('jabatanPegawai').value;
+
+        if(!n || !nip) return;
+        if(listTerpilih.find(x => x.nip === nip)) return alert("Pegawai sudah ada!");
+
+        listTerpilih.push({ nama: n, nip: nip, jabatan: j });
+        
+        // Clear inputs
+        document.getElementById('namaPegawai').value = "";
+        document.getElementById('nipPegawai').value = "";
+        document.getElementById('jabatanPegawai').value = "";
+        
+        renderDaftarInput();
+        updatePreview();
+    }
+
+    function hapusPegawai(idx) {
+        listTerpilih.splice(idx, 1);
+        renderDaftarInput();
+        updatePreview();
+    }
+
+    function renderDaftarInput() {
+        document.getElementById('daftarTerpilih').innerHTML = listTerpilih.map((p, i) => `
+            <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-200 shadow-sm">
+                <span class="text-[10px] font-bold truncate pr-2">${p.nama}</span>
+                <button onclick="hapusPegawai(${i})" class="text-rose-500 hover:bg-rose-50 w-6 h-6 rounded-full transition-all">
+                    <i class="fas fa-times text-[10px]"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    function updatePreview() {
+        const no = (document.getElementById('noUrut').value || "000").padStart(3, '0');
+        const tgl = document.getElementById('tglSurat').value;
+        const maksud = document.getElementById('maksudTugas').value || "..................................................";
+
+        // Update Tabel Preview
+        const tbody = document.getElementById('p_tabel_pegawai');
+        if(listTerpilih.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="border border-black p-4 text-center italic text-gray-400 text-xs">Belum ada personel yang dimasukkan ke daftar</td></tr>`;
+        } else {
+            tbody.innerHTML = listTerpilih.map((p, i) => `
+                <tr>
+                    <td class="border border-black p-2 text-center font-bold">${i+1}</td>
+                    <td class="border border-black p-2 uppercase font-bold">${p.nama}</td>
+                    <td class="border border-black p-2 text-center font-mono">${p.nip}</td>
+                    <td class="border border-black p-2">${p.jabatan}</td>
+                </tr>
+            `).join('');
         }
 
-        // Terapkan ke Preview
-        document.getElementById('p_nomor').innerText = `Nomor: 800/${noUrut}/PKM-KPDS/${tahun}`;
-        document.getElementById('p_nama').innerText = nama;
-        document.getElementById('p_nip').innerText = nip;
+        let tglIndo = "..................";
+        let thn = "2026";
+        if(tgl) {
+            const d = new Date(tgl);
+            tglIndo = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            thn = d.getFullYear();
+        }
+
+        document.getElementById('p_nomor').innerText = `Nomor: 800/${no}/PKM-KPDS/${thn}`;
         document.getElementById('p_maksud').innerText = maksud;
-        document.getElementById('p_tempat').innerText = tempat;
-        document.getElementById('p_waktu').innerText = lama;
         document.getElementById('p_tgl').innerText = tglIndo;
     }
 </script>
