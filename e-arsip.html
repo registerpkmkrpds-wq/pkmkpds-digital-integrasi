@@ -11,15 +11,17 @@
      <script>
     <script>
     (function() {
-        const sessionToken = localStorage.getItem('pkm_session'); // Harus 'pkm_session'
-        const loginTime = localStorage.getItem('pkm_session_time');
+        const token = localStorage.getItem('pkm_session');
+        const time = localStorage.getItem('pkm_session_time');
         const now = new Date().getTime();
-        const expiry = 4 * 60 * 60 * 1000; // 4 Jam
+        const expiry = 4 * 60 * 60 * 1000;
 
-        // Jika token kosong ATAU waktu habis, tendang ke login
-        if (!sessionToken || !loginTime || (now - loginTime > expiry)) {
+        // Cek apakah data benar-benar tidak ada
+        if (!token || !time || (now - time > expiry)) {
+            console.log("Akses ditolak, mengalihkan...");
             localStorage.clear();
-            window.location.replace("index.html");
+            // Arahkan ke index.html di folder yang sama
+            window.location.replace("./index.html");
         }
     })();
 </script>
