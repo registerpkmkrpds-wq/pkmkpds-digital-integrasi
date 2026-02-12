@@ -185,39 +185,52 @@
 
 <script>
     // 1. KONFIGURASI
-    const GAS_URL = "URL_WEB_APP_GAS_ANDA"; // Ganti dengan URL /exec Anda
+    const GAS_URL = "https://script.google.com/macros/s/AKfycby-9A5qG4YBAIBr9xxiJEpJqeJCToz6WTPiJEoc1BvaAqHxpPenO81i9hMRaKIfrW0H/exec"; // Ganti dengan URL /exec Anda
 
-    // 2. FUNGSI LOGIN (AUTH)
-    async function auth() {
-        const user = document.getElementById('user').value;
-        const pass = document.getElementById('pass').value;
-        const btn = document.getElementById('authBtn');
+   async function auth() {
+    const user = document.getElementById('user').value;
+    const pass = document.getElementById('pass').value;
+    const btn = document.getElementById('authBtn');
 
-        if (!user || !pass) {
-            alert("Username dan Password wajib diisi!");
-            return;
+    if (!user || !pass) {
+        alert("Mohon isi username dan password!");
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = "Memproses...";
+
+    // --- STRUKTUR TRY CATCH YANG BENAR ---
+    try {
+        const response = await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "login",
+                user: user,
+                pass: pass
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.status === "success") {
+            localStorage.setItem('pkm_session', result.token);
+            localStorage.setItem('pkm_session_time', new Date().getTime());
+            renderHub(); // Pastikan fungsi renderHub juga sudah ada
+        } else {
+            alert("Gagal: " + result.message);
+            btn.disabled = false;
+            btn.innerHTML = "Verifikasi Akses";
         }
 
-        btn.disabled = true;
-        btn.innerHTML = `<i class="fas fa-spinner animate-spin mr-2"></i> LOADING...`;
-
-        try {
-            const response = await fetch(GAS_URL, {
-                method: "POST",
-                body: JSON.stringify({
-                    action: "login",
-                    user: user,
-                    pass: pass
-                })
-            });
-
-            const result = await response.json();
-
-            if (result.status === "success") {
-                // Simpan Sesi di Browser
-                localStorage.setItem('pkm_session', result.token);
-                localStorage.setItem('pkm_session_time', new Date().getTime());
-                
+    } catch (error) { 
+        // BAGIAN INI YANG TADI HILANG/RUSAK
+        console.error("Kesalahan:", error);
+        alert("Terjadi kesalahan koneksi ke server.");
+        btn.disabled = false;
+        btn.innerHTML = "Verifikasi Akses";
+    }
+}
                 // Pindah ke Dashboard
                 renderHub();
             } else {
