@@ -211,10 +211,17 @@ async function auth() {
 
         const result = await response.json();
 
-        if (result.status === "success") {
-            // Simpan data login
-            localStorage.setItem('pkm_session', result.token);
-            localStorage.setItem('pkm_session_time', new Date().getTime());
+        // Ganti bagian simpan sesi di index.html dengan ini:
+if (result.status === "success") {
+    localStorage.setItem('pkm_session', result.token);
+    localStorage.setItem('pkm_session_time', new Date().getTime().toString());
+    
+    // Gunakan pengalihan yang lebih aman untuk GitHub Pages
+    setTimeout(() => {
+        // Menggunakan path relatif agar tetap di folder yang sama
+        window.location.href = "./e-arsip.html"; 
+    }, 500);
+}
             
             // Pindah ke dashboard (Jika pakai renderHub)
             if (typeof renderHub === "function") {
