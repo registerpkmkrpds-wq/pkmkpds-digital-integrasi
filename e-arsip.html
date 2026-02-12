@@ -225,25 +225,34 @@ document.getElementById('arsipFile').onchange = (e) => {
 // SIMPAN DENGAN VALIDASI & LOG
 document.getElementById('formArsip').onsubmit = async (e) => {
     e.preventDefault();
-    // ... (validasi nomor, tgl, nama tetap sama) ...
-
+    
+    // 1. Definisikan semua variabel dari input
+    const noUrut = document.getElementById('noUrut').value;
+    const tgl = document.getElementById('arsipTgl').value;
+    const nama = document.getElementById('arsipNama').value.trim(); // <--- PASTIKAN BARIS INI ADA
+    
+    // 2. Validasi
+    if (!noUrut) return alert("Nomor Urut wajib diisi!");
+    if (!tgl) return alert("Pilih tanggal dokumen!");
+    if (nama.length < 5) return alert("Nama/Perihal minimal 5 karakter!");
+    
     const btn = document.getElementById('btnSimpan');
     const progCont = document.getElementById('progressContainer');
     const progBar = document.getElementById('progressBar');
 
-    // AMBIL PIN DARI STORAGE
+    // Ambil PIN dari storage
     const sessionPin = sessionStorage.getItem('arsip_session_pin') || "2026";
 
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROSES...';
     progCont.classList.remove('hidden');
-    progBar.style.width = '30%';
 
+    // 3. Susun Payload
     const payload = {
-        token: sessionPin, // Gunakan pin dari session
+        token: sessionPin,
         action: editIndex !== null ? "update" : "upload",
         no: generatePreview(),
-        nama: nama.toUpperCase(),
+        nama: nama.toUpperCase(), // <--- Variabel 'nama' diambil dari poin 1 di atas
         klaster: document.getElementById('selKlaster').value,
         sub: document.getElementById('selSub').value,
         tgl: tgl,
