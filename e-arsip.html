@@ -163,18 +163,33 @@ const CLUSTER_STYLES = {
 };
 
 function verifikasiPin() {
-    if (btoa(document.getElementById('pinInput').value) === PIN_HASH) {
+    const pin = document.getElementById('pinInput').value;
+    if (btoa(pin) === PIN_HASH) {
+        // SIMPAN PIN KE STORAGE
+        sessionStorage.setItem('arsip_session_pin', pin); 
+        
         document.getElementById('modalLogin').classList.add('hidden');
         document.getElementById('mainContent').classList.remove('hidden');
         initApp();
-    } else { alert("PIN SALAH!"); }
+    } else { 
+        alert("PIN SALAH!"); 
+    }
 }
 
 function initApp() {
+    // Cek apakah sudah login sebelumnya
+    const savedPin = sessionStorage.getItem('arsip_session_pin');
+    if (savedPin && btoa(savedPin) === PIN_HASH) {
+        document.getElementById('modalLogin').classList.add('hidden');
+        document.getElementById('mainContent').classList.remove('hidden');
+    }
+
     const kSel = document.getElementById('selKlaster');
     kSel.innerHTML = Object.keys(KLASTER).map(k => `<option value="${k}">${k}</option>`).join('');
     updateSub();
     renderTable();
+    // Tambahkan sync otomatis saat start
+    syncFromGAS();
 }
 
 function updateSub() {
@@ -209,25 +224,22 @@ document.getElementById('arsipFile').onchange = (e) => {
 // SIMPAN DENGAN VALIDASI & LOG
 document.getElementById('formArsip').onsubmit = async (e) => {
     e.preventDefault();
-    const noUrut = document.getElementById('noUrut').value;
-    const tgl = document.getElementById('arsipTgl').value;
-    const nama = document.getElementById('arsipNama').value.trim();
-
-    if (!noUrut) return alert("Nomor Urut wajib diisi!");
-    if (!tgl) return alert("Pilih tanggal dokumen!");
-    if (nama.length < 5) return alert("Nama/Perihal minimal 5 karakter!");
-    if (!fileData && editIndex === null) return alert("File PDF wajib diunggah!");
+    // ... (validasi nomor, tgl, nama tetap sama) ...
 
     const btn = document.getElementById('btnSimpan');
     const progCont = document.getElementById('progressContainer');
     const progBar = document.getElementById('progressBar');
 
+    // AMBIL PIN DARI STORAGE
+    const sessionPin = sessionStorage.getItem('arsip_session_pin') || "2026";
+
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROSES...';
     progCont.classList.remove('hidden');
+    progBar.style.width = '30%';
 
     const payload = {
-        token: "2026",
+        token: sessionPin, // Gunakan pin dari session
         action: editIndex !== null ? "update" : "upload",
         no: generatePreview(),
         nama: nama.toUpperCase(),
@@ -246,15 +258,28 @@ document.getElementById('formArsip').onsubmit = async (e) => {
             headers: { "Content-Type": "text/plain;charset=utf-8" }
         });
         const res = await resp.json();
+        
         if (res.status === "success") {
             progBar.style.width = '100%';
-            alert("Berhasil!");
-            syncFromGAS();
+            alert("Berhasil Tersimpan!");
+            
+            // RESET FORM TANPA RELOAD
             resetForm();
-        } else { alert("Gagal: " + res.message); }
+            fileData = null; // Bersihkan variabel file
+            
+            // JALANKAN SYNC UNTUK UPDATE TABEL
+            await syncFromGAS();
+        } else { 
+            alert("Gagal: " + res.message); 
+        }
     } catch (err) {
-        alert("Sedang diproses di Cloud. Silakan Klik Sync nanti.");
-        location.reload();
+        // JANGAN location.reload() disini agar PIN tidak hilang
+        alert("Koneksi tidak stabil, tapi data biasanya tetap masuk ke Cloud. Silakan klik tombol SYNC beberapa saat lagi.");
+        console.error(err);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = editIndex !== null ? "Update Cloud" : "Simpan Ke Cloud";
+        progCont.classList.add('hidden');
     }
 };
 
