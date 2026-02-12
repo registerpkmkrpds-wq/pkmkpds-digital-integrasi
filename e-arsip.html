@@ -8,20 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script>
-    // PROTEKSI HALAMAN: Cek sesi dari index.html
-    (function() {
-        const token = localStorage.getItem('pkm_session');
-        const time = localStorage.getItem('pkm_session_time');
-        const now = new Date().getTime();
-        const expiry = 4 * 60 * 60 * 1000;
 
-        if (!token || !time || (now - time > expiry)) {
-            localStorage.clear();
-            window.location.replace("./index.html");
-        }
-    })();
-    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         :root { --bg-body: #f8fafc; --bg-card: #ffffff; --text-main: #1e293b; --border-color: #e2e8f0; }
@@ -60,6 +47,8 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
+                    <button onclick="toggleTheme()" class="bg-white/10 hover:bg-white/20 p-3 rounded-full border border-white/20"><i id="themeIcon" class="fas fa-moon"></i></button>
+                    <button onclick="togglePedoman()" class="bg-blue-600 hover:bg-blue-500 p-3 rounded-full border border-blue-400 shadow-lg"><i class="fas fa-book-open text-xs"></i></button>
                     <button onclick="syncFromGAS()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-full text-[10px] font-black uppercase flex items-center gap-2">
                         <i id="syncIcon" class="fas fa-sync-alt"></i> Sync Cloud
                     </button>
@@ -93,7 +82,7 @@
                             <input type="date" id="arsipTgl" class="input-modern" onchange="generatePreview()">
                         </div>
                         <textarea id="arsipNama" class="input-modern h-16" placeholder="PERIHAL / NAMA DOKUMEN..."></textarea>
-                        
+
                         <div class="relative">
                             <input type="file" id="arsipFile" class="hidden" accept="application/pdf">
                             <label for="arsipFile" id="labelFile" class="w-full flex items-center justify-center gap-3 p-3 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 text-[10px] font-bold text-slate-500">
@@ -101,7 +90,7 @@
                             </label>
                         </div>
 
-                        <button type="submit" id="btnSimpan" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg hover:bg-emerald-500 transition-all">Simpan & Upload Ke Cloud</button>                              
+                        <button type="submit" id="btnSimpan" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg hover:bg-emerald-500 transition-all">Simpan & Upload Ke Cloud</button>
                     </form>
                 </div>
             </div>
@@ -135,6 +124,16 @@
         <h3 id="qrTitle" class="font-black text-[10px] uppercase mb-4 text-slate-400"></h3>
         <div id="qrcode" class="flex justify-center mb-6 p-4 bg-white border rounded-2xl"></div>
         <button onclick="closeQR()" class="w-full bg-slate-900 text-white py-3 rounded-xl text-[10px] font-black uppercase">Tutup</button>
+    </div>
+</div>
+
+<div id="modalPedoman" class="fixed inset-0 bg-black/80 z-[9500] hidden flex items-center justify-center p-4 backdrop-blur-md">
+    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col">
+        <div class="p-8 border-b dark:border-slate-800 flex justify-between">
+            <h2 class="text-xl font-black uppercase text-emerald-600 italic">Pedoman Penomoran</h2>
+            <button onclick="togglePedoman()"><i class="fas fa-times text-slate-400"></i></button>
+        </div>
+        <div id="pedomanContent" class="p-8 overflow-y-auto custom-scrollbar space-y-4"></div>
     </div>
 </div>
 
@@ -201,14 +200,18 @@ document.getElementById('arsipFile').onchange = (e) => {
 document.getElementById('formArsip').onsubmit = async (e) => {
     e.preventDefault();
     const btn = document.getElementById('btnSimpan');
-    
-    if (!fileData && editIndex === null) { alert("Pilih file PDF!"); return; }
 
-    btn.disabled = true; 
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> PROSES...';
+    // Validasi Dasar
+    if (!fileData && editIndex === null) {
+        alert("Mohon pilih file PDF terlebih dahulu!");
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> MENGIRIM DATA...';
 
     const payload = {
-        action: "upload",
+        action: editIndex !== null ? "update" : "upload",
         no: generatePreview(),
         nama: document.getElementById('arsipNama').value.toUpperCase(),
         klaster: document.getElementById('selKlaster').value,
@@ -221,29 +224,41 @@ document.getElementById('formArsip').onsubmit = async (e) => {
     };
 
     try {
+        // PERHATIAN: Jangan gunakan mode: "no-cors" jika ingin membaca respon JSON
         const response = await fetch(GAS_URL, {
             method: "POST",
             body: JSON.stringify(payload)
         });
+
         const result = await response.json();
 
         if (result.status === "success") {
-            const entry = { ...payload, link: result.url };
-            delete entry.fileData; // Jangan simpan base64 di localStorage
+            const entry = {
+                ...payload,
+                link: result.url || (editIndex !== null ? database[editIndex].link : "#")
+            };
+            delete entry.fileData; // Hapus base64 agar penyimpanan lokal tidak penuh
 
             if (editIndex !== null) {
                 database[editIndex] = entry;
             } else {
                 database.unshift(entry);
             }
-            
+
             localStorage.setItem('db_arsip_ilp_final', JSON.stringify(database));
-            renderTable(); e.target.reset(); fileData = null; editIndex = null;
-            btn.innerText = "Simpan & Upload Ke Cloud";
-            alert("Data Berhasil Disimpan!");
+            alert("✅ Berhasil! Data telah tersimpan di Cloud.");
+            resetFormAfterSave();
+            renderTable();
+        } else {
+            throw new Error(result.message || "Gagal menyimpan di Server.");
         }
-    } catch (err) { alert("Gagal Simpan ke Cloud!"); }
-    finally { btn.disabled = false; }
+    } catch (err) {
+        console.error(err);
+        alert("❌ ERROR: " + err.message + "\n\nPastikan koneksi internet stabil dan GAS URL benar.");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Simpan & Upload Ke Cloud';
+    }
 };
 
 function renderTable() {
@@ -310,8 +325,27 @@ function showQR(t) {
     document.getElementById('qrcode').innerHTML = "";
     new QRCode(document.getElementById("qrcode"), { text: t, width: 150, height: 150 });
 }
+
+function togglePedoman() {
+    const m = document.getElementById('modalPedoman');
+    if(m.classList.contains('hidden')) {
+        let h = `<div class="bg-blue-50 p-4 rounded-xl mb-4 text-[11px] font-mono text-blue-700 border border-blue-200">FORMAT: [KODE] / [NO URUT] / PKM-KPDS / [TAHUN]</div>`;
+        Object.keys(KLASTER).forEach(k => {
+            const s = CLUSTER_STYLES[k];
+            h += `<div class="p-4 border dark:border-slate-800 rounded-xl">
+                <div class="flex items-center gap-2 mb-2 font-black text-xs ${s.color}"><i class="fas ${s.icon}"></i> ${k}</div>
+                <div class="flex flex-wrap gap-1">${KLASTER[k].map(c => `<span class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-[9px] font-bold">${c}</span>`).join('')}</div>
+            </div>`;
+        });
+        document.getElementById('pedomanContent').innerHTML = h;
+        m.classList.remove('hidden');
+    } else { m.classList.add('hidden'); }
+}
+
 function closeQR() { document.getElementById('modalQR').classList.add('hidden'); }
 function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+function toggleTheme() { document.documentElement.classList.toggle('dark'); }
+
 </script>
 </body>
 </html>
