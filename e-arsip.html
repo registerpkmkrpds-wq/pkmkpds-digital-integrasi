@@ -7,21 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script>
-    // PROTEKSI HALAMAN: Cek sesi dari index.html
-    (function() {
-        const token = localStorage.getItem('pkm_session');
-        const time = localStorage.getItem('pkm_session_time');
-        const now = new Date().getTime();
-        const expiry = 4 * 60 * 60 * 1000;
-
-        if (!token || !time || (now - time > expiry)) {
-            localStorage.clear();
-            window.location.replace("./index.html");
-        }
-    })();
-    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         :root { --bg-body: #f8fafc; --bg-card: #ffffff; --text-main: #1e293b; --border-color: #e2e8f0; }
@@ -32,52 +17,43 @@
         .input-modern { width: 100%; padding: 0.75rem 1rem; background: rgba(0,0,0,0.05); border: 2px solid transparent; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; color: var(--text-main); }
         .input-modern:focus { border-color: #10b981; background: var(--bg-card); }
         .btn-action { width: 32px; height: 32px; border-radius: 8px; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-
-        /* Pedoman Styles */
-        .pedoman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
-        .klaster-box { padding: 1rem; border-radius: 1rem; border: 1px solid #e2e8f0; transition: all 0.3s; }
-        .klaster-box:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        .kode-tag { display: inline-block; padding: 2px 8px; background: #f1f5f9; color: #475569; border-radius: 4px; font-family: monospace; font-size: 10px; font-weight: bold; margin: 2px; border: 1px solid #e2e8f0; }
-        .dark .kode-tag { background: #0f172a; color: #cbd5e1; border-color: #334155; }
+        .pedoman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .kode-tag { display: inline-block; padding: 2px 8px; background: white; color: #475569; border-radius: 4px; font-family: monospace; font-size: 9px; font-weight: bold; margin: 2px; border: 1px solid #e2e8f0; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
     </style>
 </head>
 <body class="pb-10">
 
-<div id="modalLogin" class="fixed inset-0 bg-slate-900 z-[2000] flex items-center justify-center p-4">
+<div id="modalLogin" class="fixed inset-0 bg-slate-900 z-[9000] flex items-center justify-center p-4">
     <div class="bg-white p-8 rounded-[2.5rem] text-center max-w-xs w-full shadow-2xl">
-        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
+        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl animate-bounce">
             <i class="fas fa-lock"></i>
         </div>
-        <h2 class="font-black text-slate-800 uppercase tracking-tighter mb-2">Verifikasi Arsip</h2>
+        <h2 class="font-black text-slate-800 uppercase tracking-tighter mb-2">Verifikasi Akses</h2>
         <p class="text-[10px] text-slate-400 font-bold mb-6 uppercase">Masukkan PIN Otorisasi 2026</p>
         <input type="password" id="pinInput" class="input-modern text-center text-2xl mb-4 tracking-[0.5em]" placeholder="****">
-        <button onclick="verifikasiPin()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black shadow-lg shadow-emerald-200 uppercase">Buka Arsip</button>
+        <button onclick="verifikasiPin()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black shadow-lg uppercase hover:bg-emerald-500">Masuk Sistem</button>
     </div>
 </div>
 
 <div id="mainContent" class="hidden">
-    <header class="glass-header text-white pb-24">
-        <div class="container mx-auto px-6 pt-10">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-folder-open text-4xl text-yellow-400"></i>
-                    <div>
-                        <h1 class="font-black text-2xl tracking-tighter italic uppercase leading-none">Arsip <span class="text-emerald-400">Digital</span></h1>
-                        <p class="text-[9px] font-bold uppercase tracking-[0.3em] text-emerald-300">PUSKESMAS KIARAPEDES</p>
-                    </div>
+    <header class="glass-header text-white pb-24 pt-10 px-6">
+        <div class="container mx-auto flex flex-col lg:flex-row justify-between items-center gap-8">
+            <div class="flex items-center gap-3">
+                <div <i class="fas fa-folder-open text-5xl text-yellow-500 hover:text-orange-600"></i>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="toggleTheme()" class="bg-white/10 hover:bg-white/20 p-3 rounded-full border border-white/20"><i id="themeIcon" class="fas fa-moon"></i></button>
-                    <button onclick="togglePedoman()" class="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 px-4 py-2 rounded-full text-[10px] font-black uppercase transition-all shadow-lg shadow-amber-200">
-                        <i class="fas fa-circle-info"></i> Bantuan & Pedoman
-                    </button>
-                    <button onclick="syncFromGAS()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-full text-[10px] font-black uppercase flex items-center gap-2">
-                        <i id="syncIcon" class="fas fa-sync-alt"></i> Sync Cloud
-                    </button>
-                    <button onclick="logout()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-rose-500 transition-all">
-                        <i class="fas fa-power-off"></i>
-                    </button>
+                <div>
+                    <h1 class="text-3xl font-black italic uppercase leading-none">Arsip <span class="text-emerald-400">Digital</span></h1>
+                    <p class="text-[11px] font-bold uppercase tracking-[0.3em] text-emerald-300">Puskesmas Kiarapedes</p>
                 </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="toggleTheme()" class="bg-white/10 hover:bg-white/20 p-3 rounded-full border border-white/20"><i id="themeIcon" class="fas fa-moon"></i></button>
+                <button onclick="togglePedoman()" class="bg-amber-500 hover:bg-amber-400 px-4 py-2 rounded-full text-[10px] font-black uppercase shadow-lg"><i class="fas fa-book-open mr-2"></i> Pedoman</button>
+                <button onclick="syncFromGAS()" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded-full text-[10px] font-black uppercase"><i id="syncIcon" class="fas fa-sync-alt mr-2"></i> Sync Cloud</button>
+                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-full text-[10px] font-black uppercase flex items-center gap-2 shadow-lg"><i class="fas fa-file-excel"></i> Export</button>
+                <button onclick="logout()" class="w-10 h-10 bg-rose-600 hover:bg-rose-700 rounded-full flex items-center justify-center"><i class="fas fa-power-off"></i></button>
             </div>
         </div>
     </header>
@@ -85,34 +61,27 @@
     <main class="container mx-auto px-6 -mt-16">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div class="lg:col-span-4 space-y-6">
-                <div class="card-custom p-6">
+                <div class="card-custom p-6 sticky top-6">
                     <form id="formArsip" class="space-y-4">
-                        <div class="bg-emerald-50 dark:bg-emerald-950/40 p-4 rounded-xl border border-emerald-100">
-                            <p class="text-[9px] font-black text-emerald-700 uppercase mb-1">Preview Nomor Surat:</p>
-                            <h4 id="displayNomor" class="font-mono font-bold text-xs text-slate-700 leading-tight">---</h4>
+                        <div class="bg-emerald-50 dark:bg-emerald-950/40 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                            <p class="text-[9px] font-black text-emerald-700 uppercase mb-1 italic">Preview Nomor:</p>
+                            <h4 id="displayNomor" class="font-mono font-bold text-xs text-slate-700 dark:text-emerald-300">---</h4>
                         </div>
-                        <div>
-                            <label class="text-[10px] font-black uppercase text-slate-400 ml-2">Klaster</label>
-                            <select id="selKlaster" class="input-modern" onchange="updateSub()"></select>
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-black uppercase text-slate-400 ml-2">Sub Klasifikasi</label>
-                            <select id="selSub" class="input-modern" onchange="generatePreview()"></select>
-                        </div>
+                        <select id="selKlaster" class="input-modern" onchange="updateSub()"></select>
+                        <select id="selSub" class="input-modern" onchange="generatePreview()"></select>
                         <div class="grid grid-cols-2 gap-4">
                             <input type="number" id="noUrut" class="input-modern" placeholder="No Urut" oninput="generatePreview()">
                             <input type="date" id="arsipTgl" class="input-modern" onchange="generatePreview()">
                         </div>
                         <textarea id="arsipNama" class="input-modern h-16" placeholder="PERIHAL / NAMA DOKUMEN..."></textarea>
 
-                        <div class="relative">
-                            <input type="file" id="arsipFile" class="hidden" accept="application/pdf">
-                            <label for="arsipFile" id="labelFile" class="w-full flex items-center justify-center gap-3 p-3 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 text-[10px] font-bold text-slate-500">
-                                <i class="fas fa-file-pdf text-emerald-500 text-lg"></i> PILIH PDF (MAX 2MB)
-                            </label>
-                        </div>
+                        <input type="file" id="arsipFile" class="hidden" accept="application/pdf">
+                        <label for="arsipFile" id="labelFile" class="w-full flex items-center justify-center gap-3 p-4 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 text-[10px] font-bold">
+                            <i class="fas fa-cloud-arrow-up text-xl text-emerald-500"></i> PILIH FILE PDF
+                        </label>
 
-                        <button type="submit" id="btnSimpan" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg hover:bg-emerald-500 transition-all">Simpan & Upload Ke Cloud</button>
+                        <button type="submit" id="btnSimpan" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg">Simpan Ke Cloud</button>
+                        <button type="button" id="btnBatal" onclick="resetForm()" class="hidden w-full text-[10px] font-black text-rose-500 uppercase">Batal Edit</button>
                     </form>
                 </div>
             </div>
@@ -120,17 +89,13 @@
             <div class="lg:col-span-8">
                 <div class="card-custom p-4 mb-6 flex items-center gap-4">
                     <i class="fas fa-search text-slate-300 ml-2"></i>
-                    <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari nomor atau perihal..." class="w-full bg-transparent outline-none font-bold text-xs">
+                    <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari data..." class="w-full bg-transparent outline-none font-bold text-xs">
                 </div>
                 <div class="card-custom overflow-hidden">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse text-[11px]">
+                        <table class="w-full text-left text-[11px]">
                             <thead class="bg-slate-50 dark:bg-slate-800 uppercase font-black text-slate-500 text-[9px]">
-                                <tr>
-                                    <th class="p-4">Informasi Dokumen</th>
-                                    <th class="p-4 text-center">QR & Label</th>
-                                    <th class="p-4 text-center">Aksi</th>
-                                </tr>
+                                <tr><th class="p-4">Dokumen</th><th class="p-4 text-center">QR</th><th class="p-4 text-center">Aksi</th></tr>
                             </thead>
                             <tbody id="tableBody"></tbody>
                         </table>
@@ -141,96 +106,37 @@
     </main>
 </div>
 
-<div id="modalQR" class="fixed inset-0 bg-black/80 z-[4000] hidden flex items-center justify-center p-4">
-    <div class="bg-white p-8 rounded-[2rem] text-center max-w-xs w-full shadow-2xl">
-        <h3 id="qrTitle" class="font-black text-[10px] uppercase mb-4 text-slate-400"></h3>
-        <div id="qrcode" class="flex justify-center mb-6 p-4 bg-white border rounded-2xl"></div>
-        <button onclick="closeQR()" class="w-full bg-slate-900 text-white py-3 rounded-xl text-[10px] font-black uppercase">Tutup</button>
-    </div>
-</div>
-
-<div id="modalPedoman" class="fixed inset-0 bg-slate-900/90 z-[9999] hidden backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 w-full max-w-4xl max-h-[90vh] rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col">
-        <div class="p-6 border-b dark:border-slate-800 flex justify-between items-center bg-emerald-600 text-white">
-            <div class="flex items-center gap-3">
-                <i class="fas fa-book-bookmark text-2xl"></i>
-                <div>
-                    <h2 class="font-black uppercase tracking-tight leading-none">Pedoman Operasional</h2>
-                    <p class="text-[10px] opacity-80 uppercase font-bold tracking-widest mt-1">E-Arsip PKM Kiarapedes v2.0</p>
-                </div>
-            </div>
-            <button onclick="togglePedoman()" class="w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-all">
-                <i class="fas fa-times"></i>
-            </button>
+<div id="modalPedoman" class="fixed inset-0 bg-black/80 z-[9999] hidden flex items-center justify-center p-4 backdrop-blur-md">
+    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] max-w-4xl w-full max-h-[85vh] overflow-hidden flex flex-col">
+        <div class="p-8 border-b dark:border-slate-800 flex justify-between items-center bg-emerald-600 text-white">
+            <h2 class="text-xl font-black uppercase italic">Pedoman Penomoran (Perbup No. 135 Th 2023)</h2>
+            <button onclick="togglePedoman()" class="w-10 h-10 rounded-full bg-white/20"><i class="fas fa-times"></i></button>
         </div>
-
-        <div class="p-8 overflow-y-auto custom-scrollbar space-y-8">
-            <section>
-                <h3 class="text-emerald-600 font-black uppercase text-xs mb-4 flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-[10px]">1</span>
-                    Alur Kerja Digitalisasi
-                </h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
-                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-                        <i class="fas fa-file-signature text-emerald-500 mb-2 text-xl"></i>
-                        <p class="text-[10px] font-black uppercase leading-tight">Siapkan Fisik & No Urut</p>
-                    </div>
-                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-                        <i class="fas fa-file-pdf text-emerald-500 mb-2 text-xl"></i>
-                        <p class="text-[10px] font-black uppercase leading-tight">Scan ke PDF (Max 2MB)</p>
-                    </div>
-                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-                        <i class="fas fa-cloud-upload-alt text-emerald-500 mb-2 text-xl"></i>
-                        <p class="text-[10px] font-black uppercase leading-tight">Upload & Simpan Cloud</p>
-                    </div>
-                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-                        <i class="fas fa-qrcode text-emerald-500 mb-2 text-xl"></i>
-                        <p class="text-[10px] font-black uppercase leading-tight">Cetak Label QR</p>
-                    </div>
-                </div>
-            </section>
-
-            <section>
-                <h3 class="text-emerald-600 font-black uppercase text-xs mb-4 flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-[10px]">2</span>
-                    Daftar Kode Klasifikasi Klaster
-                </h3>
-                <div id="pedomanContent" class="pedoman-grid">
-                    </div>
-            </section>
-        </div>
-
-        <div class="p-6 bg-slate-50 dark:bg-slate-800 border-t dark:border-slate-700 text-center">
-            <button onclick="togglePedoman()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-10 py-3 rounded-xl font-black uppercase text-xs shadow-lg shadow-emerald-200 transition-all">
-                Selesai Membaca
-            </button>
-        </div>
+        <div id="pedomanContent" class="p-8 overflow-y-auto custom-scrollbar pedoman-grid"></div>
     </div>
 </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyuF8tgPKEwHqjhiywiBngf4OXbgBwpkF3LVpH6sTqC0ztD82EFy5L72860HJjmTM-VlA/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwZwgH315dXBkve-1RPzBZxbs_VYTLjPBDjwlhJQHlS93UdWfyJC3i07I63gBC0in5Mzw/exec";
 const PIN_HASH = "MjAyNg==";
-let fileData = null;
+let database = JSON.parse(localStorage.getItem('db_arsip_kpds')) || [];
 let editIndex = null;
-let database = JSON.parse(localStorage.getItem('db_arsip_ilp_final')) || [];
+let fileData = null;
 
 const KLASTER = {
-    "Klaster 1: Manajemen": ["440.11 (RUK)", "440.12 (RPK)", "440.2 (Org)", "005 (Minlok)", "800 (Kepegawaian)", "900 (Keuangan)"],
-    "Klaster 2: Ibu & Anak": ["441.11 (ANC)", "441.12 (PNC)", "441.21 (Imunisasi)", "441.22 (Stunting)", "441.31 (UKS)"],
-    "Klaster 3: Dewasa & Lansia": ["440.51 (PTM)", "440.52 (IVA)", "440.53 (Jiwa)", "441.61 (Lansia)"],
-    "Klaster 4: P2P & Kesling": ["443.11 (TB)", "443.12 (HIV)", "443.21 (DBD)", "448.1 (STBM)"],
+    "Klaster 1: Manajemen": ["440.11 (RUK)", "440.12 (RPK)", "800 (S.Tugas)", "900 (Keuangan)"],
+    "Klaster 2: Ibu & Anak": ["441.11 (ANC)", "441.21 (Imunisasi)", "441.22 (Stunting)"],
+    "Klaster 3: Dewasa & Lansia": ["440.51 (PTM)", "440.53 (Jiwa)", "441.61 (Lansia)"],
+    "Klaster 4: P2P & Kesling": ["443.11 (TB)", "443.21 (DBD)", "448.1 (STBM)"],
     "Lintas Klaster": ["442.1 (Obat)", "445.1 (Lab)", "440.61 (Promkes)"]
 };
 
-// Styling untuk Ikon di Pedoman
 const CLUSTER_STYLES = {
-    "Klaster 1: Manajemen": { icon: "fa-users-gear", color: "text-blue-500", bg: "bg-blue-50" },
-    "Klaster 2: Ibu & Anak": { icon: "fa-baby-carriage", color: "text-rose-500", bg: "bg-rose-50" },
-    "Klaster 3: Dewasa & Lansia": { icon: "fa-person-cane", color: "text-amber-500", bg: "bg-amber-50" },
-    "Klaster 4: P2P & Kesling": { icon: "fa-virus-slash", color: "text-emerald-500", bg: "bg-emerald-50" },
-    "Lintas Klaster": { icon: "fa-layer-group", color: "text-purple-500", bg: "bg-purple-50" }
+    "Klaster 1: Manajemen": { icon: "fa-shield-halved", color: "text-blue-600", bg: "bg-blue-50" },
+    "Klaster 2: Ibu & Anak": { icon: "fa-baby-carriage", color: "text-rose-600", bg: "bg-rose-50" },
+    "Klaster 3: Dewasa & Lansia": { icon: "fa-person-cane", color: "text-amber-600", bg: "bg-amber-50" },
+    "Klaster 4: P2P & Kesling": { icon: "fa-virus-slash", color: "text-emerald-600", bg: "bg-emerald-50" },
+    "Lintas Klaster": { icon: "fa-layer-group", color: "text-indigo-600", bg: "bg-indigo-50" }
 };
 
 function verifikasiPin() {
@@ -255,127 +161,105 @@ function updateSub() {
 
 function generatePreview() {
     const s = document.getElementById('selSub').value;
-    const kode = s.split(' ')[0].trim();
+    const kode = s.split(' ')[0];
     const no = (document.getElementById('noUrut').value || "0").padStart(3, '0');
     const thn = new Date(document.getElementById('arsipTgl').value || new Date()).getFullYear();
     const nomor = `${kode}/${no}/PKM-KPDS/${thn}`;
-    document.getElementById('displayNomor').innerHTML = nomor;
+    document.getElementById('displayNomor').innerText = nomor;
     return nomor;
 }
 
-// --- FILE HANDLING ---
 document.getElementById('arsipFile').onchange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    document.getElementById('labelFile').innerHTML = `<i class="fas fa-check-circle text-emerald-500"></i> ${file.name}`;
+    document.getElementById('labelFile').innerHTML = `<i class="fas fa-file-circle-check text-emerald-500"></i> ${file.name}`;
     const reader = new FileReader();
     reader.onload = (ev) => fileData = { base64: ev.target.result.split(',')[1], name: file.name, type: file.type };
     reader.readAsDataURL(file);
 };
 
-// --- SIMPAN DATA (POST KE GAS) ---
 document.getElementById('formArsip').onsubmit = async (e) => {
     e.preventDefault();
     const btn = document.getElementById('btnSimpan');
-
-    if (!fileData && editIndex === null) {
-        alert("Mohon pilih file PDF terlebih dahulu!");
-        return;
-    }
-
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> MENGIRIM DATA...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> PROSES CLOUD...';
 
     const payload = {
+        token: "2026",
         action: editIndex !== null ? "update" : "upload",
         no: generatePreview(),
         nama: document.getElementById('arsipNama').value.toUpperCase(),
         klaster: document.getElementById('selKlaster').value,
         sub: document.getElementById('selSub').value,
-        tgl: document.getElementById('arsipTgl').value || new Date().toISOString().split('T')[0],
+        tgl: document.getElementById('arsipTgl').value,
         fileData: fileData ? fileData.base64 : null,
         fileName: fileData ? fileData.name : "",
         fileType: fileData ? fileData.type : "",
-        token: "2026"
+        link: editIndex !== null ? database[editIndex].link : "#"
     };
 
     try {
-        const response = await fetch(GAS_URL, {
-            method: "POST",
-            body: JSON.stringify(payload)
-        });
+        const resp = await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
+        const res = await resp.json();
 
-        const result = await response.json();
-
-        if (result.status === "success") {
-            const entry = {
-                ...payload,
-                link: result.url || (editIndex !== null ? database[editIndex].link : "#")
-            };
+        if (res.status === "success") {
+            const entry = { ...payload, link: res.url };
             delete entry.fileData;
-
-            if (editIndex !== null) {
-                database[editIndex] = entry;
-            } else {
-                database.unshift(entry);
-            }
-
-            localStorage.setItem('db_arsip_ilp_final', JSON.stringify(database));
-            alert("✅ Berhasil! Data telah tersimpan di Cloud.");
-            location.reload(); // Refresh untuk reset semua state
-        } else {
-            throw new Error(result.message || "Gagal menyimpan di Server.");
-        }
-    } catch (err) {
-        console.error(err);
-        alert("❌ ERROR: " + err.message + "\n\nPastikan koneksi internet stabil dan URL GAS benar.");
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = 'Simpan & Upload Ke Cloud';
-    }
+            if (editIndex !== null) database[editIndex] = entry; else database.unshift(entry);
+            localStorage.setItem('db_arsip_kpds', JSON.stringify(database));
+            alert("Data Berhasil Disimpan di Cloud!");
+            location.reload();
+        } else { alert("Error: " + res.message); }
+    } catch (err) { alert("Cek Koneksi atau URL GAS Anda!"); }
+    finally { btn.disabled = false; btn.innerHTML = "Simpan Ke Cloud"; }
 };
 
 function renderTable() {
-    const search = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = database.filter(x => x.no.toLowerCase().includes(search) || x.nama.toLowerCase().includes(search));
-
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = database.filter(x => x.no.toLowerCase().includes(q) || x.nama.toLowerCase().includes(q));
     document.getElementById('tableBody').innerHTML = filtered.map((x, i) => `
-        <tr class="border-b hover:bg-slate-50">
+        <tr class="border-b dark:border-slate-800">
             <td class="p-4">
-                <span class="font-mono text-emerald-600 font-black">${x.no}</span>
-                <div class="font-black text-slate-800 uppercase text-[10px]">${x.nama}</div>
-                <div class="text-[9px] text-slate-400 font-bold uppercase">${x.tgl}</div>
+                <div class="font-mono text-emerald-600 font-black text-xs">${x.no}</div>
+                <div class="font-bold uppercase text-slate-700 dark:text-slate-200">${x.nama}</div>
             </td>
             <td class="p-4 text-center">
-                <div class="flex justify-center gap-2">
-                    <button onclick="showQR('${x.no}')" class="btn-action bg-slate-100 hover:bg-slate-200"><i class="fas fa-qrcode"></i></button>
-                </div>
+                <button onclick="alert('Cetak Label QR untuk: ${x.no}')" class="btn-action bg-slate-100 dark:bg-slate-800 mx-auto"><i class="fas fa-qrcode"></i></button>
             </td>
-            <td class="p-4">
-                <div class="flex justify-center gap-2">
-                    <a href="${x.link}" target="_blank" class="btn-action bg-blue-50 text-blue-600 hover:bg-blue-100"><i class="fas fa-eye"></i></a>
-                    <button onclick="editData(${i})" class="btn-action bg-amber-50 text-amber-600 hover:bg-amber-100"><i class="fas fa-edit"></i></button>
-                    <button onclick="hapus(${i})" class="btn-action bg-rose-50 text-rose-600 hover:bg-rose-100"><i class="fas fa-trash"></i></button>
-                </div>
+            <td class="p-4 flex justify-center gap-2">
+                <button onclick="editData(${i})" class="btn-action bg-amber-50 text-amber-600"><i class="fas fa-pen"></i></button>
+                <a href="${x.link}" target="_blank" class="btn-action bg-blue-50 text-blue-600"><i class="fas fa-link"></i></a>
+                <button onclick="hapus(${i})" class="btn-action bg-rose-50 text-rose-600"><i class="fas fa-trash"></i></button>
             </td>
-        </tr>`).join('');
+        </tr>
+    `).join('');
 }
 
-function editData(i) {
-    const item = database[i];
-    document.getElementById('arsipNama').value = item.nama;
-    document.getElementById('noUrut').value = item.no.split('/')[1];
-    document.getElementById('arsipTgl').value = item.tgl;
-    editIndex = i;
-    document.getElementById('btnSimpan').innerText = "Update Data di Cloud";
-    window.scrollTo({top: 0, behavior: 'smooth'});
-}
+async function hapus(i) {
+    const pinUser = prompt("Masukkan PIN Otorisasi untuk menghapus:");
+    if (btoa(pinUser) !== PIN_HASH) {
+        alert("PIN Salah! Akses dihapus ditolak.");
+        return;
+    }
 
-function hapus(i) {
-    if(confirm("Hapus data ini dari tampilan lokal? (Data di Cloud tetap ada)")) {
-        database.splice(i, 1);
-        localStorage.setItem('db_arsip_ilp_final', JSON.stringify(database));
-        renderTable();
+    if(confirm("Hapus data ini dari Cloud & Lokal secara permanen?")) {
+        const noArsip = database[i].no;
+        try {
+            await fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "delete",
+                    no: noArsip,
+                    token: pinUser // Mengirim PIN asli untuk divalidasi oleh GAS
+                })
+            });
+            database.splice(i, 1);
+            localStorage.setItem('db_arsip_kpds', JSON.stringify(database));
+            renderTable();
+            alert("Data berhasil dihapus.");
+        } catch (e) {
+            alert("Gagal menghapus data di Cloud. Periksa koneksi.");
+        }
     }
 }
 
@@ -384,62 +268,85 @@ async function syncFromGAS() {
     icon.classList.add('fa-spin');
     try {
         const res = await fetch(GAS_URL);
-        const cloudData = await res.json();
-        database = cloudData;
-        localStorage.setItem('db_arsip_ilp_final', JSON.stringify(database));
+        database = await res.json();
+        localStorage.setItem('db_arsip_kpds', JSON.stringify(database));
         renderTable();
-        alert("Sinkronisasi Berhasil!");
-    } catch(e) { alert("Gagal Sync! Periksa koneksi atau URL GAS."); }
-    finally { icon.classList.remove('fa-spin'); }
+    } finally { icon.classList.remove('fa-spin'); }
 }
 
-function showQR(t) {
-    document.getElementById('modalQR').classList.remove('hidden');
-    document.getElementById('qrTitle').innerText = t;
-    document.getElementById('qrcode').innerHTML = "";
-    new QRCode(document.getElementById("qrcode"), { text: t, width: 150, height: 150 });
-}
-
-function renderPedoman() {
-    let html = "";
-    Object.keys(KLASTER).forEach(k => {
-        const style = CLUSTER_STYLES[k] || { icon: "fa-folder", color: "text-slate-500", bg: "bg-slate-50" };
-
-        html += `
-            <div class="klaster-box ${style.bg}">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center ${style.color} shadow-sm">
-                        <i class="fas ${style.icon}"></i>
-                    </div>
-                    <h4 class="font-black text-[11px] uppercase text-slate-700 dark:text-slate-200">${k}</h4>
-                </div>
-                <div class="flex flex-wrap gap-1">
-                    ${KLASTER[k].map(kode => `<span class="kode-tag">${kode}</span>`).join('')}
-                </div>
-            </div>
-        `;
-    });
-    document.getElementById('pedomanContent').innerHTML = html;
+function editData(i) {
+    editIndex = i;
+    const d = database[i];
+    document.getElementById('selKlaster').value = d.klaster;
+    updateSub();
+    document.getElementById('selSub').value = d.sub;
+    document.getElementById('noUrut').value = d.no.split('/')[1];
+    document.getElementById('arsipNama').value = d.nama;
+    document.getElementById('arsipTgl').value = d.tgl;
+    document.getElementById('btnSimpan').innerText = "Update Cloud";
+    document.getElementById('btnBatal').classList.remove('hidden');
+    window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 function togglePedoman() {
-    const modal = document.getElementById('modalPedoman');
-    if (modal.classList.contains('hidden')) {
-        renderPedoman();
-        modal.classList.remove('hidden');
-    } else {
-        modal.classList.add('hidden');
+    const m = document.getElementById('modalPedoman');
+    if(m.classList.contains('hidden')) {
+        let h = "";
+        Object.keys(KLASTER).forEach(k => {
+            const s = CLUSTER_STYLES[k];
+            h += `<div class="p-4 ${s.bg} rounded-2xl border border-slate-100">
+                <div class="flex items-center gap-3 mb-2 font-black text-xs ${s.color}"><i class="fas ${s.icon}"></i> ${k}</div>
+                <div class="flex flex-wrap gap-1">${KLASTER[k].map(c => `<span class="kode-tag">${c}</span>`).join('')}</div>
+            </div>`;
+        });
+        document.getElementById('pedomanContent').innerHTML = h;
+        m.classList.remove('hidden');
+    } else { m.classList.add('hidden'); }
+}
+
+function toggleTheme() { document.documentElement.classList.toggle('dark'); }
+function logout() { localStorage.clear(); location.reload(); }
+function exportToExcel() {
+    if (database.length === 0) {
+        alert("Tidak ada data untuk dicetak!");
+        return;
     }
-}
 
-function closeQR() { document.getElementById('modalQR').classList.add('hidden'); }
-function logout() { localStorage.removeItem('db_arsip_ilp_final'); location.reload(); }
-function toggleTheme() {
-    document.documentElement.classList.toggle('dark');
-    const isDark = document.documentElement.classList.contains('dark');
-    document.getElementById('themeIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-}
+    // Persiapkan data untuk Excel
+    const dataExcel = database.map((x, index) => ({
+        "No": index + 1,
+        "Nomor Dokumen": x.no,
+        "Nama Dokumen / Perihal": x.nama,
+        "Klaster": x.klaster,
+        "Sub Klasifikasi": x.sub,
+        "Tanggal Arsip": x.tgl,
+        "Link Digital": x.link
+    }));
 
+    // Membuat Worksheet
+    const ws = XLSX.utils.json_to_sheet(dataExcel);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Laporan Arsip Puskesmas Kiarapedes");
+
+    // Atur lebar kolom agar rapi
+    const wscols = [
+        {wch: 5},  // No
+        {wch: 25}, // Nomor Dokumen
+        {wch: 40}, // Nama
+        {wch: 20}, // Klaster
+        {wch: 20}, // Sub
+        {wch: 15}, // Tanggal
+        {wch: 50}  // Link
+    ];
+    ws['!cols'] = wscols;
+
+    // Nama file berdasarkan bulan dan tahun saat ini
+    const date = new Date();
+    const fileName = `Laporan_Arsip_PKM_KPDS_${date.getMonth() + 1}_${date.getFullYear()}.xlsx`;
+
+    // Download file
+    XLSX.writeFile(wb, fileName);
+}
 </script>
 </body>
 </html>
