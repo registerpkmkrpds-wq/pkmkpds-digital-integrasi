@@ -184,74 +184,63 @@
 </div>
 
 <script>
-// Konfigurasi Kredensial
-const CONFIG = {
-USER: "pkmkiarapedes",
-PASS: "pkm2026",
-SESSION_KEY: "pkm_session_active",
-INACTIVITY_LIMIT: 30 * 60 * 1000 // 30 Menit
-};
+const GAS_URL = "URL_WEB_APP_GAS_ANDA"; // <--- PASTIKAN URL INI BENAR
 
-// Cek Sesi saat halaman dimuat
-window.onload = () => {
-    const session = localStorage.getItem(CONFIG.SESSION_KEY);
-    if (session) {
-        showHub();
-        updateActivity();
-    }
-};
-
-async function auth() {
-    const user = document.getElementById('user').value.trim();
 async function auth() {
     const user = document.getElementById('user').value;
     const pass = document.getElementById('pass').value;
     const btn = document.getElementById('authBtn');
-    
-    // GANTI DENGAN URL WEB APP GAS KAMU
-    const GAS_URL = "https://script.google.com/macros/s/AKfycby-9A5qG4YBAIBr9xxiJEpJqeJCToz6WTPiJEoc1BvaAqHxpPenO81i9hMRaKIfrW0H/exec";
 
     if (!user || !pass) {
-        alert("Mohon isi nama pengguna dan kata sandi.");
+        alert("Isi username dan password!");
         return;
     }
 
     btn.disabled = true;
-    btn.innerHTML = `<i class="fas fa-circle-notch animate-spin mr-2"></i> MENGOTORISASI...`;
+    btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> Loading...`;
 
     try {
         const response = await fetch(GAS_URL, {
             method: "POST",
-            body: JSON.stringify({ 
-                user: user, 
-                pass: pass,
-                action: "login" // Tambahan jika GAS kamu punya banyak fungsi
+            body: JSON.stringify({
+                action: "login",
+                user: user,
+                pass: pass
             })
         });
-        
+
         const result = await response.json();
 
-        // INI ADALAH BAGIAN YANG KAMU MAKSUD
         if (result.status === "success") {
-            const now = new Date().getTime();
+            // Simpan data login
+            localStorage.setItem('pkm_session', result.token);
+            localStorage.setItem('pkm_session_time', new Date().getTime());
             
-            // Simpan data ke browser
-            localStorage.setItem('pkm_session', result.token); // Simpan token "2026"
-            localStorage.setItem('pkm_session_time', now);    // Simpan waktu login
-            localStorage.setItem('pkm_user', user);           // Simpan nama user
-            
-            // Jalankan fungsi transisi ke dashboard
-            renderHub(); 
+            // Pindah ke dashboard (Jika pakai renderHub)
+            if (typeof renderHub === "function") {
+                renderHub();
+            } else {
+                window.location.reload(); // Atau arahkan ke file lain
+            }
         } else {
-            alert("AKSES DITOLAK: " + result.message);
+            alert("Gagal: " + result.message);
             btn.disabled = false;
             btn.innerHTML = "Verifikasi Akses";
         }
     } catch (error) {
         console.error(error);
-        alert("Terjadi kesalahan jaringan. Pastikan URL GAS benar.");
+        alert("Kesalahan Jaringan/URL GAS");
         btn.disabled = false;
         btn.innerHTML = "Verifikasi Akses";
+    }
+} // <--- Pastikan penutup ini ada!
+
+function renderHub() {
+    const loginSection = document.getElementById('loginSection');
+    const hubSection = document.getElementById('hubSection');
+    if(loginSection && hubSection) {
+        loginSection.classList.add('hidden');
+        hubSection.classList.remove('hidden');
     }
 }
 
