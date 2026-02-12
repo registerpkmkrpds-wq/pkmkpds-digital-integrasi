@@ -9,20 +9,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
-    (function() {
-        const token = localStorage.getItem('pkm_session');
-        const time = localStorage.getItem('pkm_session_time');
-        const now = new Date().getTime();
-        const expiry = 4 * 60 * 60 * 1000;
+(function() {
+    const token = localStorage.getItem('pkm_session');
+    const time = localStorage.getItem('pkm_session_time');
+    const now = new Date().getTime();
+    const expiry = 4 * 60 * 60 * 1000; // 4 Jam
 
-        // Cek apakah data benar-benar tidak ada
-        if (!token || !time || (now - time > expiry)) {
-            console.log("Akses ditolak, mengalihkan...");
-            localStorage.clear();
-            // Arahkan ke index.html di folder yang sama
-            window.location.replace("./index.html");
-        }
-    })();
+    // Jika token tidak ada ATAU waktu habis, lempar ke index
+    if (!token || !time || (now - time > expiry)) {
+        console.log("Akses ditolak atau sesi habis");
+        localStorage.clear();
+        window.location.replace("./index.html");
+    }
+})();
 </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
@@ -212,9 +211,6 @@
 </div>
 
 <script>
-if (!localStorage.getItem('pkm_session_active')) {
-    window.location.href = 'index.html'; 
-}
 const GAS_URL = "https://script.google.com/macros/s/AKfycby-9A5qG4YBAIBr9xxiJEpJqeJCToz6WTPiJEoc1BvaAqHxpPenO81i9hMRaKIfrW0H/exec";
 const PIN_HASH = "MjAyNg==";
 let isLoggedIn = false;
@@ -419,11 +415,10 @@ async function syncFromGAS() {
     finally { icon.classList.remove('fa-spin'); }
 }
 
-function hapus(i) {
-    if(confirm("Hapus data ini secara permanen dari perangkat?")) {
-        database.splice(i, 1);
-        localStorage.setItem('db_arsip_ilp_final', JSON.stringify(database));
-        renderTable(); updateStats();
+function logout() {
+    if(confirm("Keluar dari Sistem Satu Data?")) {
+        localStorage.clear(); // Menghapus semua kunci sesi
+        window.location.replace("./index.html");
     }
 }
 
