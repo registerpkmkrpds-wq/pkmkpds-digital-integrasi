@@ -260,17 +260,28 @@ document.getElementById('formArsip').onsubmit = async (e) => {
 
 async function syncFromGAS() {
     const icon = document.getElementById('syncIcon');
-    icon.classList.add('fa-spin');
+    if(icon) icon.classList.add('fa-spin');
+    
     try {
         const res = await fetch(GAS_URL);
         const cloudData = await res.json();
+        
+        // Ambil bagian database dan logs dari JSON
         database = cloudData.database || [];
-        activityLogs = cloudData.logs || [];
+        activityLogs = cloudData.logs || []; 
+
         localStorage.setItem('db_arsip_kpds', JSON.stringify(database));
+        
         renderTable();
         renderLogs();
-    } catch(e) { console.log("Sync Gagal"); }
-    finally { icon.classList.remove('fa-spin'); }
+        
+        console.log("Sync Sukses:", database.length, "data ditemukan.");
+    } catch(e) { 
+        console.error("Gagal Sync:", e);
+        alert("Gagal memuat data dari Cloud!"); 
+    } finally { 
+        if(icon) icon.classList.remove('fa-spin'); 
+    }
 }
 
 function renderTable() {
