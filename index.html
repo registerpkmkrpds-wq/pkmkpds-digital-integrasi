@@ -185,54 +185,39 @@
 
 <script>
     // 1. KONFIGURASI
-    const GAS_URL = "https://script.google.com/macros/s/AKfycby-9A5qG4YBAIBr9xxiJEpJqeJCToz6WTPiJEoc1BvaAqHxpPenO81i9hMRaKIfrW0H/exec"; // Ganti dengan URL /exec Anda
+    const GAS_URL = "https://script.google.com/macros/s/AKfycby-9A5qG4YBAIBr9xxiJEpJqeJCToz6WTPiJEoc1BvaAqHxpPenO81i9hMRaKIfrW0H/exec";
 
-   async function auth() {
-    const user = document.getElementById('user').value;
-    const pass = document.getElementById('pass').value;
-    const btn = document.getElementById('authBtn');
+    // 2. FUNGSI AUTHENTICATION
+    async function auth() {
+        const user = document.getElementById('user').value;
+        const pass = document.getElementById('pass').value;
+        const btn = document.getElementById('authBtn');
 
-    if (!user || !pass) {
-        alert("Mohon isi username dan password!");
-        return;
-    }
-
-    btn.disabled = true;
-    btn.innerHTML = "Memproses...";
-
-    // --- STRUKTUR TRY CATCH YANG BENAR ---
-    try {
-        const response = await fetch(GAS_URL, {
-            method: "POST",
-            body: JSON.stringify({
-                action: "login",
-                user: user,
-                pass: pass
-            })
-        });
-
-        const result = await response.json();
-
-        if (result.status === "success") {
-            localStorage.setItem('pkm_session', result.token);
-            localStorage.setItem('pkm_session_time', new Date().getTime());
-            renderHub(); // Pastikan fungsi renderHub juga sudah ada
-        } else {
-            alert("Gagal: " + result.message);
-            btn.disabled = false;
-            btn.innerHTML = "Verifikasi Akses";
+        if (!user || !pass) {
+            alert("Mohon isi username dan password!");
+            return;
         }
 
-    } catch (error) { 
-        // BAGIAN INI YANG TADI HILANG/RUSAK
-        console.error("Kesalahan:", error);
-        alert("Terjadi kesalahan koneksi ke server.");
-        btn.disabled = false;
-        btn.innerHTML = "Verifikasi Akses";
-    }
-}
-                // Pindah ke Dashboard
-                renderHub();
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fas fa-circle-notch animate-spin mr-2"></i> MEMPROSES...`;
+
+        try {
+            const response = await fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "login",
+                    user: user,
+                    pass: pass
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.status === "success") {
+                // Simpan Sesi
+                localStorage.setItem('pkm_session', result.token);
+                localStorage.setItem('pkm_session_time', new Date().getTime());
+                showHub(); 
             } else {
                 alert("GAGAL: " + result.message);
                 btn.disabled = false;
@@ -240,23 +225,39 @@
             }
         } catch (error) {
             console.error("Detail Error:", error);
-            alert("Koneksi gagal. Cek internet atau URL script.");
+            alert("Terjadi kesalahan jaringan atau URL Script salah.");
             btn.disabled = false;
             btn.innerHTML = "Verifikasi Akses";
         }
     }
 
-    // 3. FUNGSI MENAMPILKAN MENU
-    function renderHub() {
-        const loginSection = document.getElementById('loginSection');
-        const hubSection = document.getElementById('hubSection');
-        if (loginSection && hubSection) {
-            loginSection.classList.add('hidden');
-            hubSection.classList.remove('hidden');
+    // 3. FUNGSI UI (MENAMPILKAN HUB)
+    function showHub() {
+        const login = document.getElementById('loginSection');
+        const hub = document.getElementById('hubSection');
+        
+        login.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+            login.classList.add('hidden');
+            hub.classList.remove('hidden');
+            hub.classList.add('animate-in');
+        }, 500);
+    }
+
+    // 4. FUNGSI LOGOUT
+    function logout() {
+        if(confirm("Keluar dari Sistem Satu Data?")) {
+            localStorage.clear();
+            location.reload();
         }
     }
 
-    // 4. CEK APAKAH SUDAH LOGIN SAAT REFRESH
+    // 5. SIDEBAR MANUAL
+    function toggleDoc() {
+        document.getElementById('docSidebar').classList.toggle('sidebar-open');
+    }
+
+    // 6. CEK SESI SAAT HALAMAN DIMUAT
     window.onload = function() {
         const session = localStorage.getItem('pkm_session');
         const sessionTime = localStorage.getItem('pkm_session_time');
@@ -264,66 +265,13 @@
         const expiry = 4 * 60 * 60 * 1000; // 4 Jam
 
         if (session && (now - sessionTime < expiry)) {
-            renderHub();
+            // Langsung tampilkan Hub tanpa animasi transisi
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('hubSection').classList.remove('hidden');
+        } else {
+            localStorage.clear();
         }
     };
-            
-            // Pindah ke dashboard (Jika pakai renderHub)
-            if (typeof renderHub === "function") {
-                renderHub();
-            } else {
-                window.location.reload(); // Atau arahkan ke file lain
-            }
-        } else {
-            alert("Gagal: " + result.message);
-            btn.disabled = false;
-            btn.innerHTML = "Verifikasi Akses";
-        }
-    } catch (error) {
-        console.error(error);
-        alert("Kesalahan Jaringan/URL GAS");
-        btn.disabled = false;
-        btn.innerHTML = "Verifikasi Akses";
-    }
-} // <--- Pastikan penutup ini ada!
-
-function renderHub() {
-    const loginSection = document.getElementById('loginSection');
-    const hubSection = document.getElementById('hubSection');
-    if(loginSection && hubSection) {
-        loginSection.classList.add('hidden');
-        hubSection.classList.remove('hidden');
-    }
-}
-
-function showHub() {
-    const login = document.getElementById('loginSection');
-    const hub = document.getElementById('hubSection');
-    
-    login.classList.add('opacity-0', 'scale-95');
-    setTimeout(() => {
-        login.classList.add('hidden');
-        hub.classList.remove('hidden');
-        hub.classList.add('animate-in', 'fade-in', 'zoom-in-95');
-    }, 500);
-}
-
-function logout() {
-    if(confirm("Keluar dari Sistem Satu Data?")) {
-        localStorage.removeItem(CONFIG.SESSION_KEY);
-        location.reload();
-    }
-}
-
-function toggleDoc() {
-    document.getElementById('docSidebar').classList.toggle('sidebar-open');
-}
-
-// Update aktivitas untuk auto-logout jika perlu
-function updateActivity() {
-    localStorage.setItem('last_active', Date.now());
-}
-document.addEventListener('click', updateActivity);
 </script>
 </body>
 </html>
