@@ -16,10 +16,10 @@
         .input-modern:focus { border-color: #10b981; background: #fff; }
         
         @media print {
-            header, .no-print, button, .lg\:col-span-4 { display: none !important; }
+            header, .no-print, button, .lg\:col-span-4, #daftarTerpilih { display: none !important; }
             body { background: white !important; margin: 0; padding: 0; }
-            .lg\:col-span-8 { width: 100% !important; border: none !important; box-shadow: none !important; }
-            #areaCetak { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .lg\:col-span-8 { width: 100% !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+            #areaCetak { display: block !important; width: 100% !important; margin: 0 !important; padding: 0.5cm !important; }
             img { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
@@ -41,7 +41,7 @@
             </div>
         </div>
         
-        <button onclick="window.location.reload()" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full text-[10px] font-black border border-white/20 uppercase">
+        <button href="e-arsip.html" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full text-[10px] font-black border border-white/20 uppercase">
             Lihat No Surat di Arsip
         </button>
     </div>
@@ -325,7 +325,12 @@
                 </tr>
             `).join('');
     }
+    
+    function cetakSurat() {
+        updatePreview(); // Update sekali lagi sebelum cetak
+        window.focus();
+        window.print();
+    }
 </script>
-
 </body>
 </html>
