@@ -7,20 +7,54 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        :root { --bg-body: #f8fafc; --bg-card: #ffffff; --text-main: #1e293b; --border-color: #e2e8f0; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-body); color: var(--text-main); }
-        .glass-header { background: linear-gradient(135deg, #064e3b 0%, #059669 100%); }
-        .card-custom { background: var(--bg-card); border-radius: 1.25rem; border: 1px solid var(--border-color); }
-        .input-modern { width: 100%; padding: 0.75rem 1rem; background: rgba(0,0,0,0.05); border: 2px solid transparent; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; }
-        .input-modern:focus { border-color: #10b981; background: #fff; }
+       @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         
+        :root { 
+            --bg-body: #f8fafc; 
+            --bg-card: #ffffff; 
+            --text-main: #1e293b; 
+            --border-color: #e2e8f0; 
+            --input-bg: rgba(0,0,0,0.05);
+        }
+
+        /* Definisi Tema Gelap */
+        .dark {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f1f5f9;
+            --border-color: #334155;
+            --input-bg: rgba(255,255,255,0.05);
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-main); 
+            transition: all 0.3s ease; 
+        }
+
+        .glass-header { background: linear-gradient(135deg, #064e3b 0%, #059669 100%); }
+        .card-custom { background-color: var(--bg-card); border-radius: 1.25rem; border: 1px solid var(--border-color); }
+        
+        .input-modern { 
+            width: 100%; padding: 0.75rem 1rem; 
+            background-color: var(--input-bg); 
+            border: 2px solid transparent; 
+            border-radius: 0.75rem; 
+            font-weight: 600; font-size: 0.875rem; 
+            color: var(--text-main);
+            outline: none; 
+        }
+        .input-modern:focus { border-color: #10b981; background-color: var(--bg-card); }
+
+        /* Khusus Area Kertas - Harus tetap putih agar hasil print benar */
+        #kertasPreview { background-color: white !important; color: black !important; }
+
         @media print {
-            header, .no-print, button, .lg\:col-span-4, #daftarTerpilih { display: none !important; }
-            body { background: white !important; margin: 0; padding: 0; }
-            .lg\:col-span-8 { width: 100% !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
-            #areaCetak { display: block !important; width: 100% !important; margin: 0 !important; padding: 0.5cm !important; }
-            img { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            header, .no-print, button, .lg\:col-span-4 { display: none !important; }
+            body { background: white !important; margin: 0; }
+            .lg\:col-span-8 { width: 100% !important; border: none !important; box-shadow: none !important; }
+            #areaCetak { display: block !important; width: 100% !important; padding: 1cm !important; }
         }
     </style>
 </head>
@@ -42,9 +76,9 @@
         </div>
         <div class="flex items-center gap-3">
                 
-                <button onclick="toggleTheme()" class="bg-white/10 hover:bg-white/20 p-3 rounded-full border border-white/20"><i id="themeIcon" class="fas fa-cloud"></i></button>
-                <a href="e-arsip.html" class="bg-amber-500 hover:bg-amber-400 px-4 py-2 rounded-full text-[10px] font-black uppercase shadow-lg"><i class="fas fa-folder-open mr-2"></i> Buka Arsip</a>
-                <button onclick="window.location.reload()" class="bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-full text-[10px] font-black uppercase"><i id="syncIcon" class="fas fa-sync mr-2"></i> Reset Form</button>
+                <button onclick="toggleTheme()" <i id="themeIcon" class='fas fa-eye' style='font-size:24px;color:white'></i></button>
+                <a href="e-arsip.html" class="bg-amber-500 hover:bg-emerald-600 px-4 py-2 rounded-full text-[10px] font-black uppercase shadow-lg"><i class="fas fa-folder-open mr-2"></i> Buka Arsip</a>
+                <button onclick="window.location.reload()" class="bg-rose-600 hover:bg-sky-500 px-4 py-2 rounded-full text-[10px] font-black uppercase"><i id="syncIcon" class="fas fa-sync mr-2"></i> Reset Form</button>
         </div>
     </div>
 </header>
@@ -151,7 +185,7 @@
                     </table>
 
                     <div class="text-[14px] space-y-1">
-                        <div class="flex items-start"><span class="w-24 flex-shrink-0">Maksud</span><span class="mr-2">:</span><span id="p_maksud" class="flex-1 text-justify">..................</span></div>
+                       <div class="text-[14px] mt-4 mb-4"><p class="text-justify indent-8" id="p_maksud">Menugaskan kepada nama-nama tersebut di atas untuk...</p></div>
                         <div class="flex items-start"><span class="w-24 flex-shrink-0">Hari</span><span class="mr-2">:</span><span id="p_hari" class="flex-1">..................</span></div>
                         <div class="flex items-start"><span class="w-24 flex-shrink-0">Tanggal</span><span class="mr-2">:</span><span id="p_tgl_tugas" class="flex-1">..................</span></div>
                         <div class="flex items-start"><span class="w-24 flex-shrink-0">Waktu</span><span class="mr-2">:</span><span id="p_waktu" class="flex-1">..................</span></div>
@@ -173,6 +207,7 @@
 </main>
 
 <script>
+    // Data Pegawai (Sesuai List Anda)
     const DATA_PEGAWAI = [
         { nama: "Ajat Hermawan", nip: "198102202025211054", jabatan: "Operator Layanan Operasional" },
         { nama: "Anas Muhiban, S.E.", nip: "199703242025211057", jabatan: "Penata Layanan Operasional" },
@@ -180,7 +215,7 @@
         { nama: "apt. Tria Wulandari P, S. Farm", nip: "199210082022032009", jabatan: "Apoteker Ahli Muda" },
         { nama: "Ardiansyah Astriadi, A. Md. AK", nip: "198907272022031007", jabatan: "Pranata Laboratorium Kesehatan Terampil" },
         { nama: "Ari Niken Palupi, Amd.Keb.", nip: "198501202017042001", jabatan: "Bidan Mahir" },
-        { nama: "Barir Ismaya Shofa, A. Md.", nip: "199307252019032006", jabatan: "Perawat Gigi Pelaksana / Terampil" },
+        { nama: "Barir Ismaya Shofa, A. Md.", nip: "199307252019032006", jabatan: "Perawat Gigi Pelaksana/Terampil" },
         { nama: "Ceceng Firmansyah", nip: "198405232025211107", jabatan: "Pengelola Umum Operasional" },
         { nama: "Cici Wijayanti, Amd.Keb", nip: "198608022024212010", jabatan: "Bidan Terampil" },
         { nama: "Cindyaningrum, Amd. Keb", nip: "199401272025212073", jabatan: "Bidan Terampil" },
@@ -240,6 +275,14 @@
 
     let listTerpilih = [];
 
+    // TEMA: Toggle Dark/Light
+    function toggleTheme() {
+        document.body.classList.toggle('dark');
+        const icon = document.getElementById('themeIcon');
+        icon.className = document.body.classList.contains('dark') ? 'fas fa-low-vision' : 'fas fa-eye';
+    }
+
+    // AUTOFILL
     window.onload = () => {
         const dl = document.getElementById('listPegawai');
         DATA_PEGAWAI.forEach(p => {
@@ -247,98 +290,71 @@
             o.value = p.nama;
             dl.appendChild(o);
         });
+        updatePreview();
     };
 
     function autoIsiPegawai() {
         const val = document.getElementById('namaPegawai').value;
         const p = DATA_PEGAWAI.find(x => x.nama === val);
-        if(p) { tambahPegawaiManual(p); }
+        if(p && !listTerpilih.find(x => x.nip === p.nip)) {
+            listTerpilih.push(p);
+            document.getElementById('namaPegawai').value = "";
+            renderList();
+            updatePreview();
+        }
     }
 
-    function tambahPegawaiManual(p) {
-        if(listTerpilih.find(x => x.nip === p.nip)) return;
-        listTerpilih.push(p);
-        document.getElementById('namaPegawai').value = "";
-        renderDaftarInput();
-        updatePreview();
-    }
-
-    function tambahPegawai() {
-        const val = document.getElementById('namaPegawai').value;
-        const p = DATA_PEGAWAI.find(x => x.nama === val);
-        if(p) { tambahPegawaiManual(p); } else { alert("Pilih pegawai dari daftar!"); }
-    }
-
-    function hapusPegawai(idx) {
-        listTerpilih.splice(idx, 1);
-        renderDaftarInput();
-        updatePreview();
-    }
-
-    function renderDaftarInput() {
-        const container = document.getElementById('daftarTerpilih');
-        container.innerHTML = listTerpilih.map((p, i) => `
-            <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-200 mb-1 text-[10px]">
-                <span class="font-bold truncate">${p.nama}</span>
-                <button onclick="hapusPegawai(${i})" class="text-rose-500 px-2"><i class="fas fa-times"></i></button>
+    function renderList() {
+        document.getElementById('daftarTerpilih').innerHTML = listTerpilih.map((p, i) => `
+            <div class="flex justify-between items-center bg-emerald-500/10 p-2 rounded border border-emerald-500/20 text-[10px]">
+                <span class="font-bold">${p.nama}</span>
+                <button onclick="listTerpilih.splice(${i},1);renderList();updatePreview();" class="text-rose-500 hover:text-rose-700">
+                    <i class="fas fa-times-circle"></i>
+                </button>
             </div>
         `).join('');
     }
 
-    function formatTgl(tglStr) {
-        if(!tglStr) return "..................";
-        const d = new Date(tglStr);
-        return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    function formatTgl(s) {
+        if(!s) return "..................";
+        return new Date(s).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
     }
 
     function updatePreview() {
-        const noRaw = document.getElementById('noUrut').value;
-        const no = (noRaw || "000").padStart(3, '0');
-        const tglDibuat = document.getElementById('tglDibuat').value;
-        const tglTugas = document.getElementById('tglTugas').value;
+        const no = (document.getElementById('noUrut').value || "000").padStart(3, '0');
+        const tglD = document.getElementById('tglDibuat').value;
+        const tglT = document.getElementById('tglTugas').value;
+        const d = tglD ? new Date(tglD) : new Date();
+        const romawi = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][d.getMonth()];
         
-        const bulanRomawi = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
-        let romawi = "II";
-        let thn = "2026";
-
-        if(tglDibuat) {
-            const d = new Date(tglDibuat);
-            romawi = bulanRomawi[d.getMonth()];
-            thn = d.getFullYear();
-        }
-
-        document.getElementById('p_nomor').innerText = `Nomor: 800/${no}/ST/PKM-KPDS/${romawi}/${thn}`;
-        document.getElementById('p_tgl_dibuat').innerText = formatTgl(tglDibuat);
-        document.getElementById('p_tgl_tugas').innerText = formatTgl(tglTugas);
-        document.getElementById('p_maksud').innerText = document.getElementById('maksudTugas').value || "..................";
-        document.getElementById('p_hari').innerText = document.getElementById('hariTugas').value || "..................";
-        document.getElementById('p_waktu').innerText = document.getElementById('waktuTugas').value || "..................";
-        document.getElementById('p_tempat').innerText = document.getElementById('tempatTugas').value || "..................";
+        document.getElementById('p_nomor').innerText = `Nomor: 800/${no}/ST/PKM-KPDS/${romawi}/${d.getFullYear()}`;
+        document.getElementById('p_tgl_dibuat').innerText = formatTgl(tglD);
+        document.getElementById('p_tgl_tugas').innerText = formatTgl(tglT);
+        document.getElementById('p_maksud').innerText = document.getElementById('maksudTugas').value || "...";
+        document.getElementById('p_tempat').innerText = document.getElementById('tempatTugas').value || "...";
 
         const tbody = document.getElementById('p_tabel_pegawai');
         tbody.innerHTML = listTerpilih.length === 0 ? 
-            `<tr><td colspan="4" class="border border-black p-4 text-center italic text-gray-400">Daftar Personel Kosong</td></tr>` :
+            '<tr><td colspan="4" class="p-4 text-center italic opacity-30">Belum ada personel terpilih</td></tr>' :
             listTerpilih.map((p, i) => `
                 <tr>
-                    <td class="border border-black p-2 text-center">${i+1}</td>
-                    <td class="border border-black p-2 uppercase font-bold text-[12px]">${p.nama}</td>
-                    <td class="border border-black p-2 text-center font-mono text-[12px]">${p.nip}</td>
-                    <td class="border border-black p-2 text-[12px]">${p.jabatan}</td>
+                    <td class="border border-black p-1 text-center">${i+1}</td>
+                    <td class="border border-black p-1 font-bold uppercase">${p.nama}</td>
+                    <td class="border border-black p-1 text-center font-mono">${p.nip}</td>
+                    <td class="border border-black p-1">${p.jabatan}</td>
                 </tr>
             `).join('');
     }
-    
-    function cetakSurat() {
-        updatePreview(); // Update sekali lagi sebelum cetak
-        window.focus();
-        window.print();
+
+    // PERBAIKAN FUNGSI PRINT
+    function jalankanCetak() {
+        updatePreview();
+        window.focus(); 
+        // Memberi jeda sedikit agar browser siap
+        setTimeout(() => {
+            window.print();
+        }, 300);
     }
-    
-    function toggleTheme() {
-    document.documentElement.classList.toggle('dark');
-    const icon = document.getElementById('themeIcon');
-    icon.className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
-}
 </script>
 </body>
 </html>
