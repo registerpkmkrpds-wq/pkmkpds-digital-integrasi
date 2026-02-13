@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+-<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -15,25 +15,12 @@
         .input-modern { width: 100%; padding: 0.75rem 1rem; background: rgba(0,0,0,0.05); border: 2px solid transparent; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; }
         .input-modern:focus { border-color: #10b981; background: #fff; }
         
-        /* Pengaturan Ukuran Kertas F4/Folio untuk Cetak */
         @media print {
-            @page { 
-                size: 215mm 330mm; /* Standar F4 / Folio */
-                margin: 2cm; 
-            }
-            body * { visibility: hidden; }
-            #areaCetak, #areaCetak * { visibility: visible; }
-            #areaCetak { 
-                position: absolute; 
-                left: 0; 
-                top: 0; 
-                width: 100%; 
-                padding: 0 !important; 
-                box-shadow: none !important;
-            }
-            .no-print { display: none; }
-            table { border-collapse: collapse; width: 100%; }
-            th, td { border: 1px solid black !important; padding: 6px 8px; }
+            header, .no-print, button, .lg\:col-span-4 { display: none !important; }
+            body { background: white !important; margin: 0; padding: 0; }
+            .lg\:col-span-8 { width: 100% !important; border: none !important; box-shadow: none !important; }
+            #areaCetak { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            img { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
 </head>
@@ -42,10 +29,21 @@
 <header class="glass-header text-white pb-24 pt-10 px-6 no-print">
     <div class="container mx-auto flex justify-between items-center">
         <div class="flex items-center gap-4">
-            <h1 class="text-2xl font-black italic uppercase">E-Surat <span class="text-emerald-400">Tugas</span></h1>
-            <p class="text-[10px] bg-emerald-900/40 px-3 py-1 rounded-full border border-emerald-400/30">SUPPORT TTE (QR-CODE)</p>
+            <i class="fas fa-edit text-5xl text-yellow-400"></i>
+            
+            <div>
+                <h1 class="text-2xl font-black italic uppercase leading-none">
+                    E-Surat <span class="text-emerald-400">Tugas</span>
+                </h1>
+                <p class="text-emerald-400 font-bold text-sm tracking-widest uppercase mt-1">
+                    Puskesmas Kiarapedes
+                </p>
+            </div>
         </div>
-        <button onclick="window.history.back()" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full text-[10px] font-black border border-white/20 uppercase">Kembali</button>
+        
+        <button onclick="window.location.reload()" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full text-[10px] font-black border border-white/20 uppercase">
+            Lihat No Surat di Arsip
+        </button>
     </div>
 </header>
 
@@ -54,7 +52,7 @@
         
         <div class="lg:col-span-4">
             <div class="card-custom p-6 space-y-4 shadow-xl sticky top-4">
-                <h3 class="text-xs font-black uppercase text-emerald-600 border-b pb-2 italic">Data Surat</h3>
+                <h3 class="text-xs font-black uppercase text-emerald-600 border-b pb-2 italic">Form Surat</h3>
                 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
@@ -62,98 +60,109 @@
                         <input type="number" id="noUrut" class="input-modern" placeholder="001" oninput="updatePreview()">
                     </div>
                     <div>
-                        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Tgl Surat</label>
-                        <input type="date" id="tglSurat" class="input-modern" onchange="updatePreview()">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Tgl Surat Dibuat</label>
+                        <input type="date" id="tglDibuat" class="input-modern" onchange="updatePreview()">
                     </div>
                 </div>
 
-                <div class="bg-slate-50 p-4 rounded-xl border border-dashed border-slate-300">
-                    <h4 class="text-[9px] font-black uppercase text-slate-500 mb-3 text-center">Personel yang Ditugaskan</h4>
-                    <div class="space-y-2">
-                        <input type="text" id="namaPegawai" list="listPegawai" class="input-modern" placeholder="Cari Pegawai..." oninput="autoIsiPegawai()">
-                        <datalist id="listPegawai"></datalist>
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="text" id="nipPegawai" class="input-modern text-[11px] bg-white/50" placeholder="NIP" readonly>
-                            <input type="text" id="jabatanPegawai" class="input-modern text-[11px] bg-white/50" placeholder="Jabatan" readonly>
-                        </div>
-                        <button onclick="tambahPegawai()" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-lg text-xs hover:bg-emerald-700 transition-all">
-                            <i class="fas fa-user-plus mr-1"></i> Masukkan Daftar
-                        </button>
-                    </div>
+           <div class="bg-slate-50 p-4 rounded-xl border border-dashed border-slate-300">
+                    <h4 class="text-[9px] font-black uppercase text-slate-500 mb-3 text-center">Pilih Pegawai yang Ditugaskan</h4>
+                    <input type="text" id="namaPegawai" list="listPegawai" class="input-modern mb-2" placeholder="Cari Pegawai..." oninput="autoIsiPegawai()">
+                    <datalist id="listPegawai"></datalist>
+                    <button onclick="tambahPegawai()" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-lg text-xs hover:bg-emerald-700"> Tambah ke Daftar</button>
                 </div>
 
-                <div id="daftarTerpilih" class="space-y-2 max-h-40 overflow-y-auto py-2"></div>
+<div class="grid grid-cols-2 gap-3 border-t pt-4">
+    <div>
+        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Hari Pelaksanaan</label>
+        <select id="hariTugas" class="input-modern cursor-pointer" onchange="updatePreview()">
+            <option value="">-- Pilih Hari --</option>
+            <option value="Senin">Senin</option>
+            <option value="Selasa">Selasa</option>
+            <option value="Rabu">Rabu</option>
+            <option value="Kamis">Kamis</option>
+            <option value="Jumat">Jumat</option>
+            <option value="Sabtu">Sabtu</option>
+            <option value="Minggu">Minggu</option>
+        </select>
+    </div>
+    <div>
+        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Tgl Pelaksanaan</label>
+        <input type="date" id="tglTugas" class="input-modern" onchange="updatePreview()">
+    </div>
+</div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <input type="text" id="waktuTugas" class="input-modern" placeholder="Waktu (08.00...)" oninput="updatePreview()">
+                    <input type="text" id="tempatTugas" class="input-modern" placeholder="Tempat..." oninput="updatePreview()">
+                </div>
 
-                <textarea id="maksudTugas" class="input-modern h-24" placeholder="Maksud / Tujuan Tugas..." oninput="updatePreview()"></textarea>
+                <textarea id="maksudTugas" class="input-modern h-20" placeholder="Maksud / Tujuan Tugas..." oninput="updatePreview()"></textarea>
 
-                <button onclick="window.print()" class="w-full bg-slate-800 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg hover:bg-black">
-                    <i class="fas fa-print mr-2"></i> Cetak (F4/Folio)
+                <button onclick="window.print()" class="w-full bg-slate-800 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg">
+                    <i class="fas fa-print mr-2"></i> Cetak Surat Tugas
                 </button>
             </div>
         </div>
 
         <div class="lg:col-span-8">
             <div class="card-custom p-10 bg-white shadow-2xl border-none">
-                <div id="areaCetak" class="text-black mx-auto" style="width: 100%; max-width: 21.5cm; font-family: 'Times New Roman', serif;">
+                <div id="areaCetak" class="text-black mx-auto" style="width: 100%; max-width: 21.5cm; font-family: 'Times New Roman', serif; line-height: 1.5;">
                     
                     <div class="flex items-center border-b-[4px] border-double border-black pb-2 mb-6">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Seal_of_Purwakarta_Regency.svg/330px-Seal_of_Purwakarta_Regency.svg.png" 
-         class="w-20 h-24 object-contain">
-    
-    <div class="flex-1 text-center">
-        <h2 class="text-lg font-bold uppercase leading-tight">Pemerintah Kabupaten Purwakarta</h2>
-        <h2 class="text-xl font-bold uppercase leading-tight">Dinas Kesehatan</h2>
-        <h2 class="text-2xl font-black uppercase leading-tight">UPTD Puskesmas Kiarapedes</h2>
-        <p class="text-[11px]">Jl. Raya Kiarapedes No. 2 KM. 28 Kec. Kiarapedes Kode Pos 41175</p>
-        <p class="text-[10px] italic">Email: pkmkiarapedes20@gmail.com</p>
-    </div>
-
-    <img src="https://images.seeklogo.com/logo-png/35/1/puskesmas-logo-png_seeklogo-359624.png" 
-         class="w-24 h-24 object-contain">
-</div>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Seal_of_Purwakarta_Regency.svg/330px-Seal_of_Purwakarta_Regency.svg.png" style="width: 2.5cm; height: 2.5cm; object-fit: contain;">
+                        <div class="flex-1 text-center px-4">
+                            <h2 class="text-lg font-bold uppercase leading-tight">Pemerintah Kabupaten Purwakarta</h2>
+                            <h2 class="text-xl font-bold uppercase leading-tight">Dinas Kesehatan</h2>
+                            <h2 class="text-2xl font-black uppercase leading-tight">UPTD Puskesmas Kiarapedes</h2>
+                            <p class="text-[11px]">Jl. Raya Kiarapedes No. 2 KM. 28 Kec. Kiarapedes Kode Pos 41175</p>
+                        </div>
+                        <img src="https://images.seeklogo.com/logo-png/35/1/puskesmas-logo-png_seeklogo-359624.png" style="width: 2.5cm; height: 2.5cm; object-fit: contain;">
+                    </div>
 
                     <div class="text-center mb-6">
                         <h3 class="font-bold underline uppercase text-lg">Surat Tugas</h3>
                         <p id="p_nomor" class="font-bold">Nomor: 800/000/ST/PKM-KPDS/II/2026</p>
                     </div>
 
-                    <p class="text-[14px] mb-4 text-justify">Yang bertanda tangan di bawah ini Kepala UPTD Puskesmas Kiarapedes Kabupaten Purwakarta, memberikan tugas kepada:</p>
+                    <div class="text-[14px] mb-4 space-y-1">
+                        <p>Yang bertanda tangan di bawah ini :</p>
+                        <div class="pl-8 flex"><span class="w-24">Nama</span><span class="mr-2">:</span><span class="font">H. Ujang Sutrisna, S.Kep., Ners., M.Kep</span></div>
+                        <div class="pl-8 flex"><span class="w-24">NIP</span><span class="mr-2">:</span><span>197707132006041011</span></div>
+                        <div class="pl-8 flex"><span class="w-24">Jabatan</span><span class="mr-2">:</span><span>Kepala UPTD Puskesmas Kiarapedes</span></div>
+                    </div>
+
+                    <div class="text-center my-6"><h3 class="font-bold tracking-[0.3em] uppercase">M E N U G A S K A N</h3></div>
+                    <p class="text-[14px] mb-2">Kepada :</p>
                     
                     <table class="w-full mb-6 text-[13px] border-collapse border border-black">
                         <thead>
                             <tr class="bg-gray-50">
                                 <th class="border border-black p-2 w-8 text-center">No</th>
                                 <th class="border border-black p-2 text-center">Nama Lengkap</th>
-                                <th class="border border-black p-2 text-center w-40">NIP</th>
-                                <th class="border border-black p-2 text-center">Jabatan </th>
+                                <th class="border border-black p-2 text-center w-44">NIP/NIPPPK</th>
+                                <th class="border border-black p-2 text-center">Jabatan</th>
                             </tr>
                         </thead>
                         <tbody id="p_tabel_pegawai">
-                            <tr><td colspan="4" class="border border-black p-4 text-center italic text-gray-400">Daftar Personel Masih Kosong</td></tr>
+                            <tr><td colspan="4" class="border border-black p-4 text-center italic text-gray-400">Daftar Pegawai Kosong</td></tr>
                         </tbody>
                     </table>
 
-                    <div class="text-[14px] space-y-4">
-                        <div class="flex items-start">
-                            <span class="w-24">Maksud :</span>
-                            <span id="p_maksud" class="flex-1 text-justify">..................................................................</span>
-                        </div>
-                        <p class="mt-6">Demikian surat tugas ini diberikan agar dilaksanakan dengan penuh rasa tanggung jawab.</p>
+                    <div class="text-[14px] space-y-1">
+                        <div class="flex items-start"><span class="w-24 flex-shrink-0">Maksud</span><span class="mr-2">:</span><span id="p_maksud" class="flex-1 text-justify">..................</span></div>
+                        <div class="flex items-start"><span class="w-24 flex-shrink-0">Hari</span><span class="mr-2">:</span><span id="p_hari" class="flex-1">..................</span></div>
+                        <div class="flex items-start"><span class="w-24 flex-shrink-0">Tanggal</span><span class="mr-2">:</span><span id="p_tgl_tugas" class="flex-1">..................</span></div>
+                        <div class="flex items-start"><span class="w-24 flex-shrink-0">Waktu</span><span class="mr-2">:</span><span id="p_waktu" class="flex-1">..................</span></div>
+                        <div class="flex items-start"><span class="w-24 flex-shrink-0">Tempat</span><span class="mr-2">:</span><span id="p_tempat" class="flex-1">..................</span></div>
+                        <p class="pt-4">Demikian surat ini dibuat untuk dilaksanakan sebagaimana mestinya dengan penuh rasa tanggung jawab.</p>
                     </div>
 
-                    <div class="mt-16 flex justify-end">
+                    <div class="mt-12 flex justify-end">
                         <div class="text-center w-72 text-[14px]">
-                            <p>Kiarapedes, <span id="p_tgl">..................</span></p>
-                            <p class="font-bold uppercase leading-tight mt-1">Kepala UPTD Puskesmas<br>Kiarapedes</p>
-                            
-                            <div class="my-6 border border-dashed border-slate-200 h-24 flex items-center justify-center text-[8px] text-slate-300">
-                                [ AREA TANDA TANGAN ELEKTRONIK ]
-                            </div>
-
-                            <p class="text-[11px] italic text-slate-500 leading-tight">
-                                Dokumen ini telah ditandatangani secara elektronik menggunakan sertifikat elektronik yang diterbitkan oleh BSrE.
-                            </p>
-                        </div>
+                            <p>Kiarapedes, <span id="p_tgl_dibuat">..................</span></p>
+                            <p class="font-bold setencecase leading-tight mt-1">Kepala <br>UPTD Puskesmas Kiarapedes</p>
+                            <div class="my-4 border border-dashed border-slate-200 h-24 flex items-center justify-center text-[8px] text-slate-300">[ AREA TTE ]</div>
+                       </div>
                     </div>
                 </div>
             </div>
@@ -163,184 +172,159 @@
 
 <script>
     const DATA_PEGAWAI = [
-    { nama: "Ajat Hermawan", nip: "198102202025211054", jabatan: "Operator Layanan Operasional" },
-    { nama: "Anas Muhiban, S.E.", nip: "199703242025211057", jabatan: "Penata Layanan Operasional" },
-    { nama: "apt. Herni Ekaraharjo, S. Farm", nip: "198509272023212004", jabatan: "Ahli Pertama - Apoteker" },
-    { nama: "apt. Tria Wulandari P, S. Farm", nip: "199210082022032009", jabatan: "Apoteker Ahli Muda" },
-    { nama: "Ardiansyah Astriadi, A. Md. AK", nip: "198907272022031007", jabatan: "Pranata Laboratorium Kesehatan Terampil" },
-    { nama: "Ari Niken Palupi, Amd.Keb.", nip: "198501202017042001", jabatan: "Bidan Mahir" },
-    { nama: "Barir Ismaya Shofa, A. Md.", nip: "199307252019032006", jabatan: "Perawat Gigi Pelaksana / Terampil" },
-    { nama: "Ceceng Firmansyah", nip: "198405232025211107", jabatan: "Pengelola Umum Operasional" },
-    { nama: "Cici Wijayanti, Amd.Keb", nip: "198608022024212010", jabatan: "Bidan Terampil" },
-    { nama: "Cindyaningrum, Amd. Keb", nip: "199401272025212073", jabatan: "Bidan Terampil" },
-    { nama: "Cucu Cuhayati, S.Tr. Keb.", nip: "199408202024212013", jabatan: "Bidan Terampil" },
-    { nama: "Cucu Suminar, Amd.Kep", nip: "196804171989032007", jabatan: "Perawat Penyelia" },
-    { nama: "Dewi Novianti, Amk", nip: "198311112023212003", jabatan: "Terampil - Perawat" },
-    { nama: "Dewi Yuliani, AMK", nip: "199103132024212002", jabatan: "Perawat Terampil" },
-    { nama: "Dika Megianty Agustin, S.M.", nip: "199708222025212061", jabatan: "Penata Layanan Operasional" },
-    { nama: "Dodo Widodo", nip: "198410122025211067", jabatan: "Operator Layanan Operasional" },
-    { nama: "dr. Anna Mardyana", nip: "198606172023212005", jabatan: "Ahli Pertama - Dokter" },
-    { nama: "dr. Hendric Hariansyah, M.K.M", nip: "199603282022031009", jabatan: "Dokter Ahli Muda" },
-    { nama: "dr. Rizki Prasetyo", nip: "123456789101112134", jabatan: "Dokter Umum" },
-    { nama: "dr. Zakariya", nip: "197509222006041007", jabatan: "Dokter Ahli Madya" },
-    { nama: "drg. Fitri Nurzanah", nip: "199902032025062009", jabatan: "Dokter Gigi Ahli Pertama" },
-    { nama: "Eka Prisna Nengsih, Amd. Kep", nip: "199605152025212081", jabatan: "Perawat Terampil" },
-    { nama: "Garry Rachman, Amd.Kep", nip: "198509132025211002", jabatan: "Perawat Terampil" },
-    { nama: "H. Ujang Sutrisna, S. Kep., Ners., M. Kep.", nip: "197707132006041011", jabatan: "Kepala Puskesmas Kiarapedes" },
-    { nama: "Harbangkit Rizki, Amd. Kes", nip: "199605202022031014", jabatan: "Perekam Medis Terampil" },
-    { nama: "Haris Ridwansyah, S. Kep. Ners.", nip: "198105202008011004", jabatan: "Perawat Penyelia" },
-    { nama: "Imas Teti Sugiharti, Amd.Keb", nip: "198702172017042001", jabatan: "Bidan Mahir" },
-    { nama: "Irma Septiani, Amd. Keb.", nip: "199309082025212079", jabatan: "Bidan Terampil" },
-    { nama: "Juwita Pebrara, Amd. Keb.", nip: "199002092024212007", jabatan: "Bidan Terampil" },
-    { nama: "Kartikasari, Amd. Keb", nip: "199504232025212088", jabatan: "Bidan Terampil" },
-    { nama: "Komariah, Amd.Keb.", nip: "198208202023212002", jabatan: "Terampil - Bidan" },
-    { nama: "Lusi Fitriyani Caturmawati, A. Md. Farm", nip: "199104132022032013", jabatan: "Asisten Apoteker Terampil" },
-    { nama: "Marina, Amd. Keb", nip: "199303052025212078", jabatan: "Bidan Terampil" },
-    { nama: "Merri Diana, S.Tr. Keb.", nip: "197205122006042012", jabatan: "Bidan Penyelia" },
-    { nama: "Mimah Nurhalimah, Amd.Keb", nip: "199106152025212098", jabatan: "Bidan Terampil" },
-    { nama: "Muhamad Haris Romdoni, AMK.", nip: "199502052024211005", jabatan: "Perawat Terampil" },
-    { nama: "Neni Supriyani, Amk", nip: "198204192008012006", jabatan: "Perawat Penyelia" },
-    { nama: "Nining", nip: "198204072025212053", jabatan: "Operator Layanan Operasional" },
-    { nama: "Popy Hasanah, Amd. AK", nip: "199812292024212009", jabatan: "Pranata Laboratorium Kesehatan Terampil" },
-    { nama: "Rahayu Ratnasari, Amg", nip: "199103232019032003", jabatan: "Nutrisionis Mahir" },
-    { nama: "Ratna Dewi, Amd.Keb", nip: "199101142024212015", jabatan: "Bidan Terampil" },
-    { nama: "Rizki Rangga Triyana, A.Md. Kep.", nip: "198903012019031002", jabatan: "Perawat Mahir" },
-    { nama: "Rohman", nip: "198610292025211068", jabatan: "Operator Layanan Operasional" },
-    { nama: "Rudi Subarkat, S. Kep", nip: "199109232023211003", jabatan: "Terampil - Perawat" },
-    { nama: "Samirah, Amd. Keb.", nip: "198905312024212002", jabatan: "Tenaga Promosi Kesehatan Dan Ilmu Perilaku Terampil" },
-    { nama: "Siska Apriliani, Amd. Keb.", nip: "199804132024212005", jabatan: "Bidan Terampil" },
-    { nama: "Siswinarti, S.Kep. Ners.", nip: "198204272009022005", jabatan: "Perawat Ahli Pertama" },
-    { nama: "Siti Fatimah, Amk", nip: "199108042024212012", jabatan: "Perawat Terampil" },
-    { nama: "Siti Rohmah, AMK", nip: "198306252008012002", jabatan: "Perawat Penyelia" },
-    { nama: "Sri Endang Sukmayati", nip: "200206012025212009", jabatan: "Operator Layanan Operasional" },
-    { nama: "Sri Sumarti, SKM", nip: "197503232006042021", jabatan: "Bidan Pelaksana Lanjutan / Mahir" },
-    { nama: "Susilawati, Amd.Keb.", nip: "198404062019032004", jabatan: "Bidan Mahir" },
-    { nama: "Tanti Kemalasari, Amd.Farm.", nip: "199511192024212009", jabatan: "Asisten Apoteker Terampil" },
-    { nama: "Tating Kusmiati, Amd. Keb.", nip: "199310112024212011", jabatan: "Bidan Terampil" },
-    { nama: "Tika Ayu Lestari, Amd. Keb.", nip: "199402012025212076", jabatan: "Bidan Terampil" },
-    { nama: "Tita Rosmiati, Amd.Keb", nip: "197608182006042023", jabatan: "Bidan Pelaksana Lanjutan / Mahir" },
-    { nama: "Titin Sutinah, Amd. Keb", nip: "197701212006042012", jabatan: "Bidan Mahir" },
-    { nama: "Tika Azlia Rachmawati, Amd.Kes", nip: "200209092025062007", jabatan: "Tenaga Sanitasi Lingkungan Terampil" },
-    { nama: "Ujang Kartono", nip: "198103222009011001", jabatan: "Pengadministrasi Umum" },
-    { nama: "Vivit Nopiyanti, Amd.Keb.", nip: "198411042017042001", jabatan: "Bidan Mahir" },
-    { nama: "Widya Kusumawati, S.E.", nip: "199708152025212066", jabatan: "Penata Layanan Operasional" },
-    { nama: "Yeni Heryani", nip: "198510212025212047", jabatan: "Operator Layanan Operasional" }
-];
+        { nama: "Ajat Hermawan", nip: "198102202025211054", jabatan: "Operator Layanan Operasional" },
+        { nama: "Anas Muhiban, S.E.", nip: "199703242025211057", jabatan: "Penata Layanan Operasional" },
+        { nama: "apt. Herni Ekaraharjo, S. Farm", nip: "198509272023212004", jabatan: "Ahli Pertama - Apoteker" },
+        { nama: "apt. Tria Wulandari P, S. Farm", nip: "199210082022032009", jabatan: "Apoteker Ahli Muda" },
+        { nama: "Ardiansyah Astriadi, A. Md. AK", nip: "198907272022031007", jabatan: "Pranata Laboratorium Kesehatan Terampil" },
+        { nama: "Ari Niken Palupi, Amd.Keb.", nip: "198501202017042001", jabatan: "Bidan Mahir" },
+        { nama: "Barir Ismaya Shofa, A. Md.", nip: "199307252019032006", jabatan: "Perawat Gigi Pelaksana / Terampil" },
+        { nama: "Ceceng Firmansyah", nip: "198405232025211107", jabatan: "Pengelola Umum Operasional" },
+        { nama: "Cici Wijayanti, Amd.Keb", nip: "198608022024212010", jabatan: "Bidan Terampil" },
+        { nama: "Cindyaningrum, Amd. Keb", nip: "199401272025212073", jabatan: "Bidan Terampil" },
+        { nama: "Cucu Cuhayati, S.Tr. Keb.", nip: "199408202024212013", jabatan: "Bidan Terampil" },
+        { nama: "Cucu Suminar, Amd.Kep", nip: "196804171989032007", jabatan: "Perawat Penyelia" },
+        { nama: "Dewi Novianti, Amk", nip: "198311112023212003", jabatan: "Terampil - Perawat" },
+        { nama: "Dewi Yuliani, AMK", nip: "199103132024212002", jabatan: "Perawat Terampil" },
+        { nama: "Dika Megianty Agustin, S.M.", nip: "199708222025212061", jabatan: "Penata Layanan Operasional" },
+        { nama: "Dodo Widodo", nip: "198410122025211067", jabatan: "Operator Layanan Operasional" },
+        { nama: "dr. Anna Mardyana", nip: "198606172023212005", jabatan: "Ahli Pertama - Dokter" },
+        { nama: "dr. Hendric Hariansyah, M.K.M", nip: "199603282022031009", jabatan: "Dokter Ahli Muda" },
+        { nama: "dr. Rizki Prasetyo", nip: "123456789101112134", jabatan: "Dokter Umum" },
+        { nama: "dr. Zakariya", nip: "197509222006041007", jabatan: "Dokter Ahli Madya" },
+        { nama: "drg. Fitri Nurzanah", nip: "199902032025062009", jabatan: "Dokter Gigi Ahli Pertama" },
+        { nama: "Eka Prisna Nengsih, Amd. Kep", nip: "199605152025212081", jabatan: "Perawat Terampil" },
+        { nama: "Garry Rachman, Amd.Kep", nip: "198509132025211002", jabatan: "Perawat Terampil" },
+        { nama: "H. Ujang Sutrisna, S. Kep., Ners., M. Kep.", nip: "197707132006041011", jabatan: "Kepala Puskesmas Kiarapedes" },
+        { nama: "Harbangkit Rizki, Amd. Kes", nip: "199605202022031014", jabatan: "Perekam Medis Terampil" },
+        { nama: "Haris Ridwansyah, S. Kep. Ners.", nip: "198105202008011004", jabatan: "Perawat Penyelia" },
+        { nama: "Imas Teti Sugiharti, Amd.Keb", nip: "198702172017042001", jabatan: "Bidan Mahir" },
+        { nama: "Irma Septiani, Amd. Keb.", nip: "199309082025212079", jabatan: "Bidan Terampil" },
+        { nama: "Juwita Pebrara, Amd. Keb.", nip: "199002092024212007", jabatan: "Bidan Terampil" },
+        { nama: "Kartikasari, Amd. Keb", nip: "199504232025212088", jabatan: "Bidan Terampil" },
+        { nama: "Komariah, Amd.Keb.", nip: "198208202023212002", jabatan: "Terampil - Bidan" },
+        { nama: "Lusi Fitriyani Caturmawati, A. Md. Farm", nip: "199104132022032013", jabatan: "Asisten Apoteker Terampil" },
+        { nama: "Marina, Amd. Keb", nip: "199303052025212078", jabatan: "Bidan Terampil" },
+        { nama: "Merri Diana, S.Tr. Keb.", nip: "197205122006042012", jabatan: "Bidan Penyelia" },
+        { nama: "Mimah Nurhalimah, Amd.Keb", nip: "199106152025212098", jabatan: "Bidan Terampil" },
+        { nama: "Muhamad Haris Romdoni, AMK.", nip: "199502052024211005", jabatan: "Perawat Terampil" },
+        { nama: "Neni Supriyani, Amk", nip: "198204192008012006", jabatan: "Perawat Penyelia" },
+        { nama: "Nining", nip: "198204072025212053", jabatan: "Operator Layanan Operasional" },
+        { nama: "Popy Hasanah, Amd. AK", nip: "199812292024212009", jabatan: "Pranata Laboratorium Kesehatan Terampil" },
+        { nama: "Rahayu Ratnasari, Amg", nip: "199103232019032003", jabatan: "Nutrisionis Mahir" },
+        { nama: "Ratna Dewi, Amd.Keb", nip: "199101142024212015", jabatan: "Bidan Terampil" },
+        { nama: "Rizki Rangga Triyana, A.Md. Kep.", nip: "198903012019031002", jabatan: "Perawat Mahir" },
+        { nama: "Rohman", nip: "198610292025211068", jabatan: "Operator Layanan Operasional" },
+        { nama: "Rudi Subarkat, S. Kep", nip: "199109232023211003", jabatan: "Terampil - Perawat" },
+        { nama: "Samirah, Amd. Keb.", nip: "198905312024212002", jabatan: "Tenaga Promosi Kesehatan Dan Ilmu Perilaku Terampil" },
+        { nama: "Siska Apriliani, Amd. Keb.", nip: "199804132024212005", jabatan: "Bidan Terampil" },
+        { nama: "Siswinarti, S.Kep. Ners.", nip: "198204272009022005", jabatan: "Perawat Ahli Pertama" },
+        { nama: "Siti Fatimah, Amk", nip: "199108042024212012", jabatan: "Perawat Terampil" },
+        { nama: "Siti Rohmah, AMK", nip: "198306252008012002", jabatan: "Perawat Penyelia" },
+        { nama: "Sri Endang Sukmayati", nip: "200206012025212009", jabatan: "Operator Layanan Operasional" },
+        { nama: "Sri Sumarti, SKM", nip: "197503232006042021", jabatan: "Bidan Pelaksana Lanjutan / Mahir" },
+        { nama: "Susilawati, Amd.Keb.", nip: "198404062019032004", jabatan: "Bidan Mahir" },
+        { nama: "Tanti Kemalasari, Amd.Farm.", nip: "199511192024212009", jabatan: "Asisten Apoteker Terampil" },
+        { nama: "Tating Kusmiati, Amd. Keb.", nip: "199310112024212011", jabatan: "Bidan Terampil" },
+        { nama: "Tika Ayu Lestari, Amd. Keb.", nip: "199402012025212076", jabatan: "Bidan Terampil" },
+        { nama: "Tita Rosmiati, Amd.Keb", nip: "197608182006042023", jabatan: "Bidan Pelaksana Lanjutan / Mahir" },
+        { nama: "Titin Sutinah, Amd. Keb", nip: "197701212006042012", jabatan: "Bidan Mahir" },
+        { nama: "Tika Azlia Rachmawati, Amd.Kes", nip: "200209092025062007", jabatan: "Tenaga Sanitasi Lingkungan Terampil" },
+        { nama: "Ujang Kartono", nip: "198103222009011001", jabatan: "Pengadministrasi Umum" },
+        { nama: "Vivit Nopiyanti, Amd.Keb.", nip: "198411042017042001", jabatan: "Bidan Mahir" },
+        { nama: "Widya Kusumawati, S.E.", nip: "199708152025212066", jabatan: "Penata Layanan Operasional" },
+        { nama: "Yeni Heryani", nip: "198510212025212047", jabatan: "Operator Layanan Operasional" }
+    ];
 
-   // ... (DATA_PEGAWAI tetap sama)
+    let listTerpilih = [];
 
-let listTerpilih = [];
+    window.onload = () => {
+        const dl = document.getElementById('listPegawai');
+        DATA_PEGAWAI.forEach(p => {
+            let o = document.createElement('option');
+            o.value = p.nama;
+            dl.appendChild(o);
+        });
+    };
 
-window.onload = () => {
-    const dl = document.getElementById('listPegawai');
-    DATA_PEGAWAI.forEach(p => {
-        let o = document.createElement('option');
-        o.value = p.nama;
-        dl.appendChild(o);
-    });
-};
-
-function autoIsiPegawai() {
-    const val = document.getElementById('namaPegawai').value;
-    const p = DATA_PEGAWAI.find(x => x.nama === val);
-    if(p) {
-        document.getElementById('nipPegawai').value = p.nip;
-        document.getElementById('jabatanPegawai').value = p.jabatan;
-    }
-}
-
-function tambahPegawai() {
-    const n = document.getElementById('namaPegawai').value;
-    const nip = document.getElementById('nipPegawai').value;
-    const j = document.getElementById('jabatanPegawai').value;
-
-    // Validasi input kosong
-    if(!n || !nip) {
-        alert("Silakan pilih pegawai terlebih dahulu!");
-        return;
-    }
-    
-    if(listTerpilih.find(x => x.nip === nip)) {
-        alert("Pegawai ini sudah ada di dalam daftar!");
-        return;
+    function autoIsiPegawai() {
+        const val = document.getElementById('namaPegawai').value;
+        const p = DATA_PEGAWAI.find(x => x.nama === val);
+        if(p) { tambahPegawaiManual(p); }
     }
 
-    listTerpilih.push({ nama: n, nip: nip, jabatan: j });
-    
-    // Reset dan Fokus kembali ke input nama
-    const inputNama = document.getElementById('namaPegawai');
-    inputNama.value = "";
-    document.getElementById('nipPegawai').value = "";
-    document.getElementById('jabatanPegawai').value = "";
-    inputNama.focus(); 
-    
-    renderDaftarInput();
-    updatePreview();
-}
+    function tambahPegawaiManual(p) {
+        if(listTerpilih.find(x => x.nip === p.nip)) return;
+        listTerpilih.push(p);
+        document.getElementById('namaPegawai').value = "";
+        renderDaftarInput();
+        updatePreview();
+    }
 
-function hapusPegawai(idx) {
-    if(confirm("Hapus pegawai ini dari daftar?")) {
+    function tambahPegawai() {
+        const val = document.getElementById('namaPegawai').value;
+        const p = DATA_PEGAWAI.find(x => x.nama === val);
+        if(p) { tambahPegawaiManual(p); } else { alert("Pilih pegawai dari daftar!"); }
+    }
+
+    function hapusPegawai(idx) {
         listTerpilih.splice(idx, 1);
         renderDaftarInput();
         updatePreview();
     }
-}
 
-function renderDaftarInput() {
-    const container = document.getElementById('daftarTerpilih');
-    container.innerHTML = listTerpilih.map((p, i) => `
-        <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-200 shadow-sm animate-in fade-in duration-300">
-            <div class="flex flex-col overflow-hidden">
-                <span class="text-[10px] font-bold truncate">${p.nama}</span>
-                <span class="text-[8px] text-slate-500">${p.nip}</span>
+    function renderDaftarInput() {
+        const container = document.getElementById('daftarTerpilih');
+        container.innerHTML = listTerpilih.map((p, i) => `
+            <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-200 mb-1 text-[10px]">
+                <span class="font-bold truncate">${p.nama}</span>
+                <button onclick="hapusPegawai(${i})" class="text-rose-500 px-2"><i class="fas fa-times"></i></button>
             </div>
-            <button onclick="hapusPegawai(${i})" class="text-rose-500 hover:bg-rose-100 w-8 h-8 rounded-full flex items-center justify-center transition-colors">
-                <i class="fas fa-trash text-[10px]"></i>
-            </button>
-        </div>
-    `).join('');
-}
-
-function updatePreview() {
-    const noRaw = document.getElementById('noUrut').value;
-    const no = (noRaw || "000").padStart(3, '0');
-    const tgl = document.getElementById('tglSurat').value;
-    const maksud = document.getElementById('maksudTugas').value || "..................................................";
-
-    // --- LOGIKA BULAN ROMAWI & TANGGAL ---
-    const bulanRomawi = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
-    let tglIndo = "..................";
-    let thn = "2026";
-    let romawi = "II"; // Default jika tanggal belum diisi
-
-    if(tgl) {
-        const d = new Date(tgl);
-        tglIndo = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-        thn = d.getFullYear();
-        romawi = bulanRomawi[d.getMonth()]; // Ambil romawi berdasarkan index bulan (0-11)
-    }
-
-    // Update Nomor Surat dengan Romawi Otomatis
-    document.getElementById('p_nomor').innerText = `Nomor: 800/${no}/PKM-KPDS/${romawi}/${thn}`;
-    
-    // --- UPDATE PREVIEW LAINNYA ---
-    const tbody = document.getElementById('p_tabel_pegawai');
-    if(listTerpilih.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="border border-black p-4 text-center italic text-gray-400 text-xs">Belum ada personel yang dimasukkan ke daftar</td></tr>`;
-    } else {
-        tbody.innerHTML = listTerpilih.map((p, i) => `
-            <tr>
-                <td class="border border-black p-2 text-center">${i+1}</td>
-                <td class="border border-black p-2 uppercase font-bold text-[12px]">${p.nama}</td>
-                <td class="border border-black p-2 text-center font-mono text-[12px]">${p.nip}</td>
-                <td class="border border-black p-2 text-[12px]">${p.jabatan}</td>
-            </tr>
         `).join('');
     }
 
-    document.getElementById('p_maksud').innerText = maksud;
-    document.getElementById('p_tgl').innerText = tglIndo;
-}
+    function formatTgl(tglStr) {
+        if(!tglStr) return "..................";
+        const d = new Date(tglStr);
+        return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function updatePreview() {
+        const noRaw = document.getElementById('noUrut').value;
+        const no = (noRaw || "000").padStart(3, '0');
+        const tglDibuat = document.getElementById('tglDibuat').value;
+        const tglTugas = document.getElementById('tglTugas').value;
+        
+        const bulanRomawi = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+        let romawi = "II";
+        let thn = "2026";
+
+        if(tglDibuat) {
+            const d = new Date(tglDibuat);
+            romawi = bulanRomawi[d.getMonth()];
+            thn = d.getFullYear();
+        }
+
+        document.getElementById('p_nomor').innerText = `Nomor: 800/${no}/ST/PKM-KPDS/${romawi}/${thn}`;
+        document.getElementById('p_tgl_dibuat').innerText = formatTgl(tglDibuat);
+        document.getElementById('p_tgl_tugas').innerText = formatTgl(tglTugas);
+        document.getElementById('p_maksud').innerText = document.getElementById('maksudTugas').value || "..................";
+        document.getElementById('p_hari').innerText = document.getElementById('hariTugas').value || "..................";
+        document.getElementById('p_waktu').innerText = document.getElementById('waktuTugas').value || "..................";
+        document.getElementById('p_tempat').innerText = document.getElementById('tempatTugas').value || "..................";
+
+        const tbody = document.getElementById('p_tabel_pegawai');
+        tbody.innerHTML = listTerpilih.length === 0 ? 
+            `<tr><td colspan="4" class="border border-black p-4 text-center italic text-gray-400">Daftar Personel Kosong</td></tr>` :
+            listTerpilih.map((p, i) => `
+                <tr>
+                    <td class="border border-black p-2 text-center">${i+1}</td>
+                    <td class="border border-black p-2 uppercase font-bold text-[12px]">${p.nama}</td>
+                    <td class="border border-black p-2 text-center font-mono text-[12px]">${p.nip}</td>
+                    <td class="border border-black p-2 text-[12px]">${p.jabatan}</td>
+                </tr>
+            `).join('');
+    }
 </script>
 
 </body>
