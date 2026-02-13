@@ -26,14 +26,14 @@
 <body class="pb-10">
 
 <div id="modalLogin" class="fixed inset-0 bg-slate-900 z-[9000] flex items-center justify-center p-4">
-    <div class="bg-white p-8 rounded-[2.5rem] text-center max-w-xs w-full shadow-2xl">
-        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl animate-bounce">
+    <div class="bg-slate-400 p-8 rounded-[2.5rem] text-center max-w-xs w-full shadow-2xl">
+        <div class="w-16 h-16 bg-blue-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl animate-bounce">
             <i class="fas fa-lock"></i>
         </div>
-        <h2 class="font-black text-slate-800 uppercase tracking-tighter mb-2">Verifikasi Akses</h2>
-        <p class="text-[10px] text-slate-400 font-bold mb-6 uppercase">Masukkan PIN Otorisasi 2026</p>
+           <h2 class="font-black text-white uppercase tracking-tighter mb-2">Verifikasi Akses</h2>
+        <p class="text-[10px] text-purple-600 font-bold mb-6 uppercase">" Masukkan PIN 4 Angka "</p>
         <input type="password" id="pinInput" class="input-modern text-center text-2xl mb-4 tracking-[0.5em]" placeholder="****">
-        <button onclick="verifikasiPin()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black shadow-lg uppercase hover:bg-emerald-500">Masuk Sistem</button>
+        <button onclick="verifikasiPin()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black shadow-lg uppercase hover:bg-blue-500">Masuk Sistem</button>
     </div>
 </div>
 
@@ -547,7 +547,8 @@ function exportToExcel() {
     XLSX.writeFile(wb, fileName);
 }
 
-function logout() { localStorage.clear(); location.reload(); }
+function logout() { localStorage.clear(); location.reload(); 
+}
 
 </script>
 </body>
