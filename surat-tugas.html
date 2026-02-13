@@ -1,4 +1,4 @@
--<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -40,10 +40,12 @@
                 </p>
             </div>
         </div>
-        
-        <button href="e-arsip.html" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full text-[10px] font-black border border-white/20 uppercase">
-            Lihat No Surat di Arsip
-        </button>
+        <div class="flex items-center gap-3">
+                
+                <button onclick="toggleTheme()" class="bg-white/10 hover:bg-white/20 p-3 rounded-full border border-white/20"><i id="themeIcon" class="fas fa-cloud"></i></button>
+                <a href="e-arsip.html" class="bg-amber-500 hover:bg-amber-400 px-4 py-2 rounded-full text-[10px] font-black uppercase shadow-lg"><i class="fas fa-folder-open mr-2"></i> Buka Arsip</a>
+                <button onclick="window.location.reload()" class="bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-full text-[10px] font-black uppercase"><i id="syncIcon" class="fas fa-sync mr-2"></i> Reset Form</button>
+        </div>
     </div>
 </header>
 
@@ -331,6 +333,12 @@
         window.focus();
         window.print();
     }
+    
+    function toggleTheme() {
+    document.documentElement.classList.toggle('dark');
+    const icon = document.getElementById('themeIcon');
+    icon.className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
+}
 </script>
 </body>
 </html>
