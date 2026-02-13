@@ -212,7 +212,7 @@
                     <div class="text-[14px] space-y-1">
                        <div class="text-[14px] mt-4 mb-4">
                         <p class="text-justify leading-relaxed">
-                            Menugaskan kepada nama-nama tersebut di atas untuk mengikuti <span id="p_maksud" class="font-medium underline decoration-dotted">................................................................................</span> yang akan dilaksanakan pada:
+                            Menugaskan kepada nama-nama tersebut di atas untuk mengikuti <span id="p_maksud" class="font-medium underline decoration-dotted">..................</span> yang akan dilaksanakan pada:
                         </p>
                     </div>
                         <div class="flex items-start"><span class="w-24 flex-shrink-0">Hari</span><span class="mr-2">:</span><span id="p_hari" class="flex-1">..................</span></div>
@@ -237,7 +237,7 @@
 
 <script>
     // Data Pegawai (Sesuai List Anda)
-    const DATA_PEGAWAI = [
+    const Data_Pegawai = [
         { nama: "Ajat Hermawan", nip: "198102202025211054", jabatan: "Operator Layanan Operasional" },
         { nama: "Anas Muhiban, S.E.", nip: "199703242025211057", jabatan: "Penata Layanan Operasional" },
         { nama: "apt. Herni Ekaraharjo, S. Farm", nip: "198509272023212004", jabatan: "Ahli Pertama - Apoteker" },
@@ -314,7 +314,7 @@
     // AUTOFILL
     window.onload = () => {
         const dl = document.getElementById('listPegawai');
-        DATA_PEGAWAI.forEach(p => {
+        Data_Pegawai.forEach(p => {
             let o = document.createElement('option');
             o.value = p.nama;
             dl.appendChild(o);
@@ -324,7 +324,7 @@
 
     function autoIsiPegawai() {
         const val = document.getElementById('namaPegawai').value;
-        const p = DATA_PEGAWAI.find(x => x.nama === val);
+        const p = Data_Pegawai.find(x => x.nama === val);
         if(p && !listTerpilih.find(x => x.nip === p.nip)) {
             listTerpilih.push(p);
             document.getElementById('namaPegawai').value = "";
@@ -362,7 +362,6 @@
         document.getElementById('p_waktu').innerText = document.getElementById('waktuTugas').value || "..................";
         document.getElementById('p_tempat').innerText = document.getElementById('tempatTugas').value || "..................";
         
-        // Update Maksud (Inline)
         const maksud = document.getElementById('maksudTugas').value;
         document.getElementById('p_maksud').innerText = maksud ? maksud : "...";
 
