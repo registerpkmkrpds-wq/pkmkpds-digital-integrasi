@@ -48,12 +48,10 @@
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <a href="index.html" class="bg-white/10 hover:bg-white/20 p-3 rounded-full border border-white/20 inline-flex items-center justify-center w-10 h-10"><i class="fas fa-home"></i></a>
-                <button onclick="toggleTheme()" class="bg-white/10 hover:bg-white/20 p-3 rounded-full border border-white/20"><i id="themeIcon" class="fas fa-moon"></i></button>
-                <button onclick="togglePedoman()" class="bg-amber-500 hover:bg-amber-400 px-4 py-2 rounded-full text-[10px] font-black uppercase shadow-lg"><i class="fas fa-book-open mr-2"></i> Pedoman</button>
-                <button onclick="syncFromGAS()" class="bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-full text-[10px] font-black uppercase"><i id="syncIcon" class="fas fa-sync-alt mr-2"></i> Sync</button>
-                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-full text-[10px] font-black uppercase flex items-center gap-2 shadow-lg"><i class="fas fa-file-excel"></i> Export</button>
-                <button onclick="logout()" class="w-10 h-10 bg-rose-600 hover:bg-rose-700 rounded-full flex items-center justify-center"><i class="fas fa-power-off"></i></button>
+                <a href="index.html" <i class="fas fa-home" style='font-size:24px;color:darkred'></i></a>
+                <button onclick="toggleTheme()" <i id="themeIcon" class='fas fa-moon' style='font-size:24px;color:white'></i></button>
+                <button onclick="togglePedoman()" class="bg-amber-500 hover:bg-amber-400 px-4 py-1 rounded-full text-[10px] font-black uppercase shadow-lg"><i class="fas fa-book-open mr-2"></i></button>
+                <button onclick="logout()" class="w-8 h-8 bg-rose-600 hover:bg-rose-700 rounded-full flex items-center justify-center"><i class="fas fa-power-off"></i></button>
             </div>
         </div>
     </header>
@@ -107,10 +105,36 @@
             </div>
 
             <div class="lg:col-span-8">
-                <div class="card-custom p-4 mb-6 flex items-center gap-4">
-                    <i class="fas fa-search text-slate-300 ml-2"></i>
-                    <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari nomor dokumen atau perihal..." class="w-full bg-transparent outline-none font-bold text-xs">
-                </div>
+                <div class="card-custom p-3 mb-6 flex flex-col xl:flex-row items-center gap-3">
+    
+    <div class="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-xl flex-1 w-full">
+        <i class="fas fa-search text-slate-400 text-xs"></i>
+        <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari nomor atau perihal..." class="bg-transparent border-none outline-none font-bold text-[11px] w-full placeholder:text-slate-400">
+    </div>
+    
+    <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-xl w-full xl:w-auto">
+        <i class="fas fa-filter text-emerald-500 text-[10px]"></i>
+        <select id="filterKlaster" onchange="renderTable()" class="bg-transparent border-none outline-none font-black text-[10px] uppercase cursor-pointer w-full text-slate-600 dark:text-slate-300">
+            <option value="SEMUA">Semua Klaster</option>
+            <option value="Klaster 1: Manajemen">Klaster 1</option>
+            <option value="Klaster 2: Ibu & Anak">Klaster 2</option>
+            <option value="Klaster 3: Dewasa & Lansia">Klaster 3</option>
+            <option value="Klaster 4: P2P & Kesling">Klaster 4</option>
+            <option value="Lintas Klaster">Lintas Klaster</option>
+        </select>
+    </div>
+
+    <div class="flex items-center gap-2 w-full xl:w-auto">
+        <button onclick="syncFromGAS()" class="bg-sky-600 hover:bg-sky-500 text-white w-10 h-10 flex items-center justify-center rounded-xl transition-all shadow-sm group" title="Sinkronkan Cloud">
+            <i id="syncIcon" class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i>
+        </button>
+        
+        <button onclick="exportToExcel()" class="flex-1 xl:flex-none bg-emerald-600 hover:bg-emerald-700 text-white px-4 h-10 rounded-xl text-[10px] font-black uppercase flex items-center justify-center gap-2 shadow-sm transition-all">
+            <i class="fas fa-file-excel text-sm"></i>
+            <span>Export Excel</span>
+        </button>
+    </div>
+</div>
                 <div class="card-custom overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-[11px]">
@@ -132,7 +156,7 @@
 <div id="modalPedoman" class="fixed inset-0 bg-black/80 z-[9999] hidden flex items-center justify-center p-4 backdrop-blur-md">
     <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] max-w-4xl w-full max-h-[85vh] overflow-hidden flex flex-col">
         <div class="p-8 border-b dark:border-slate-800 flex justify-between items-center bg-emerald-600 text-white">
-            <h2 class="text-xl font-black uppercase italic">Pedoman Penomoran</h2>
+            <h2 class="text-xl font-black uppercase italic">Panduan & Pedoman Sistem</h2>
             <button onclick="togglePedoman()" class="w-10 h-10 rounded-full bg-white/20"><i class="fas fa-times"></i></button>
         </div>
         <div id="pedomanContent" class="p-8 overflow-y-auto custom-scrollbar grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -321,13 +345,23 @@ async function syncFromGAS() {
 
 function renderTable() {
     const q = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = database.filter(x => x.no.toLowerCase().includes(q) || x.nama.toLowerCase().includes(q));
+    const f = document.getElementById('filterKlaster').value;
+    
+    const filtered = database.filter(x => {
+        const matchText = x.no.toLowerCase().includes(q) || x.nama.toLowerCase().includes(q);
+        const matchKlaster = (f === "SEMUA") || (x.klaster === f);
+        return matchText && matchKlaster;
+    });
+
     document.getElementById('tableBody').innerHTML = filtered.map((x, i) => `
         <tr class="border-b dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
             <td class="p-4">
-                <div class="font-mono text-emerald-600 font-black text-[10px]">${x.no}</div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="font-mono text-emerald-600 font-black text-[10px]">${x.no}</span>
+                    <span class="text-[8px] px-2 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-500 font-bold">${x.klaster.split(':')[0]}</span>
+                </div>
                 <div class="font-bold uppercase text-slate-700 dark:text-slate-200">${x.nama}</div>
-                <div class="text-[9px] text-slate-400 font-bold uppercase">${x.klaster} | ${x.tgl}</div>
+                <div class="text-[9px] text-slate-400 font-bold uppercase">${x.tgl} | Sub: ${x.sub}</div>
             </td>
             <td class="p-4">
                 <div class="flex justify-center gap-2">
@@ -427,19 +461,64 @@ function resetForm() {
 function togglePedoman() {
     const m = document.getElementById('modalPedoman');
     if(m.classList.contains('hidden')) {
-        let h = "";
-        Object.keys(KLASTER).forEach(k => {
+        let h = `
+        <div class="col-span-full mb-6 bg-emerald-50 dark:bg-slate-800 p-6 rounded-3xl border-2 border-dashed border-emerald-200 dark:border-emerald-800">
+            <h3 class="text-emerald-700 dark:text-emerald-400 font-black uppercase text-sm mb-4 flex items-center gap-2">
+                <i class="fas fa-info-circle"></i> Panduan Operasional Sistem
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-[11px] leading-relaxed">
+                <div>
+                    <p class="font-black text-slate-700 dark:text-slate-200 mb-1">A. AKSES & KEAMANAN</p>
+                    <ul class="list-disc ml-4 text-slate-500">
+                        <li>Gunakan PIN <b>2026</b> untuk masuk.</li>
+                        <li>Klik <b>Sync (Biru)</b> setiap kali membuka aplikasi untuk data terbaru.</li>
+                    </ul>
+                    <p class="font-black text-slate-700 dark:text-slate-200 mt-3 mb-1">B. INPUT DOKUMEN</p>
+                    <ul class="list-disc ml-4 text-slate-500">
+                        <li>Pilih Klaster & Sub untuk kode otomatis.</li>
+                        <li>Perihal minimal 5 karakter & gunakan huruf KAPITAL.</li>
+                        <li>File PDF maksimal <b>5MB</b>.</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-black text-slate-700 dark:text-slate-200 mb-1">C. PENCARIAN & MANAJEMEN</p>
+                    <ul class="list-disc ml-4 text-slate-500">
+                        <li>Filter Klaster untuk menyaring data per bidang.</li>
+                        <li><b>Export Excel</b> akan mengunduh data sesuai hasil pencarian/filter Anda.</li>
+                        <li>Gunakan ikon <b>QR</b> untuk mencetak label fisik map.</li>
+                    </ul>
+                    <p class="font-black text-slate-700 dark:text-slate-200 mt-3 mb-1">D. KOREKSI DATA</p>
+                    <ul class="list-disc ml-4 text-slate-500">
+                        <li>Klik <b>Pensil</b> untuk edit, klik <b>Sampah</b> untuk hapus.</li>
+                        <li>Penghapusan memerlukan verifikasi PIN kembali.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-span-full mb-2">
+            <h3 class="text-slate-400 font-black uppercase text-[10px] tracking-[0.2em] mb-4">Daftar Kode Klasifikasi (Perbup No 135 Th 2023)</h3>
+        </div>
+        `;
+        
+            Object.keys(KLASTER).forEach(k => {
             const s = CLUSTER_STYLES[k];
-            h += `<div class="p-4 ${s.bg} rounded-2xl border border-slate-100 dark:border-slate-800">
-                <div class="flex items-center gap-3 mb-2 font-black text-[10px] ${s.color}"><i class="fas ${s.icon}"></i> ${k}</div>
-                <div class="flex flex-wrap gap-1">${KLASTER[k].map(c => `<span class="kode-tag">${c}</span>`).join('')}</div>
+            h += `
+            <div class="p-4 ${s.bg} rounded-2xl border border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-3 mb-2 font-black text-[10px] ${s.color}">
+                    <i class="fas ${s.icon}"></i> ${k}
+                </div>
+                <div class="flex flex-wrap gap-1">
+                    ${KLASTER[k].map(c => `<span class="kode-tag">${c}</span>`).join('')}
+                </div>
             </div>`;
         });
+        
         document.getElementById('pedomanContent').innerHTML = h;
         m.classList.remove('hidden');
-    } else { m.classList.add('hidden'); }
+    } else { 
+        m.classList.add('hidden'); 
+    }
 }
-
 function toggleTheme() {
     document.documentElement.classList.toggle('dark');
     const icon = document.getElementById('themeIcon');
@@ -447,14 +526,29 @@ function toggleTheme() {
 }
 
 function exportToExcel() {
-    if (database.length === 0) return alert("Data Kosong!");
-    const ws = XLSX.utils.json_to_sheet(database);
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const f = document.getElementById('filterKlaster').value;
+    
+    // Memfilter data yang tampil saja
+    const dataFiltered = database.filter(x => {
+        const matchText = x.no.toLowerCase().includes(q) || x.nama.toLowerCase().includes(q);
+        const matchKlaster = (f === "SEMUA") || (x.klaster === f);
+        return matchText && matchKlaster;
+    });
+
+    if (dataFiltered.length === 0) return alert("Data tidak ditemukan untuk dieksport!");
+
+    // Konversi ke format Excel
+    const ws = XLSX.utils.json_to_sheet(dataFiltered);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Arsip");
-    XLSX.writeFile(wb, `Arsip_PKM_KPDS_${new Date().toLocaleDateString()}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, "Hasil_Filter");
+    
+    const fileName = `Arsip_Export_${f.replace(/[^a-z0-9]/gi, '_')}.xlsx`;
+    XLSX.writeFile(wb, fileName);
 }
 
 function logout() { localStorage.clear(); location.reload(); }
+
 </script>
 </body>
 </html>
