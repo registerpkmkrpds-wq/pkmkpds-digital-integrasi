@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-       @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         
         :root { 
             --bg-body: #f8fafc; 
@@ -17,7 +17,6 @@
             --input-bg: rgba(0,0,0,0.05);
         }
 
-        /* Definisi Tema Gelap */
         .dark {
             --bg-body: #0f172a;
             --bg-card: #1e293b;
@@ -47,40 +46,17 @@
         }
         .input-modern:focus { border-color: #10b981; background-color: var(--bg-card); }
 
-        /* Khusus Area Kertas - Harus tetap putih agar hasil print benar */
+        /* AREA PREVIEW: Selalu Putih */
         #kertasPreview { background-color: white !important; color: black !important; }
 
-         @media print {
-        /* Sembunyikan semua elemen kecuali areaCetak */
-        body * {
-            visibility: hidden;
+        @media print {
+            header, .no-print, button, .lg\:col-span-4 { display: none !important; }
+            body { background: white !important; padding: 0 !important; }
+            .lg\:col-span-8 { width: 100% !important; margin: 0 !important; }
+            .card-custom { border: none !important; box-shadow: none !important; padding: 0 !important; }
+            #areaCetak { visibility: visible !important; width: 100% !important; }
+            @page { size: A4 portrait; margin: 1.5cm; }
         }
-        
-        #areaCetak, #areaCetak * {
-            visibility: visible;
-        }
-
-        /* Atur posisi areaCetak agar mulai dari pojok kiri atas kertas */
-        #areaCetak {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100% !important;
-            padding: 1.5cm 2cm !important;
-            visibility: visible !important;
-            display: block !important;
-        }
-
-        /* Hilangkan margin default browser dan shadow */
-        @page {
-            size: portrait;
-            margin: 0;
-        }
-        
-        .no-print, header, button {
-            display: none !important;
-        }
-    }
     </style>
 </head>
 <body class="pb-10">
@@ -89,29 +65,31 @@
     <div class="container mx-auto flex justify-between items-center">
         <div class="flex items-center gap-4">
             <i class="fas fa-edit text-5xl text-yellow-400"></i>
-            
             <div>
                 <h1 class="text-2xl font-black italic uppercase leading-none">
                     E-Surat <span class="text-emerald-400">Tugas</span>
                 </h1>
-                <p class="text-emerald-400 font-bold text-sm tracking-widest uppercase mt-1">
-                    Puskesmas Kiarapedes
-                </p>
+                <p class="text-emerald-400 font-bold text-sm tracking-widest uppercase mt-1">Puskesmas Kiarapedes</p>
             </div>
         </div>
         <div class="flex items-center gap-3">
-                
-                <button onclick="toggleTheme()" <i id="themeIcon" class='fas fa-eye' style='font-size:24px;color:white'></i></button>
-                <a href="e-arsip.html" class="bg-amber-500 hover:bg-emerald-600 px-4 py-2 rounded-full text-[10px] font-black uppercase shadow-lg"><i class="fas fa-folder-open mr-2"></i> Buka Arsip</a>
-                <button onclick="window.location.reload()" class="bg-rose-600 hover:bg-sky-500 px-4 py-2 rounded-full text-[10px] font-black uppercase"><i id="syncIcon" class="fas fa-sync mr-2"></i> Reset Form</button>
+            <button onclick="toggleTheme()" class="p-2">
+                <i id="themeIcon" class="fas fa-eye" style="font-size:24px; color:white"></i>
+            </button>
+            <a href="#" class="bg-amber-500 hover:bg-amber-600 px-4 py-2 rounded-full text-[10px] font-black uppercase shadow-lg no-print">
+                <i class="fas fa-folder-open mr-2"></i> Buka Arsip
+            </a>
+            <button onclick="window.location.reload()" class="bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-full text-[10px] font-black uppercase">
+                <i class="fas fa-sync mr-2"></i> Reset
+            </button>
         </div>
     </div>
 </header>
 
-<main class="container mx-auto px-6 -mt-16 no-print">
+<main class="container mx-auto px-6 -mt-16">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <div class="lg:col-span-4">
+        <div class="lg:col-span-4 no-print">
             <div class="card-custom p-6 space-y-4 shadow-xl sticky top-4">
                 <h3 class="text-xs font-black uppercase text-emerald-600 border-b pb-2 italic">Form Surat</h3>
                 
@@ -121,63 +99,58 @@
                         <input type="number" id="noUrut" class="input-modern" placeholder="001" oninput="updatePreview()">
                     </div>
                     <div>
-                        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Tgl Surat Dibuat</label>
+                        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Tgl Dibuat</label>
                         <input type="date" id="tglDibuat" class="input-modern" onchange="updatePreview()">
                     </div>
                 </div>
 
-           <div class="bg-slate-50 p-4 rounded-xl border border-dashed border-slate-300">
-                    <h4 class="text-[9px] font-black uppercase text-slate-500 mb-3 text-center">Pilih Pegawai yang Ditugaskan</h4>
-                    <input type="text" id="namaPegawai" list="listPegawai" class="input-modern mb-2" placeholder="Cari Pegawai..." oninput="autoIsiPegawai()">
+                <div class="bg-slate-50 p-4 rounded-xl border border-dashed border-slate-300 dark:bg-slate-800/50">
+                    <h4 class="text-[9px] font-black uppercase text-slate-500 mb-3 text-center">Pilih Pegawai</h4>
+                    <input type="text" id="namaPegawai" list="listPegawai" class="input-modern mb-2" placeholder="Cari Nama..." oninput="autoIsiPegawai()">
                     <datalist id="listPegawai"></datalist>
-                    <button onclick="tambahPegawai()" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-lg text-xs hover:bg-emerald-700"> Tambah ke Daftar</button>
+                    <div id="daftarTerpilih" class="mt-4 space-y-2"></div> 
                 </div>
 
-<div class="grid grid-cols-2 gap-3 border-t pt-4">
-    <div>
-        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Hari Pelaksanaan</label>
-        <select id="hariTugas" class="input-modern cursor-pointer" onchange="updatePreview()">
-            <option value="">-- Pilih Hari --</option>
-            <option value="Senin">Senin</option>
-            <option value="Selasa">Selasa</option>
-            <option value="Rabu">Rabu</option>
-            <option value="Kamis">Kamis</option>
-            <option value="Jumat">Jumat</option>
-            <option value="Sabtu">Sabtu</option>
-            <option value="Minggu">Minggu</option>
-        </select>
-    </div>
-    <div>
-        <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Tgl Pelaksanaan</label>
-        <input type="date" id="tglTugas" class="input-modern" onchange="updatePreview()">
-    </div>
-</div>
-                  <div class="grid grid-cols-2 gap-3">
-                    <input type="text" id="waktuTugas" class="input-modern" placeholder="Waktu (08.00...)" oninput="updatePreview()">
+                <div class="grid grid-cols-2 gap-3 border-t pt-4">
+                    <select id="hariTugas" class="input-modern cursor-pointer" onchange="updatePreview()">
+                        <option value="">-- Hari --</option>
+                        <option value="Senin">Senin</option>
+                        <option value="Selasa">Selasa</option>
+                        <option value="Rabu">Rabu</option>
+                        <option value="Kamis">Kamis</option>
+                        <option value="Jumat">Jumat</option>
+                        <option value="Sabtu">Sabtu</option>
+                        <option value="Minggu">Minggu</option>
+                    </select>
+                    <input type="date" id="tglTugas" class="input-modern" onchange="updatePreview()">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="text" id="waktuTugas" class="input-modern" placeholder="Jam (08.00...)" oninput="updatePreview()">
                     <input type="text" id="tempatTugas" class="input-modern" placeholder="Tempat..." oninput="updatePreview()">
                 </div>
 
-                <textarea id="maksudTugas" class="input-modern h-20" placeholder="Maksud / Tujuan Tugas..." oninput="updatePreview()"></textarea>
+                <textarea id="maksudTugas" class="input-modern h-20" placeholder="Maksud Tugas..." oninput="updatePreview()"></textarea>
 
-                <button onclick="window.print()" class="w-full bg-slate-800 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg">
+                <button onclick="jalankanCetak()" class="w-full bg-slate-800 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg hover:bg-black transition-all">
                     <i class="fas fa-print mr-2"></i> Cetak Surat Tugas
                 </button>
             </div>
         </div>
 
         <div class="lg:col-span-8">
-            <div class="card-custom p-10 bg-white shadow-2xl border-none">
-                <div id="areaCetak" class="text-black mx-auto" style="width: 100%; max-width: 21.5cm; font-family: 'Times New Roman', serif; line-height: 1.5;">
+            <div id="kertasPreview" class="card-custom p-10 bg-white shadow-2xl border-none">
+                <div id="areaCetak" class="text-black mx-auto" style="width: 100%; font-family: 'Times New Roman', serif; line-height: 1.5;">
                     
                     <div class="flex items-center border-b-[4px] border-double border-black pb-2 mb-6">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Seal_of_Purwakarta_Regency.svg/330px-Seal_of_Purwakarta_Regency.svg.png" style="width: 2.5cm; height: 2.5cm; object-fit: contain;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Seal_of_Purwakarta_Regency.svg/330px-Seal_of_Purwakarta_Regency.svg.png" style="width: 2.5cm; height: 2.5cm;">
                         <div class="flex-1 text-center px-4">
                             <h2 class="text-lg font-bold uppercase leading-tight">Pemerintah Kabupaten Purwakarta</h2>
                             <h2 class="text-xl font-bold uppercase leading-tight">Dinas Kesehatan</h2>
                             <h2 class="text-2xl font-black uppercase leading-tight">UPTD Puskesmas Kiarapedes</h2>
-                            <p class="text-[11px]">Jl. Raya Kiarapedes No. 2 KM. 28 Kec. Kiarapedes Kode Pos: 41175<br>email: pkmkiarapedes202@gmail.com</p>
+                            <p class="text-[10px]">Jl. Raya Kiarapedes No. 2 KM. 28 Kec. Kiarapedes Kode Pos: 41175<br>email: pkmkiarapedes20@gmail.com</p>
                         </div>
-                        <img src="https://images.seeklogo.com/logo-png/35/1/puskesmas-logo-png_seeklogo-359624.png" style="width: 2.5cm; height: 2.5cm; object-fit: contain;">
+                        <img src="https://images.seeklogo.com/logo-png/35/1/puskesmas-logo-png_seeklogo-359624.png" style="width: 2.5cm; height: 2.5cm;">
                     </div>
 
                     <div class="text-center mb-6">
@@ -197,37 +170,33 @@
                     
                     <table class="w-full mb-6 text-[13px] border-collapse border border-black">
                         <thead>
-                            <tr class="bg-gray-50">
-                                <th class="border border-black p-2 w-8 text-center">No</th>
-                                <th class="border border-black p-2 text-center">Nama Lengkap</th>
-                                <th class="border border-black p-2 text-center w-44">NIP/NIPPPK</th>
-                                <th class="border border-black p-2 text-center">Jabatan</th>
+                            <tr class="bg-gray-100">
+                                <th class="border border-black p-2 w-8">No</th>
+                                <th class="border border-black p-2">Nama Lengkap</th>
+                                <th class="border border-black p-2 w-44">NIP/NIPPPK</th>
+                                <th class="border border-black p-2">Jabatan</th>
                             </tr>
                         </thead>
                         <tbody id="p_tabel_pegawai">
-                            <tr><td colspan="4" class="border border-black p-4 text-center italic text-gray-400">Daftar Pegawai Kosong</td></tr>
+                            <tr><td colspan="4" class="border border-black p-4 text-center italic opacity-30">Daftar Pegawai Kosong</td></tr>
                         </tbody>
                     </table>
 
                     <div class="text-[14px] space-y-1">
-                       <div class="text-[14px] mt-4 mb-4">
-                        <p class="text-justify leading-relaxed">
-                            Menugaskan kepada nama-nama tersebut di atas untuk mengikuti <span id="p_maksud" class="font-medium underline decoration-dotted">..................</span> yang akan dilaksanakan pada:
-                        </p>
-                    </div>
-                        <div class="flex items-start"><span class="w-24 flex-shrink-0">Hari</span><span class="mr-2">:</span><span id="p_hari" class="flex-1">..................</span></div>
-                        <div class="flex items-start"><span class="w-24 flex-shrink-0">Tanggal</span><span class="mr-2">:</span><span id="p_tgl_tugas" class="flex-1">..................</span></div>
-                        <div class="flex items-start"><span class="w-24 flex-shrink-0">Waktu</span><span class="mr-2">:</span><span id="p_waktu" class="flex-1">..................</span></div>
-                        <div class="flex items-start"><span class="w-24 flex-shrink-0">Tempat</span><span class="mr-2">:</span><span id="p_tempat" class="flex-1">..................</span></div>
+                        <p class="text-justify">Menugaskan kepada nama tersebut di atas untuk mengikuti <span id="p_maksud" class="font-bold underline decoration-dotted">..................</span> yang akan dilaksanakan pada:</p>
+                        <div class="flex mt-2"><span class="w-24">Hari</span><span class="mr-2">:</span><span id="p_hari">..................</span></div>
+                        <div class="flex"><span class="w-24">Tanggal</span><span class="mr-2">:</span><span id="p_tgl_tugas">..................</span></div>
+                        <div class="flex"><span class="w-24">Waktu</span><span class="mr-2">:</span><span id="p_waktu">..................</span></div>
+                        <div class="flex"><span class="w-24">Tempat</span><span class="mr-2">:</span><span id="p_tempat">..................</span></div>
                         <p class="pt-4">Demikian surat ini dibuat untuk dilaksanakan sebagaimana mestinya dengan penuh rasa tanggung jawab.</p>
                     </div>
 
                     <div class="mt-12 flex justify-end">
                         <div class="text-center w-72 text-[14px]">
                             <p>Kiarapedes, <span id="p_tgl_dibuat">..................</span></p>
-                            <p class="font-bold setencecase leading-tight mt-1">Kepala <br>UPTD Puskesmas Kiarapedes</p>
-                            <div class="my-4 border border-dashed border-slate-200 h-24 flex items-center justify-center text-[8px] text-slate-300">[ AREA TTE ]</div>
-                       </div>
+                            <p class="font-bold leading-tight mt-1">Kepala <br>UPTD Puskesmas Kiarapedes</p>
+                            <div class="my-4 border border-dashed border-slate-200 h-20 flex items-center justify-center text-[8px] text-slate-300">[ AREA TTE / STEMPEL ]</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -236,7 +205,7 @@
 </main>
 
 <script>
-    // Data Pegawai (Sesuai List Anda)
+    // DATA PEGAWAI (Lengkap)
     const Data_Pegawai = [
         { nama: "Ajat Hermawan", nip: "198102202025211054", jabatan: "Operator Layanan Operasional" },
         { nama: "Anas Muhiban, S.E.", nip: "199703242025211057", jabatan: "Penata Layanan Operasional" },
@@ -261,7 +230,7 @@
         { nama: "drg. Fitri Nurzanah", nip: "199902032025062009", jabatan: "Dokter Gigi Ahli Pertama" },
         { nama: "Eka Prisna Nengsih, Amd. Kep", nip: "199605152025212081", jabatan: "Perawat Terampil" },
         { nama: "Garry Rachman, Amd.Kep", nip: "198509132025211002", jabatan: "Perawat Terampil" },
-        { nama: "H. Ujang Sutrisna, S. Kep., Ners., M. Kep.", nip: "197707132006041011", jabatan: "Kepala Puskesmas Kiarapedes" },
+        { nama: "H. Ujang Sutrisna, S. Kep., Ners., M. Kep.", nip: "197707132006041011", jabatan: "Kepala Puskesmas" },
         { nama: "Harbangkit Rizki, Amd. Kes", nip: "199605202022031014", jabatan: "Perekam Medis Terampil" },
         { nama: "Haris Ridwansyah, S. Kep. Ners.", nip: "198105202008011004", jabatan: "Perawat Penyelia" },
         { nama: "Imas Teti Sugiharti, Amd.Keb", nip: "198702172017042001", jabatan: "Bidan Mahir" },
@@ -282,20 +251,20 @@
         { nama: "Rizki Rangga Triyana, A.Md. Kep.", nip: "198903012019031002", jabatan: "Perawat Mahir" },
         { nama: "Rohman", nip: "198610292025211068", jabatan: "Operator Layanan Operasional" },
         { nama: "Rudi Subarkat, S. Kep", nip: "199109232023211003", jabatan: "Terampil - Perawat" },
-        { nama: "Samirah, Amd. Keb.", nip: "198905312024212002", jabatan: "Tenaga Promosi Kesehatan Dan Ilmu Perilaku Terampil" },
+        { nama: "Samirah, Amd. Keb.", nip: "198905312024212002", jabatan: "Tenaga Promosi Kesehatan" },
         { nama: "Siska Apriliani, Amd. Keb.", nip: "199804132024212005", jabatan: "Bidan Terampil" },
         { nama: "Siswinarti, S.Kep. Ners.", nip: "198204272009022005", jabatan: "Perawat Ahli Pertama" },
         { nama: "Siti Fatimah, Amk", nip: "199108042024212012", jabatan: "Perawat Terampil" },
         { nama: "Siti Rohmah, AMK", nip: "198306252008012002", jabatan: "Perawat Penyelia" },
         { nama: "Sri Endang Sukmayati", nip: "200206012025212009", jabatan: "Operator Layanan Operasional" },
-        { nama: "Sri Sumarti, SKM", nip: "197503232006042021", jabatan: "Bidan Pelaksana Lanjutan / Mahir" },
+        { nama: "Sri Sumarti, SKM", nip: "197503232006042021", jabatan: "Bidan Mahir" },
         { nama: "Susilawati, Amd.Keb.", nip: "198404062019032004", jabatan: "Bidan Mahir" },
         { nama: "Tanti Kemalasari, Amd.Farm.", nip: "199511192024212009", jabatan: "Asisten Apoteker Terampil" },
         { nama: "Tating Kusmiati, Amd. Keb.", nip: "199310112024212011", jabatan: "Bidan Terampil" },
         { nama: "Tika Ayu Lestari, Amd. Keb.", nip: "199402012025212076", jabatan: "Bidan Terampil" },
-        { nama: "Tita Rosmiati, Amd.Keb", nip: "197608182006042023", jabatan: "Bidan Pelaksana Lanjutan / Mahir" },
+        { nama: "Tita Rosmiati, Amd.Keb", nip: "197608182006042023", jabatan: "Bidan Mahir" },
         { nama: "Titin Sutinah, Amd. Keb", nip: "197701212006042012", jabatan: "Bidan Mahir" },
-        { nama: "Tika Azlia Rachmawati, Amd.Kes", nip: "200209092025062007", jabatan: "Tenaga Sanitasi Lingkungan Terampil" },
+        { nama: "Tika Azlia Rachmawati, Amd.Kes", nip: "200209092025062007", jabatan: "Tenaga Sanitasi Lingkungan" },
         { nama: "Ujang Kartono", nip: "198103222009011001", jabatan: "Pengadministrasi Umum" },
         { nama: "Vivit Nopiyanti, Amd.Keb.", nip: "198411042017042001", jabatan: "Bidan Mahir" },
         { nama: "Widya Kusumawati, S.E.", nip: "199708152025212066", jabatan: "Penata Layanan Operasional" },
@@ -304,14 +273,6 @@
 
     let listTerpilih = [];
 
-    // TEMA: Toggle Dark/Light
-    function toggleTheme() {
-        document.body.classList.toggle('dark');
-        const icon = document.getElementById('themeIcon');
-        icon.className = document.body.classList.contains('dark') ? 'fas fa-low-vision' : 'fas fa-eye';
-    }
-
-    // AUTOFILL
     window.onload = () => {
         const dl = document.getElementById('listPegawai');
         Data_Pegawai.forEach(p => {
@@ -325,28 +286,36 @@
     function autoIsiPegawai() {
         const val = document.getElementById('namaPegawai').value;
         const p = Data_Pegawai.find(x => x.nama === val);
-        if(p && !listTerpilih.find(x => x.nip === p.nip)) {
-            listTerpilih.push(p);
-            document.getElementById('namaPegawai').value = "";
-            renderList();
-            updatePreview();
+        if(p) {
+            if(!listTerpilih.find(x => x.nip === p.nip)) {
+                listTerpilih.push(p);
+                document.getElementById('namaPegawai').value = "";
+                renderList();
+                updatePreview();
+            }
         }
     }
 
     function renderList() {
-        document.getElementById('daftarTerpilih').innerHTML = listTerpilih.map((p, i) => `
+        const container = document.getElementById('daftarTerpilih');
+        container.innerHTML = listTerpilih.map((p, i) => `
             <div class="flex justify-between items-center bg-emerald-500/10 p-2 rounded border border-emerald-500/20 text-[10px]">
-                <span class="font-bold">${p.nama}</span>
-                <button onclick="listTerpilih.splice(${i},1);renderList();updatePreview();" class="text-rose-500 hover:text-rose-700">
-                    <i class="fas fa-times-circle"></i>
-                </button>
+                <span class="font-bold text-emerald-700">${p.nama}</span>
+                <button onclick="hapusPegawai(${i})" class="text-rose-500 hover:text-rose-700"><i class="fas fa-times-circle"></i></button>
             </div>
         `).join('');
     }
 
+    function hapusPegawai(index) {
+        listTerpilih.splice(index, 1);
+        renderList();
+        updatePreview();
+    }
+
     function formatTgl(s) {
         if(!s) return "..................";
-        return new Date(s).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+        const d = new Date(s);
+        return d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
     }
 
     function updatePreview() {
@@ -361,31 +330,31 @@
         document.getElementById('p_hari').innerText = document.getElementById('hariTugas').value || "..................";
         document.getElementById('p_waktu').innerText = document.getElementById('waktuTugas').value || "..................";
         document.getElementById('p_tempat').innerText = document.getElementById('tempatTugas').value || "..................";
-        
-        const maksud = document.getElementById('maksudTugas').value;
-        document.getElementById('p_maksud').innerText = maksud ? maksud : "...";
+        document.getElementById('p_maksud').innerText = document.getElementById('maksudTugas').value || "..................";
 
         const tbody = document.getElementById('p_tabel_pegawai');
-        tbody.innerHTML = listTerpilih.length === 0 ? 
-            '<tr><td colspan="4" class="border border-black p-4 text-center italic opacity-30">Daftar Pegawai Kosong</td></tr>' :
-            listTerpilih.map((p, i) => `
+        if (listTerpilih.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="border border-black p-4 text-center italic opacity-30">Daftar Pegawai Kosong</td></tr>';
+        } else {
+            tbody.innerHTML = listTerpilih.map((p, i) => `
                 <tr>
                     <td class="border border-black p-1 text-center">${i+1}</td>
-                    <td class="border border-black p-1 font-bold uppercase">${p.nama}</td>
+                    <td class="border border-black p-1 font-bold">${p.nama}</td>
                     <td class="border border-black p-1 text-center">${p.nip}</td>
                     <td class="border border-black p-1 text-[11px]">${p.jabatan}</td>
                 </tr>
             `).join('');
+        }
     }
 
-    // PERBAIKAN FUNGSI PRINT
     function jalankanCetak() {
-        updatePreview();
-        window.focus(); 
-        // Memberi jeda sedikit agar browser siap
-        setTimeout(() => {
-            window.print();
-        }, 300);
+        window.print();
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark');
+        const icon = document.getElementById('themeIcon');
+        icon.className = document.body.classList.contains('dark') ? 'fas fa-low-vision' : 'fas fa-eye';
     }
 </script>
 </body>
