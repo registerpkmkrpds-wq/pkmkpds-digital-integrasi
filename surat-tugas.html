@@ -50,12 +50,37 @@
         /* Khusus Area Kertas - Harus tetap putih agar hasil print benar */
         #kertasPreview { background-color: white !important; color: black !important; }
 
-        @media print {
-            header, .no-print, button, .lg\:col-span-4 { display: none !important; }
-            body { background: white !important; margin: 0; }
-            .lg\:col-span-8 { width: 100% !important; border: none !important; box-shadow: none !important; }
-            #areaCetak { display: block !important; width: 100% !important; padding: 1cm !important; }
+         @media print {
+        /* Sembunyikan semua elemen kecuali areaCetak */
+        body * {
+            visibility: hidden;
         }
+        
+        #areaCetak, #areaCetak * {
+            visibility: visible;
+        }
+
+        /* Atur posisi areaCetak agar mulai dari pojok kiri atas kertas */
+        #areaCetak {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100% !important;
+            padding: 1.5cm 2cm !important;
+            visibility: visible !important;
+            display: block !important;
+        }
+
+        /* Hilangkan margin default browser dan shadow */
+        @page {
+            size: portrait;
+            margin: 0;
+        }
+        
+        .no-print, header, button {
+            display: none !important;
+        }
+    }
     </style>
 </head>
 <body class="pb-10">
@@ -185,7 +210,11 @@
                     </table>
 
                     <div class="text-[14px] space-y-1">
-                       <div class="text-[14px] mt-4 mb-4"><p class="text-justify indent-8" id="p_maksud">Menugaskan kepada nama-nama tersebut di atas untuk...</p></div>
+                       <div class="text-[14px] mt-4 mb-4">
+                        <p class="text-justify leading-relaxed">
+                            Menugaskan kepada nama-nama tersebut di atas untuk mengikuti <span id="p_maksud" class="font-medium underline decoration-dotted">................................................................................</span> yang akan dilaksanakan pada:
+                        </p>
+                    </div>
                         <div class="flex items-start"><span class="w-24 flex-shrink-0">Hari</span><span class="mr-2">:</span><span id="p_hari" class="flex-1">..................</span></div>
                         <div class="flex items-start"><span class="w-24 flex-shrink-0">Tanggal</span><span class="mr-2">:</span><span id="p_tgl_tugas" class="flex-1">..................</span></div>
                         <div class="flex items-start"><span class="w-24 flex-shrink-0">Waktu</span><span class="mr-2">:</span><span id="p_waktu" class="flex-1">..................</span></div>
@@ -323,25 +352,29 @@
     function updatePreview() {
         const no = (document.getElementById('noUrut').value || "000").padStart(3, '0');
         const tglD = document.getElementById('tglDibuat').value;
-        const tglT = document.getElementById('tglTugas').value;
         const d = tglD ? new Date(tglD) : new Date();
         const romawi = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][d.getMonth()];
         
         document.getElementById('p_nomor').innerText = `Nomor: 800/${no}/ST/PKM-KPDS/${romawi}/${d.getFullYear()}`;
         document.getElementById('p_tgl_dibuat').innerText = formatTgl(tglD);
-        document.getElementById('p_tgl_tugas').innerText = formatTgl(tglT);
-        document.getElementById('p_maksud').innerText = document.getElementById('maksudTugas').value || "...";
-        document.getElementById('p_tempat').innerText = document.getElementById('tempatTugas').value || "...";
+        document.getElementById('p_tgl_tugas').innerText = formatTgl(document.getElementById('tglTugas').value);
+        document.getElementById('p_hari').innerText = document.getElementById('hariTugas').value || "..................";
+        document.getElementById('p_waktu').innerText = document.getElementById('waktuTugas').value || "..................";
+        document.getElementById('p_tempat').innerText = document.getElementById('tempatTugas').value || "..................";
+        
+        // Update Maksud (Inline)
+        const maksud = document.getElementById('maksudTugas').value;
+        document.getElementById('p_maksud').innerText = maksud ? maksud : "...";
 
         const tbody = document.getElementById('p_tabel_pegawai');
         tbody.innerHTML = listTerpilih.length === 0 ? 
-            '<tr><td colspan="4" class="p-4 text-center italic opacity-30">Belum ada personel terpilih</td></tr>' :
+            '<tr><td colspan="4" class="border border-black p-4 text-center italic opacity-30">Daftar Pegawai Kosong</td></tr>' :
             listTerpilih.map((p, i) => `
                 <tr>
                     <td class="border border-black p-1 text-center">${i+1}</td>
                     <td class="border border-black p-1 font-bold uppercase">${p.nama}</td>
-                    <td class="border border-black p-1 text-center font-mono">${p.nip}</td>
-                    <td class="border border-black p-1">${p.jabatan}</td>
+                    <td class="border border-black p-1 text-center">${p.nip}</td>
+                    <td class="border border-black p-1 text-[11px]">${p.jabatan}</td>
                 </tr>
             `).join('');
     }
