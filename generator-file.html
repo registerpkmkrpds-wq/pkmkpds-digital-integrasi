@@ -67,30 +67,66 @@
     let myChart = null;
 
     async function analisisGemini() {
-        const text = document.getElementById('rawInput').value;
-        const command = document.getElementById('customCommand').value;
-        const key = document.getElementById('apiKey').value;
-        
-        if(!key) return alert("Masukkan API Key!");
-        localStorage.setItem('gemini_key', key);
+    const text = document.getElementById('rawInput').value;
+    const command = document.getElementById('customCommand').value;
+    const key = document.getElementById('apiKey').value;
+    
+    if(!key) return alert("Masukkan API Key Gemini!");
+    localStorage.setItem('gemini_key', key);
 
-        document.getElementById('outputArea').innerHTML = "<div style='text-align:center; padding: 50px;'>Menyusun laporan...</div>";
+    const outputArea = document.getElementById('outputArea');
+    outputArea.innerHTML = "<div class='text-center py-5'><div class='spinner-border text-primary'></div><p class='mt-3'>Menghubungkan ke server Google AI...</p></div>";
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
-        const prompt = `Analisis data ini. Jika ada tabel excel (tab-separated), ubah ke tabel HTML class='table-laporan'. Berikan analisa & rekomendasi sesuai perintah user: "${command}". Output JSON: {"ringkasan": "str", "tabel_html": "str", "data_grafik": {"labels":[], "values":[]}, "analisa": "str", "rekomendasi": ["str"]}`;
+    // Daftar model yang akan dicoba satu per satu
+    const models = [
+        "gemini-1.5-flash",
+        "gemini-1.5-flash-8b",
+        "gemini-pro"
+    ];
 
+    let success = false;
+
+    for (let modelName of models) {
         try {
+            outputArea.innerHTML = `<div class='text-center py-5'><div class='spinner-border text-primary'></div><p class='mt-3'>Mencoba model: <b>${modelName}</b>...</p></div>`;
+            
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${key}`;
+            
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt + " Data: " + text }] }] })
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: `Analisis data ini dan berikan output dalam JSON murni (tanpa markdown). STRUKTUR: {"ringkasan": "str", "tabel_html": "str", "data_grafik": {"labels":[], "values":[]}, "analisa": "str", "rekomendasi": ["str"]}. PERINTAH: ${command}. DATA: ${text}` }] }]
+                })
             });
+
             const resData = await response.json();
-            const data = JSON.parse(resData.candidates[0].content.parts[0].text.replace(/```json|```/g, ""));
-            renderLaporan(data);
-        } catch (e) { alert("Terjadi kesalahan."); }
+            
+            if (resData.candidates && resData.candidates[0]) {
+                const rawText = resData.candidates[0].content.parts[0].text;
+                const cleanJson = rawText.replace(/```json|```/g, "").trim();
+                const data = JSON.parse(cleanJson);
+                renderLaporan(data);
+                success = true;
+                break; // Keluar dari loop jika berhasil
+            }
+        } catch (e) {
+            console.warn(`Model ${modelName} gagal, mencoba model berikutnya...`);
+        }
     }
 
+    if (!success) {
+        outputArea.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Semua Model Gagal:</strong><br>
+                Google AI menolak koneksi. <br><br>
+                <strong>Solusi Terakhir:</strong><br>
+                1. Buka <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a>.<br>
+                2. Buat <b>API Key Baru</b> dengan mengklik "Create API key in new project".<br>
+                3. Pastikan Anda tidak berada dalam jaringan VPN yang diblokir Google.
+            </div>`;
+    }
+}
     function renderLaporan(data) {
         document.getElementById('outputArea').innerHTML = `
             <div class="section-title">I. Ringkasan</div><p>${data.ringkasan}</p>
