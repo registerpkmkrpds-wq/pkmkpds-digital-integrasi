@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Word Pro - The Ultimate Edition</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/evidenceprime/html-docx-js/dist/html-docx.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="importmap">
+      { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&family=Roboto&family=Ubuntu&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --p-accent: #6c5ce7;
+            --bg: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);
+        }
+
+        body.dark-mode {
+            --glass-bg: rgba(30, 30, 30, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --bg: linear-gradient(135deg, #1e272e 0%, #000000 100%);
+        }
+
+        body {
+            margin: 0; font-family: 'Montserrat', sans-serif;
+            background: var(--bg); background-attachment: fixed;
+            min-height: 100vh; transition: 0.5s;
+        }
+
+        /* Toolbar macOS Style */
+        .toolbar {
+            position: sticky; top: 10px; z-index: 1000;
+            margin: 10px 20px; padding: 15px;
+            background: var(--glass-bg); backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border); border-radius: 20px;
+            display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        /* Paper Canvas */
+        .canvas-container {
+            margin: 30px auto 100px; background: white;
+            padding: 2.5cm; box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            border-radius: 4px; box-sizing: border-box; transition: width 0.3s ease;
+        }
+        .a4 { width: 21cm; min-height: 29.7cm; }
+        .letter { width: 21.6cm; min-height: 27.9cm; }
+
+        #editor { 
+            outline: none; min-height: 24cm; font-size: 12pt; 
+            line-height: 1.6; text-align: justify; color: #333;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            position: fixed; bottom: 15px; left: 50%;
+            transform: translateX(-50%); background: var(--glass-bg);
+            padding: 10px 30px; border-radius: 50px;
+            display: flex; gap: 20px; font-size: 0.85em;
+            border: 1px solid var(--glass-border); box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        button, select, input {
+            padding: 8px 12px; border-radius: 10px; border: 1px solid #ddd;
+            background: white; cursor: pointer; transition: 0.2s;
+        }
+        button:hover { transform: translateY(-2px); background: #f8f9fa; }
+        .btn-ai { background: #6c5ce7; color: white; border: none; font-weight: bold; }
+        .btn-save { background: #2ecc71; color: white; border: none; }
+    </style>
+</head>
+<body id="mainBody">
+
+<div class="toolbar">
+    <input type="file" id="upload" accept=".docx" title="Buka File Word">
+    
+    <select id="fontFamily" onchange="document.execCommand('fontName', false, this.value)">
+        <option value="Montserrat">Montserrat</option>
+        <option value="Arial">Arial</option>
+        <option value="'Times New Roman', serif">Times New Roman</option>
+        <option value="'Playfair Display', serif">Elegant Serif</option>
+        <option value="'Roboto', sans-serif">Roboto</option>
+    </select>
+
+    <select id="pageSize" onchange="document.getElementById('paper').className = 'canvas-container ' + this.value">
+        <option value="a4">A4</option>
+        <option value="letter">Letter</option>
+    </select>
+
+    <button onclick="document.execCommand('bold')"><b>B</b></button>
+    <button onclick="document.execCommand('justifyFull')">≡ Justify</button>
+    <button onclick="insertImage()">🖼️ Gambar</button>
+    <button onclick="generateTOC()">📜 Daftar Isi</button>
+    <button id="voiceBtn" onclick="toggleVoice()">🎤 Suara</button>
+
+    <div style="border-left: 1px solid #ccc; padding-left: 10px; display: flex; gap: 5px;">
+        <input type="text" id="chartData" placeholder="Data: 10,20" style="width: 80px;">
+        <button onclick="insertChart()">📊 Grafik</button>
+    </div>
+
+    <div style="border-left: 1px solid #ccc; padding-left: 10px; display: flex; gap: 5px;">
+        <input type="password" id="apiKey" placeholder="Gemini API Key..." style="width: 120px;">
+        <button class="btn-ai" onclick="handleSmartAI()">✨ Super AI Fix</button>
+    </div>
+
+    <button class="btn-save" onclick="exportToDoc()">💾 Simpan</button>
+</div>
+
+<div class="canvas-container a4" id="paper">
+    <div id="editor" contenteditable="true" oninput="autoSave(); updateStats();">
+        Unggah file Word atau mulailah mengetik di sini...
+    </div>
+</div>
+
+<div class="status-bar">
+    <div id="wordCount">0 Kata</div>
+    <div id="aiStatus">Mode: Lokal</div>
+    <div onclick="document.getElementById('mainBody').classList.toggle('dark-mode')" style="cursor:pointer">🌓 Tema</div>
+</div>
+
+<script type="module">
+    import { GoogleGenerativeAI } from "@google/generative-ai";
+
+    const editor = document.getElementById('editor');
+    const STORAGE_KEY = "ultimate_editor_save";
+
+    // --- 1. FILE & EXPORT ---
+    document.getElementById('upload').addEventListener('change', (e) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            mammoth.convertToHtml({arrayBuffer: ev.target.result}).then(res => {
+                editor.innerHTML = res.value;
+                updateStats();
+            });
+        };
+        reader.readAsArrayBuffer(e.target.files[0]);
+    });
+
+    window.exportToDoc = () => {
+        const content = `<html><head><meta charset="utf-8"></head><body>${editor.innerHTML}</body></html>`;
+        const blob = htmlDocx.asBlob(content);
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = "dokumen_cerdas.docx";
+        link.click();
+    };
+
+    // --- 2. HYBRID AI LOGIC ---
+    window.handleSmartAI = async function() {
+        const key = document.getElementById('apiKey').value;
+        if (!key) {
+            runLocalAI();
+        } else {
+            const useCloud = confirm("API Key terdeteksi. Gunakan Gemini AI untuk perbaikan bahasa yang lebih cerdas?");
+            if (useCloud) await askGeminiAI(key);
+            else runLocalAI();
+        }
+    };
+
+    function runLocalAI() {
+        let c = editor.innerHTML;
+        c = c.replace(/(^\s*|<p>|[.!?]\s+)([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase()); // Kapital
+        c = c.replace(/\s+([,.!?])/g, '$1'); // Tanda Baca
+        c = c.replace(/\b(\w+)\s+\1\b/gi, '$1'); // Hapus Kata Berulang
+        editor.innerHTML = c;
+        editor.style.textAlign = "justify";
+        alert("AI Lokal: Format & Tanda baca dirapikan.");
+    }
+
+    async function askGeminiAI(key) {
+        try {
+            document.getElementById('aiStatus').innerText = "AI Berpikir...";
+            const genAI = new GoogleGenerativeAI(key);
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const result = await model.generateContent(`Rapikan teks ini sesuai EYD dan profesional: ${editor.innerText}`);
+            editor.innerText = result.response.text();
+            alert("Gemini AI: Teks telah disempurnakan!");
+        } catch (e) { alert("Error AI: " + e.message); }
+        finally { document.getElementById('aiStatus').innerText = "Mode: Cloud"; }
+    }
+
+    // --- 3. MULTIMEDIA & NAVIGASI ---
+    window.insertImage = () => {
+        const input = document.createElement('input');
+        input.type = 'file'; input.accept = 'image/*';
+        input.onchange = e => {
+            const reader = new FileReader();
+            reader.onload = ev => document.execCommand('insertHTML', false, `<img src="${ev.target.result}" style="max-width:100%; border-radius:10px;">`);
+            reader.readAsDataURL(e.target.files[0]);
+        };
+        input.click();
+    };
+
+    window.insertChart = () => {
+        const data = document.getElementById('chartData').value;
+        if(!data) return;
+        const id = 'chart-' + Date.now();
+        document.execCommand('insertHTML', false, `<div contenteditable="false" style="width:400px;margin:20px auto;"><canvas id="${id}"></canvas></div><p><br></p>`);
+        setTimeout(() => {
+            new Chart(document.getElementById(id), {
+                type: 'bar',
+                data: { labels: data.split(',').map((_,i)=>`Data ${i+1}`), datasets: [{label:'Statistik', data: data.split(','), backgroundColor:'#6c5ce7'}]}
+            });
+        }, 100);
+    };
+
+    window.generateTOC = () => {
+        const hs = editor.querySelectorAll('h2, h1');
+        let html = '<div contenteditable="false" style="background:#f9f9f9;padding:15px;border-radius:10px;"><b>DAFTAR ISI</b><ul>';
+        hs.forEach((h, i) => {
+            if(!h.id) h.id = 'h-'+i;
+            html += `<li><a href="#${h.id}" style="color:#6c5ce7;text-decoration:none;">${h.innerText}</a></li>`;
+        });
+        editor.innerHTML = html + '</ul></div><hr>' + editor.innerHTML;
+    };
+
+    // --- 4. VOICE & UTILS ---
+    const rec = window.webkitSpeechRecognition ? new webkitSpeechRecognition() : null;
+    if(rec) {
+        rec.lang = 'id-ID'; rec.continuous = true;
+        rec.onresult = e => document.execCommand('insertText', false, e.results[e.results.length-1][0].transcript);
+    }
+    window.toggleVoice = () => {
+        const btn = document.getElementById('voiceBtn');
+        if(btn.innerText.includes("Suara")) { rec.start(); btn.innerText = "🛑 Stop"; }
+        else { rec.stop(); btn.innerText = "🎤 Suara"; }
+    };
+
+    window.updateStats = () => {
+        const words = editor.innerText.trim().split(/\s+/).length;
+        document.getElementById('wordCount').innerText = (editor.innerText.trim() ? words : 0) + " Kata";
+    };
+
+    window.autoSave = () => localStorage.setItem(STORAGE_KEY, editor.innerHTML);
+
+    window.onload = () => {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if(saved) editor.innerHTML = saved;
+        updateStats();
+    };
+</script>
+
+</body>
+</html>
