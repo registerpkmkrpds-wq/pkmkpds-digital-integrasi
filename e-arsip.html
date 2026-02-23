@@ -128,8 +128,22 @@
                         <h4 id="displayNomor" class="font-mono font-bold text-xs text-slate-700 dark:text-emerald-300">---</h4>
                     </div>
 
+					<div class="grid grid-cols-2 gap-4">
                     <select id="selKlaster" class="input-modern" onchange="updateSub()"></select>
-                    <select id="selSub" class="input-modern" onchange="generatePreview()"></select>
+					<select id="selSub" class="input-modern" onchange="generatePreview()"></select>
+					</div>
+			
+					<select id="selJenisSurat" class="input-modern" onchange="generatePreview()">
+   					<option value="">-- Pilih Jenis & Masa Retensi --</option>
+    				<option value="PERMANEN" class="font-bold text-purple-600">🏛️ PERMANEN (Selamanya)</option>
+    				<option value="SK">📄 SURAT KEPUTUSAN (10 Thn)</option>
+   					<option value="SOP">📋 SOP (5 Thn)</option>
+    				<option value="MOU">🤝 BERITA ACARA/MOU (10 Thn)</option>
+    				<option value="ST">📝 SURAT TUGAS (2 Thn)</option>
+    				<option value="LR">📊 LAPORAN (5 Thn)</option>
+    				<option value="UND">✉️ UNDANGAN (1 Thn)</option>
+    				<option value="DL">📂 DOKUMEN LAIN (3 Thn)</option>
+					</select>
 
                     <div class="grid grid-cols-2 gap-4">
                         <input type="number" id="noUrut" class="input-modern" placeholder="No Urut *" oninput="generatePreview()">
@@ -497,7 +511,7 @@ function renderTable() {
         updateDashboard(filtered); 
     }
 
-    // 4. Render baris tabel
+    updateStatistics();
     document.getElementById('tableBody').innerHTML = filtered.map((x, i) => {
         // Logika warna Badge Jenis Surat
         let colorClass = "bg-slate-100 text-slate-600";
@@ -509,6 +523,15 @@ function renderTable() {
         else if (x.jenis === "LR") colorClass = "bg-amber-100 text-amber-700";
         else if (x.jenis === "DL") colorClass = "bg-indigo-100 text-indigo-700";
 
+		const thnArsip = new Date(x.tgl).getFullYear();
+		const thnSekarang = new Date().getFullYear();
+		const umur = thnSekarang - thnArsip;
+
+		let retensiLabel = "";
+		if (x.jenis === "PERMANEN") {retensiLabel = `<span class="text-[7px] text-purple-500 font-bold"><i class="fas fa-infinity"></i> ASET TETAP</span>`;
+		} else {
+    	retensiLabel = `<span class="text-[7px] text-slate-400 font-bold"><i class="fas fa-clock"></i> USIA: ${umur} THN</span>`;
+		}
         return `
         <tr class="border-b dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
             <td class="p-4">
