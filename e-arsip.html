@@ -151,15 +151,22 @@
 
                     <input type="file" id="arsipFile" class="hidden" accept="application/pdf">
                     <label for="arsipFile" id="labelFile" class="w-full flex flex-col items-center justify-center gap-2 p-4 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-50 text-[10px] font-bold uppercase">
-                        <i class="fas fa-cloud-arrow-up text-xl text-emerald-500"></i> Pilih PDF (Max 5MB)
-                    </label>
-
+                        <i class="fas fa-cloud-arrow-up text-xl text-emerald-500"></i> Pilih PDF (Max 5MB)</label>
+					<div id="progressContainer" class="hidden"> <div class="w-full bg-slate-200 rounded-full h-1.5">
+        			<div id="progressBar" class="bg-emerald-600 h-1.5 rounded-full" style="width: 0%"></div>
+    				</div>
+					</div>
                     <button type="submit" id="btnSimpan" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg hover:bg-emerald-500">Simpan Ke Cloud</button>
                     <button type="button" id="btnBatal" onclick="resetForm()" class="hidden w-full text-[10px] font-black text-rose-500 uppercase mt-2">Batal Edit</button>
-                </form>
-            </div>
-        </div>
-
+               		</form>
+					<div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+    			<div class="flex items-center gap-2 mb-3"><i class="fas fa-history text-emerald-500 text-xs"></i>
+        	<h3 class="text-[9px] font-black uppercase text-slate-400 tracking-widest">Log Aktivitas</h3></div>
+    	<div id="logContainer" class="max-h-32 overflow-y-auto space-y-2">            
+	</div>
+</div>
+</div>
+</div>	
         <div class="lg:col-span-8 space-y-6"> 
             
             <div class="card-custom p-4 bg-white dark:bg-slate-900 rounded-3xl shadow-lg">
