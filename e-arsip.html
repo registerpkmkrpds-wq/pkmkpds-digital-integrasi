@@ -492,25 +492,38 @@ async function fetchData() {
 }
 	
 function renderTable() {
-    // 1. Ambil nilai dari semua input filter
+    // 1. Ambil nilai filter
     const q = document.getElementById('searchInput').value.toLowerCase();
     const fKlaster = document.getElementById('filterKlaster').value;
-    const fJenis = document.getElementById('filterJenis').value; // Tambahkan ini
+    const fJenis = document.getElementById('filterJenis').value;
     
-    // 2. Filter data berdasarkan Teks, Klaster, dan Jenis
+    // 2. Filter data
     const filtered = database.filter(x => {
         const matchText = x.no.toLowerCase().includes(q) || x.nama.toLowerCase().includes(q);
         const matchKlaster = (fKlaster === "SEMUA") || (x.klaster === fKlaster);
-        const matchJenis = (fJenis === "SEMUA") || (x.jenis === fJenis); // Tambahkan ini
+        const matchJenis = (fJenis === "SEMUA") || (x.jenis === fJenis);
         return matchText && matchKlaster && matchJenis;
-		const thnArsip = new Date(x.tgl).getFullYear();
-		const thnSekarang = new Date().getFullYear();
-		const umur = thnSekarang - thnArsip;
-		});
+    });
 
-    updateStatistics();
+    // 3. Update Dashboard Statistik & Grafik
+    updateStatistics(); 
+
+    // 4. Render Tabel
     document.getElementById('tableBody').innerHTML = filtered.map((x, i) => {
-        // Logika warna Badge Jenis Surat
+        // --- LOGIKA RETENSI & UMUR ---
+        const thnArsip = new Date(x.tgl).getFullYear();
+        const thnSekarang = new Date().getFullYear();
+        const umur = thnSekarang - thnArsip;
+        
+        let retensiLabel = "";
+        if (x.jenis === "PERMANEN") {
+            retensiLabel = `<span class="ml-2 text-[7px] px-1.5 py-0.5 bg-purple-100 text-purple-600 rounded font-black"><i class="fas fa-infinity mr-1"></i>PERMANEN</span>`;
+        } else {
+            const warnaUmur = umur >= 5 ? 'text-rose-500' : 'text-slate-400';
+            retensiLabel = `<span class="ml-2 text-[7px] font-bold ${warnaUmur}"><i class="fas fa-clock mr-1"></i>USIA: ${umur} THN</span>`;
+        }
+
+        // --- WARNA BADGE JENIS ---
         let colorClass = "bg-slate-100 text-slate-600";
         if (x.jenis === "SK") colorClass = "bg-emerald-100 text-emerald-700";
         else if (x.jenis === "SOP") colorClass = "bg-blue-100 text-blue-700";
@@ -519,19 +532,15 @@ function renderTable() {
         else if (x.jenis === "MOU") colorClass = "bg-yellow-100 text-yellow-700";
         else if (x.jenis === "LR") colorClass = "bg-amber-100 text-amber-700";
         else if (x.jenis === "DL") colorClass = "bg-indigo-100 text-indigo-700";
-		let retensiLabel = "";
-		if (x.jenis === "PERMANEN") {retensiLabel = `<span class="text-[7px] text-purple-500 font-bold"><i class="fas fa-infinity"></i> ASET TETAP</span>`;
-		} else {
-    	retensiLabel = `<span class="text-[7px] text-slate-400 font-bold"><i class="fas fa-clock"></i> USIA: ${umur} THN</span>`;
-		}
-		
+        else if (x.jenis === "PERMANEN") colorClass = "bg-purple-600 text-white";
+
         return `
         <tr class="border-b dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
             <td class="p-4">
                 <div class="flex items-center gap-2 mb-1">
                     <span class="font-mono text-emerald-600 font-black text-[10px]">${x.no}</span>
                     <span class="text-[8px] px-2 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-500 font-bold">${x.klaster ? x.klaster.split(':')[0] : '-'}</span>
-                </div>
+                    ${retensiLabel} </div>
                 <div class="font-bold uppercase text-slate-700 dark:text-slate-200 leading-tight mb-1">${x.nama}</div>
                 <div class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">
                     <i class="far fa-calendar-alt mr-1"></i>${x.tgl} | <i class="fas fa-tag mr-1"></i>Sub: ${x.sub}
@@ -544,18 +553,14 @@ function renderTable() {
                 <div class="flex justify-center gap-2">
                     <button onclick="cetakBarcode(${i})" class="btn-action bg-slate-100 text-slate-600 hover:bg-emerald-500 hover:text-white" title="Cetak Label"><i class="fas fa-qrcode"></i></button>
                     <button onclick="editData(${i})" class="btn-action bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white" title="Edit Data"><i class="fas fa-pen"></i></button>
-                    
-                    <button onclick="openPreview(${i})" class="btn-action bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white" title="Preview PDF">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    
+                    <button onclick="openPreview(${i})" class="btn-action bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white" title="Preview PDF"><i class="fas fa-eye"></i></button>
                     <button onclick="hapus(${i})" class="btn-action bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white" title="Hapus"><i class="fas fa-trash"></i></button>
                 </div>
             </td>
         </tr>
     `}).join('');
 }
-
+	
 function renderLogs() {
     const cont = document.getElementById('logContainer');
     if (activityLogs.length === 0) return;
