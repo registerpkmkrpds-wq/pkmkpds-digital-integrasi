@@ -250,7 +250,7 @@
 </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzKVcE-XHIuZxgiJUDCVVkLQNstxidaxwNeQLQzENlD4_nlg3vbipjHSR-lKlj6aPQf/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwP963edxjXReJ8ghk4wQHvwqmhOQI5pS2BIM5kucAklF84wGDTZ_RKm9ADs1YWGrPz/exec";
 const PIN_HASH = "MjAyNg==";
 let database = JSON.parse(localStorage.getItem('db_arsip_kpds')) || [];
 let activityLogs = [];
@@ -442,46 +442,91 @@ async function syncFromGAS() {
     }
 }
 
+async function fetchData() {
+    const syncIcon = document.getElementById('syncIcon');
+    if(syncIcon) syncIcon.classList.add('fa-spin');
+
+    try {
+        const response = await fetch(scriptUrl);
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const res = await response.json();
+        
+        // Sesuai dengan format return responseJSON({ database: dbData, logs: logData }) di GAS Anda
+        if (res.database) {
+            database = res.database;
+            // Jika ada sistem log
+            if (res.logs && document.getElementById('logContainer')) {
+                renderLogs(res.logs);
+            }
+            renderTable(); // Ini akan otomatis memanggil updateDashboard() jika sudah ada di dalamnya
+            console.log("Sinkronisasi Berhasil:", database.length, "data dimuat.");
+        }
+    } catch (err) {
+        console.error("Masalah Cloud:", err);
+        alert("Gagal memuat data dari Cloud! Pastikan URL Script benar dan status sudah 'Anyone'.");
+    } finally {
+        if(syncIcon) syncIcon.classList.remove('fa-spin');
+    }
+}
+	
 function renderTable() {
+    // 1. Ambil nilai dari semua input filter
     const q = document.getElementById('searchInput').value.toLowerCase();
-    const f = document.getElementById('filterKlaster').value;
+    const fKlaster = document.getElementById('filterKlaster').value;
+    const fJenis = document.getElementById('filterJenis').value; // Tambahkan ini
     
+    // 2. Filter data berdasarkan Teks, Klaster, dan Jenis
     const filtered = database.filter(x => {
         const matchText = x.no.toLowerCase().includes(q) || x.nama.toLowerCase().includes(q);
-        const matchKlaster = (f === "SEMUA") || (x.klaster === f);
-        return matchText && matchKlaster;
+        const matchKlaster = (fKlaster === "SEMUA") || (x.klaster === fKlaster);
+        const matchJenis = (fJenis === "SEMUA") || (x.jenis === fJenis); // Tambahkan ini
+        return matchText && matchKlaster && matchJenis;
     });
-	updateStatistics();
+
+    // 3. Update Dashboard Statistik & Chart
+   // Pastikan fungsi ini dipanggil agar angka di atas berubah saat difilter
+    if (typeof updateDashboard === "function") {
+        updateDashboard(filtered); 
+    }
+
+    // 4. Render baris tabel
     document.getElementById('tableBody').innerHTML = filtered.map((x, i) => {
         // Logika warna Badge Jenis Surat
         let colorClass = "bg-slate-100 text-slate-600";
         if (x.jenis === "SK") colorClass = "bg-emerald-100 text-emerald-700";
-        if (x.jenis === "SOP") colorClass = "bg-blue-100 text-blue-700";
-        if (x.jenis === "ST") colorClass = "bg-rose-100 text-rose-700";
-	    if (x.jenis === "UND") colorClass = "bg-purple-100 text-purple-700";
-		if (x.jenis === "MOU") colorClass = "bg-yellow-100 text-yellow-700";
-	    if (x.jenis === "LR") colorClass = "bg-amber-100 text-amber-700";
-		if (x.jenis === "DL") colorClass = "bg-indigo-100 text-indigo-700";
+        else if (x.jenis === "SOP") colorClass = "bg-blue-100 text-blue-700";
+        else if (x.jenis === "ST") colorClass = "bg-rose-100 text-rose-700";
+        else if (x.jenis === "UND") colorClass = "bg-purple-100 text-purple-700";
+        else if (x.jenis === "MOU") colorClass = "bg-yellow-100 text-yellow-700";
+        else if (x.jenis === "LR") colorClass = "bg-amber-100 text-amber-700";
+        else if (x.jenis === "DL") colorClass = "bg-indigo-100 text-indigo-700";
 
         return `
-        <tr class="border-b dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+        <tr class="border-b dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
             <td class="p-4">
                 <div class="flex items-center gap-2 mb-1">
                     <span class="font-mono text-emerald-600 font-black text-[10px]">${x.no}</span>
-                    <span class="text-[8px] px-2 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-500 font-bold">${x.klaster.split(':')[0]}</span>
+                    <span class="text-[8px] px-2 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-500 font-bold">${x.klaster ? x.klaster.split(':')[0] : '-'}</span>
                 </div>
-                <div class="font-bold uppercase text-slate-700 dark:text-slate-200">${x.nama}</div>
-                <div class="text-[9px] text-slate-400 font-bold uppercase">${x.tgl} | Sub: ${x.sub}</div>
+                <div class="font-bold uppercase text-slate-700 dark:text-slate-200 leading-tight mb-1">${x.nama}</div>
+                <div class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">
+                    <i class="far fa-calendar-alt mr-1"></i>${x.tgl} | <i class="fas fa-tag mr-1"></i>Sub: ${x.sub}
+                </div>
             </td>
             <td class="p-4 text-center">
-                <span class="px-3 py-1 rounded-full text-[9px] font-black ${colorClass}">${x.jenis || 'DOC'}</span>
+                <span class="px-3 py-1 rounded-full text-[9px] font-black whitespace-nowrap ${colorClass}">${x.jenis || 'DOC'}</span>
             </td>
             <td class="p-4">
                 <div class="flex justify-center gap-2">
-                    <button onclick="cetakBarcode(${i})" class="btn-action bg-slate-100 text-slate-600" title="Cetak Label"><i class="fas fa-qrcode"></i></button>
-                    <button onclick="editData(${i})" class="btn-action bg-amber-50 text-amber-600"><i class="fas fa-pen"></i></button>
-                    <a href="${x.link}" target="_blank" class="btn-action bg-blue-50 text-blue-600"><i class="fas fa-eye"></i></a>
-                    <button onclick="hapus(${i})" class="btn-action bg-rose-50 text-rose-600"><i class="fas fa-trash"></i></button>
+                    <button onclick="cetakBarcode(${i})" class="btn-action bg-slate-100 text-slate-600 hover:bg-emerald-500 hover:text-white" title="Cetak Label"><i class="fas fa-qrcode"></i></button>
+                    <button onclick="editData(${i})" class="btn-action bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white" title="Edit Data"><i class="fas fa-pen"></i></button>
+                    
+                    <button onclick="openPreview(${i})" class="btn-action bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white" title="Preview PDF">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    
+                    <button onclick="hapus(${i})" class="btn-action bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white" title="Hapus"><i class="fas fa-trash"></i></button>
                 </div>
             </td>
         </tr>
