@@ -80,16 +80,16 @@
 							<option value="SOP">STANDAR OPERASIONAL PROSEDUR (SOP)</option>
                             <option value="ST">SURAT TUGAS (ST)</option>
                             <option value="UND">UNDANGAN (UND)</option>
-                            <option value="BA">BERITA ACARA (BA)</option>
-                            <option value="KAK">KERANGKA ACUAN KERJA (KAK)</option>
+                            <option value="MOU">BERITA ACARA (MOU)</option>
 							<option value="LR">LAPORAN (LR)</option>
+							<option value="DL">DOKUMEN LAINNYA (DL)</option>
                          </select>
                         
                         <textarea id="arsipNama" class="input-modern h-16" placeholder="PERIHAL / NAMA DOKUMEN (Min. 5 Huruf) *"></textarea>
 
                         <input type="file" id="arsipFile" class="hidden" accept="application/pdf">
                         <label for="arsipFile" id="labelFile" class="w-full flex flex-col items-center justify-center gap-2 p-4 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 text-[10px] font-bold uppercase">
-                            <i class="fas fa-cloud-arrow-up text-xl text-emerald-500"></i> Pilih PDF Dokumen *
+                            <i class="fas fa-cloud-arrow-up text-xl text-emerald-500"></i> Pilih PDF Dokumen * MAX 5 MB
                         </label>
 
                         <div id="progressContainer" class="hidden">
@@ -144,9 +144,9 @@
 					<option value="SOP">STANDAR OPERASIONAL PROSEDUR (SOP)</option>
                     <option value="ST">SURAT TUGAS (ST)</option>
                     <option value="UND">UNDANGAN (UND)</option>
-                    <option value="BA">BERITA ACARA (BA)</option>
-                    <option value="KAK">KERANGKA ACUAN KERJA (KAK)</option>
+                    <option value="MOU">BERITA ACARA (MOU)</option>
 					<option value="LR">LAPORAN (LR)</option>
+					<option value="DL">DOKUMEN LAINNYA (DL)</option>
                 </select>
             </div>
 
@@ -157,10 +157,12 @@
                 
                 <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 h-10 rounded-xl text-[10px] font-black uppercase flex items-center justify-center gap-2 shadow-sm transition-all flex-1 lg:flex-none">
                     <i class="fas fa-file-excel text-sm"></i>
-                    <span>Export</span>
+                    <span>Export Excel</span>
                 </button>
             </div>
         </div>
+	</div>
+</div>
         
                 <div class="card-custom overflow-hidden">
                     <div class="overflow-x-auto">
@@ -396,9 +398,13 @@ function renderTable() {
     document.getElementById('tableBody').innerHTML = filtered.map((x, i) => {
         // Logika warna Badge Jenis Surat
         let colorClass = "bg-slate-100 text-slate-600";
-        if (x.jenis === "SK") colorClass = "bg-purple-100 text-purple-700";
-        if (x.jenis === "ST") colorClass = "bg-blue-100 text-blue-700";
-        if (x.jenis === "SOP") colorClass = "bg-rose-100 text-rose-700";
+        if (x.jenis === "SK") colorClass = "bg-emerald-100 text-emerald-700";
+        if (x.jenis === "SOP") colorClass = "bg-blue-100 text-blue-700";
+        if (x.jenis === "ST") colorClass = "bg-rose-100 text-rose-700";
+	    if (x.jenis === "UND") colorClass = "bg-purple-100 text-purple-700";
+		if (x.jenis === "MOU") colorClass = "bg-yellow-100 text-yellow-700";
+	    if (x.jenis === "LR") colorClass = "bg-amber-100 text-amber-700";
+		if (x.jenis === "DL") colorClass = "bg-indigo-100 text-indigo-700";
 
         return `
         <tr class="border-b dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
