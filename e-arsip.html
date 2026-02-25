@@ -330,29 +330,23 @@ function updateSub() {
     generatePreview();
 }
 
+function getRomawi(bulan) {
+    const romawi = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+    return romawi[bulan - 1] || "I";
+}
+	
 function generatePreview() {
-    // 1. Ambil nilai jenis surat
     const jenis = document.getElementById('selJenisSurat').value || "JENIS";
-    
-    // 2. Ambil kode klasifikasi
     const s = document.getElementById('selSub').value;
     const kodeKlasifikasi = s ? s.split(' ')[0] : "000";
-    
-    // 3. Ambil nomor urut (3 digit)
     const no = (document.getElementById('noUrut').value || "0").padStart(3, '0');
-    
-    // 4. Ambil tanggal untuk Bulan Romawi dan Tahun
     const tglVal = document.getElementById('arsipTgl').value;
     const d = tglVal ? new Date(tglVal) : new Date();
-    const bulanRomawi = getRomawi(d.getMonth() + 1); // getMonth() dimulai dari 0
+	
+    const bulanRomawi = getRomawi(d.getMonth() + 1);
     const thn = d.getFullYear();
-    
-    // 5. Susun format nomor baru
     const nomor = `${kodeKlasifikasi}/${no}/${jenis}/PKM-KPDS/${bulanRomawi}/${thn}`;
-    
-    // Tampilkan di layar
     document.getElementById('displayNomor').innerText = nomor;
-    
     return nomor;
 }
 
@@ -464,11 +458,6 @@ async function syncFromGAS() {
     } finally { 
         if(icon) icon.classList.remove('fa-spin'); 
     }
-}
-
-function getRomawi(bulan) {
-    const romawi = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
-    return romawi[bulan - 1] || "I";
 }
 	
 async function fetchData() {
