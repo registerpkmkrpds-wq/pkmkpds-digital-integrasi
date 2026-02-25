@@ -371,34 +371,26 @@ document.getElementById('arsipFile').onchange = (e) => {
 document.getElementById('formArsip').onsubmit = async (e) => {
     e.preventDefault();
     
-    const noUrut = document.getElementById('noUrut').value;
-    const tgl = document.getElementById('arsipTgl').value;
-    const nama = document.getElementById('arsipNama').value.trim();
-    
-    if (!noUrut || !tgl || nama.length < 5) {
-        return alert("Mohon lengkapi data dengan benar!");
-    }
-    
     const btn = document.getElementById('btnSimpan');
     const progCont = document.getElementById('progressContainer');
     const progBar = document.getElementById('progressBar');
-    const sessionPin = sessionStorage.getItem('arsip_session_pin') || "2026";
+    const sessionPin = sessionStorage.getItem('arsip_session_pin');
 
-    // UI Loading
+    // UI Loading Instan
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MENGIRIM...';
     progCont.classList.remove('hidden');
-    progBar.style.width = '30%'; // Progress awal
+    progBar.style.width = '30%'; 
 
     const payload = {
         token: sessionPin,
         action: editIndex !== null ? "update" : "upload",
-        no: generatePreview(),
-        nama: nama.toUpperCase(),
+        no: generatePreview(), // Nomor dengan Romawi
+        nama: document.getElementById('arsipNama').value.trim().toUpperCase(),
         klaster: document.getElementById('selKlaster').value,
         sub: document.getElementById('selSub').value,
         jenisSurat: document.getElementById('selJenisSurat').value,
-        tgl: tgl,
+        tgl: document.getElementById('arsipTgl').value,
         fileData: fileData ? fileData.base64 : null,
         fileName: fileData ? fileData.name : "",
         fileType: fileData ? fileData.type : ""
@@ -411,25 +403,40 @@ document.getElementById('formArsip').onsubmit = async (e) => {
             headers: { "Content-Type": "text/plain;charset=utf-8" }
         });
         
-        progBar.style.width = '80%';
         const res = await resp.json();
         
         if (res.status === "success") {
             progBar.style.width = '100%';
-            setTimeout(() => {
-                alert("Data Berhasil Disimpan!");
-                resetForm();
-                syncFromGAS();
-            }, 500);
-        } else { 
-            alert("Gagal: " + res.message); 
+            
+            // OPTIMASI: Tambah ke database lokal dulu supaya cepat muncul di tabel
+            const newData = {
+                no: payload.no,
+                nama: payload.nama,
+                klaster: payload.klaster,
+                sub: payload.sub,
+                jenis: payload.jenisSurat,
+                tgl: payload.tgl,
+                link: res.fileUrl || "#"
+            };
+
+            if (editIndex !== null) {
+                database[editIndex] = newData;
+            } else {
+                database.unshift(newData);
+            }
+            
+            renderTable(); // Update tampilan tabel tanpa ambil data lagi dari cloud
+            alert("Data Berhasil Disimpan!");
+            resetForm();
+        } else {
+            alert("Gagal: " + res.message);
         }
     } catch (err) {
-        alert("Data sedang diproses di background. Silakan cek tabel dalam beberapa saat.");
+        alert("Terjadi gangguan koneksi, namun data biasanya tetap tersimpan di Cloud.");
     } finally {
         btn.disabled = false;
         btn.innerHTML = editIndex !== null ? "Update Cloud" : "Simpan Ke Cloud";
-        setTimeout(() => progCont.classList.add('hidden'), 2000);
+        setTimeout(() => progCont.classList.add('hidden'), 1000);
     }
 };
 
@@ -459,6 +466,11 @@ async function syncFromGAS() {
     }
 }
 
+function getRomawi(bulan) {
+    const romawi = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+    return romawi[bulan - 1] || "I";
+}
+	
 async function fetchData() {
     const syncIcon = document.getElementById('syncIcon');
     if(syncIcon) syncIcon.classList.add('fa-spin');
@@ -758,11 +770,6 @@ function closePreview() {
     document.getElementById('previewFrame').src = "";
     document.body.style.overflow = 'auto'; // Aktifkan scroll body
 }	
-
-function getRomawi(bulan) {
-    const romawi = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
-    return romawi[bulan - 1] || "I";
-}
 	
 function updateStatistics() {
     // Menghitung total dari array 'database'
