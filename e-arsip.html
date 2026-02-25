@@ -331,22 +331,24 @@ function updateSub() {
 }
 
 function generatePreview() {
-    // 1. Ambil nilai jenis surat (SK/ST/SOP)
+    // 1. Ambil nilai jenis surat
     const jenis = document.getElementById('selJenisSurat').value || "JENIS";
     
-    // 2. Ambil kode klasifikasi dari sub klaster (contoh: 440.11)
+    // 2. Ambil kode klasifikasi
     const s = document.getElementById('selSub').value;
-    const kodeKlasifikasi = s.split(' ')[0];
+    const kodeKlasifikasi = s ? s.split(' ')[0] : "000";
     
-    // 3. Ambil nomor urut dan format jadi 3 digit
+    // 3. Ambil nomor urut (3 digit)
     const no = (document.getElementById('noUrut').value || "0").padStart(3, '0');
     
-    // 4. Ambil tahun dari tanggal
+    // 4. Ambil tanggal untuk Bulan Romawi dan Tahun
     const tglVal = document.getElementById('arsipTgl').value;
-    const thn = tglVal ? new Date(tglVal).getFullYear() : new Date().getFullYear();
+    const d = tglVal ? new Date(tglVal) : new Date();
+    const bulanRomawi = getRomawi(d.getMonth() + 1); // getMonth() dimulai dari 0
+    const thn = d.getFullYear();
     
-    // 5. Susun format nomor: JENIS/KLASIFIKASI/NO-URUT/PKM-KPDS/TAHUN
-    const nomor = `${kodeKlasifikasi}/${no}/${jenis}/PKM-KPDS/${thn}`;
+    // 5. Susun format nomor baru
+    const nomor = `${kodeKlasifikasi}/${no}/${jenis}/PKM-KPDS/${bulanRomawi}/${thn}`;
     
     // Tampilkan di layar
     document.getElementById('displayNomor').innerText = nomor;
@@ -763,6 +765,11 @@ function closePreview() {
     document.body.style.overflow = 'auto'; // Aktifkan scroll body
 }	
 
+function getRomawi(bulan) {
+    const romawi = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+    return romawi[bulan - 1] || "I";
+}
+	
 function updateStatistics() {
     // Menghitung total dari array 'database'
     const total = database.length;
