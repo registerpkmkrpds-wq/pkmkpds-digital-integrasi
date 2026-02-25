@@ -368,45 +368,41 @@ document.getElementById('arsipFile').onchange = (e) => {
     reader.readAsDataURL(file);
 };
 
-// SIMPAN DENGAN VALIDASI & LOG
 document.getElementById('formArsip').onsubmit = async (e) => {
     e.preventDefault();
     
-    // 1. Definisikan semua variabel dari input
     const noUrut = document.getElementById('noUrut').value;
     const tgl = document.getElementById('arsipTgl').value;
-    const nama = document.getElementById('arsipNama').value.trim(); // <--- PASTIKAN BARIS INI ADA
+    const nama = document.getElementById('arsipNama').value.trim();
     
-    // 2. Validasi
-    if (!noUrut) return alert("Nomor Urut wajib diisi!");
-    if (!tgl) return alert("Pilih tanggal dokumen!");
-    if (nama.length < 5) return alert("Nama/Perihal minimal 5 karakter!");
+    if (!noUrut || !tgl || nama.length < 5) {
+        return alert("Mohon lengkapi data dengan benar!");
+    }
     
     const btn = document.getElementById('btnSimpan');
     const progCont = document.getElementById('progressContainer');
     const progBar = document.getElementById('progressBar');
-
-    // Ambil PIN dari storage
     const sessionPin = sessionStorage.getItem('arsip_session_pin') || "2026";
 
+    // UI Loading
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROSES...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MENGIRIM...';
     progCont.classList.remove('hidden');
+    progBar.style.width = '30%'; // Progress awal
 
-    // 3. Susun Payload
     const payload = {
-    token: sessionPin,
-    action: editIndex !== null ? "update" : "upload",
-    no: generatePreview(),
-    nama: nama.toUpperCase(),
-    klaster: document.getElementById('selKlaster').value,
-    sub: document.getElementById('selSub').value,
-    jenisSurat: document.getElementById('selJenisSurat').value, // Tambahkan ini
-    tgl: tgl,
-    fileData: fileData ? fileData.base64 : null,
-    fileName: fileData ? fileData.name : "",
-    fileType: fileData ? fileData.type : ""
-};
+        token: sessionPin,
+        action: editIndex !== null ? "update" : "upload",
+        no: generatePreview(),
+        nama: nama.toUpperCase(),
+        klaster: document.getElementById('selKlaster').value,
+        sub: document.getElementById('selSub').value,
+        jenisSurat: document.getElementById('selJenisSurat').value,
+        tgl: tgl,
+        fileData: fileData ? fileData.base64 : null,
+        fileName: fileData ? fileData.name : "",
+        fileType: fileData ? fileData.type : ""
+    };
 
     try {
         const resp = await fetch(GAS_URL, {
@@ -414,28 +410,26 @@ document.getElementById('formArsip').onsubmit = async (e) => {
             body: JSON.stringify(payload),
             headers: { "Content-Type": "text/plain;charset=utf-8" }
         });
+        
+        progBar.style.width = '80%';
         const res = await resp.json();
         
         if (res.status === "success") {
             progBar.style.width = '100%';
-            alert("Berhasil Tersimpan!");
-            
-            // RESET FORM TANPA RELOAD
-            resetForm();
-            fileData = null; // Bersihkan variabel file
-            
-            await syncFromGAS();
+            setTimeout(() => {
+                alert("Data Berhasil Disimpan!");
+                resetForm();
+                syncFromGAS();
+            }, 500);
         } else { 
             alert("Gagal: " + res.message); 
         }
     } catch (err) {
-        // JANGAN location.reload() disini agar PIN tidak hilang
-        alert("Koneksi tidak stabil, tapi data biasanya tetap masuk ke Cloud. Silakan klik tombol SYNC beberapa saat lagi.");
-        console.error(err);
+        alert("Data sedang diproses di background. Silakan cek tabel dalam beberapa saat.");
     } finally {
         btn.disabled = false;
         btn.innerHTML = editIndex !== null ? "Update Cloud" : "Simpan Ke Cloud";
-        progCont.classList.add('hidden');
+        setTimeout(() => progCont.classList.add('hidden'), 2000);
     }
 };
 
