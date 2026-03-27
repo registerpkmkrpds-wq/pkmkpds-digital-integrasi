@@ -184,48 +184,42 @@
 </div>
 
 <script>
-    // 1. KONFIGURASI
     const GAS_URL = "https://script.google.com/macros/s/AKfycbxKVIbEuJ_xP5VML4PiTBPeEv-NQgYLBtE0Gfar9UD7qPYhV4gkHW35914yOPPuEgZU1w/exec";
 
-    // 2. FUNGSI AUTHENTICATION
     async function auth() {
-        const user = document.getElementById('user').value;
+        const user = document.getElementById('user').value.trim();
         const pass = document.getElementById('pass').value;
         const btn = document.getElementById('authBtn');
 
         if (!user || !pass) {
-            alert("Mohon isi username dan password!");
+            alert("Username dan Password wajib diisi!");
             return;
         }
 
         btn.disabled = true;
-        btn.innerHTML = `<i class="fas fa-circle-notch animate-spin mr-2"></i> MEMPROSES...`;
+        btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> Memverifikasi...`;
 
         try {
+            
             const response = await fetch(GAS_URL, {
                 method: "POST",
-                body: JSON.stringify({
-                    action: "login",
-                    user: user,
-                    pass: pass
-                })
+                body: JSON.stringify({ action: "login", user, pass })
             });
 
-            const result = await response.json();
+            if (!response.ok) throw new Error("Server tidak merespon");
 
+            const result = await response.json();
             if (result.status === "success") {
-                // Simpan Sesi
                 localStorage.setItem('pkm_session', result.token);
                 localStorage.setItem('pkm_session_time', new Date().getTime());
                 showHub(); 
             } else {
-                alert("GAGAL: " + result.message);
-                btn.disabled = false;
-                btn.innerHTML = "Verifikasi Akses";
+                alert("Akses Ditolak: " + result.message);
             }
         } catch (error) {
-            console.error("Detail Error:", error);
-            alert("Terjadi kesalahan jaringan atau URL Script salah.");
+            alert("Kesalahan Sistem: Pastikan koneksi internet stabil.");
+            console.error(error);
+        } finally {
             btn.disabled = false;
             btn.innerHTML = "Verifikasi Akses";
         }
