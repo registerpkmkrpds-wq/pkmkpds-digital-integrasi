@@ -634,7 +634,7 @@ function editData(i) {
     
     document.getElementById('arsipNama').value = d.nama;
     document.getElementById('arsipTgl').value = d.tgl;
-    document.getElementById('btnSimpan').innerText = "Update Cloud";
+    document.getElementById('btnSimpan').innerText = "Update Arsip";
     document.getElementById('btnBatal').classList.remove('hidden');
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
@@ -642,7 +642,7 @@ function editData(i) {
 function resetForm() {
     editIndex = null;
     document.getElementById('formArsip').reset();
-    document.getElementById('btnSimpan').innerText = "Simpan Ke Cloud";
+    document.getElementById('btnSimpan').innerText = "Simpan & Arsipkan";
     document.getElementById('btnBatal').classList.add('hidden');
     document.getElementById('progressContainer').classList.add('hidden');
     document.getElementById('labelFile').innerHTML = `<i class="fas fa-cloud-arrow-up text-xl text-emerald-500"></i> Pilih PDF Dokumen *`;
