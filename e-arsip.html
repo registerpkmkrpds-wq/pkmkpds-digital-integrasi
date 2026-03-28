@@ -170,7 +170,7 @@
         			<div id="progressBar" class="bg-emerald-600 h-1.5 rounded-full" style="width: 0%"></div>
     				</div>
 					</div>
-                    <button type="submit" id="btnSimpan" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg hover:bg-emerald-500">Simpan Ke Cloud</button>
+                    <button type="submit" id="btnSimpan" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg hover:bg-emerald-500">Simpan & Arsipkan</button>
                     <button type="button" id="btnBatal" onclick="resetForm()" class="hidden w-full text-[10px] font-black text-rose-500 uppercase mt-2">Batal Edit</button>
                		</form>
 					<div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
@@ -429,7 +429,7 @@ document.getElementById('formArsip').onsubmit = async (e) => {
         alert("Terjadi gangguan koneksi, namun data biasanya tetap tersimpan di Cloud.");
     } finally {
         btn.disabled = false;
-        btn.innerHTML = editIndex !== null ? "Update Cloud" : "Simpan Ke Cloud";
+        btn.innerHTML = editIndex !== null ? "Update Arsip" : "Simpan & Arsipkan";
         setTimeout(() => progCont.classList.add('hidden'), 1000);
     }
 };
