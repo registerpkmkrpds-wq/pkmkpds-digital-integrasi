@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Arsip | PKM Kiarapedes</title>
+    <title>E-Arsip | Puskesmas Kiarapedes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        :root { --bg-body: #f8fafc; --bg-card: #ffffff; --text-main: #1e293b; --sidebar-width: 280px; }
-        .dark { --bg-body: #020617; --bg-card: #0f172a; --text-main: #f1f5f9; }
+        :root { --bg-body: #f1f5f9; --bg-card: #ffffff; --text-main: #2563eb; --sidebar-width: 280px; }
+        .dark { --bg-body: #29293d; --bg-card: #1e293b; --text-main: #38bdf8; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-body); color: var(--text-main); overflow: hidden; }
 
         #sidebar { width: var(--sidebar-width); transition: 0.3s; z-index: 50; }
@@ -20,7 +20,9 @@
         .dark .card-custom { border-color: #1e293b; }
         
         .nav-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; transition: 0.2s; color: #94a3b8; font-weight: 600; text-align: left; }
-        .nav-btn.active { background: #10b981; color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+        .nav-btn.active { background: var(--accent); 
+        color: white; 
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
         .nav-btn:hover:not(.active) { background: rgba(255,255,255,0.05); color: white; }
 
         .input-modern { width: 100%; padding: 0.75rem 1rem; background: rgba(0,0,0,0.05); border: 2px solid transparent; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; outline: none; color: inherit; }
@@ -60,7 +62,7 @@
     <p class="text-[10px] font-bold text-slate-500 uppercase px-4 py-2">Menu</p>
     
     <button onclick="switchMode('arsip')" id="btn-arsip" class="nav-btn active">
-        <i class="fas fa-box-archive w-5"></i> Arsip Digital
+        <i class="fas fa-box-archive w-5" style="font-size:20px; color:gold"></i> Arsip Digital
     </button>
     
     <button onclick="switchMode('masuk')" id="btn-masuk" class="nav-btn">
