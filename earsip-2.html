@@ -311,20 +311,22 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES...';
         
-        const payload = {
-            token: sessionStorage.getItem('arsip_session_pin'),
-            action: editIndex !== null ? "update" : "upload",
-            mode: currentMode,
-            no: generatePreview(),
-            nama: document.getElementById('arsipNama').value.toUpperCase(),
-            klaster: document.getElementById('selKlaster').value,
-            sub: document.getElementById('selSub').value,
-            jenisSurat: document.getElementById('selJenisSurat').value,
-            tgl: document.getElementById('arsipTgl').value,
-            asal: document.getElementById('inpAsal').value,
-            tujuan: document.getElementById('inpTujuan').value,
-            fileData: fileData ? fileData.base64 : null
-        };
+const nomorFinal = editIndex !== null ? database[editIndex].no : generatePreview();
+const payload = {
+    token: sessionStorage.getItem('arsip_session_pin'),
+    action: editIndex !== null ? "update" : "upload",
+    mode: currentMode,
+    no: nomorFinal, // Kunci utama untuk mencari baris di Spreadsheet
+    nama: document.getElementById('arsipNama').value.toUpperCase(),
+    klaster: document.getElementById('selKlaster').value,
+    sub: document.getElementById('selSub').value,
+    jenisSurat: document.getElementById('selJenisSurat').value,
+    tgl: document.getElementById('arsipTgl').value,
+    asal: document.getElementById('inpAsal').value,
+    tujuan: document.getElementById('inpTujuan').value,
+    fileData: fileData ? fileData.base64 : null,
+    link: editIndex !== null ? database[editIndex].link : "" 
+};
 
         try {
             const resp = await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
