@@ -305,37 +305,48 @@
         reader.readAsDataURL(file);
     };
 
-    document.getElementById('formArsip').onsubmit = async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('btnSimpan');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES...';
-        
-const nomorFinal = editIndex !== null ? database[editIndex].no : generatePreview();
-const payload = {
-    token: sessionStorage.getItem('arsip_session_pin'),
-    action: editIndex !== null ? "update" : "upload",
-    mode: currentMode,
-    no: nomorFinal, // Kunci utama untuk mencari baris di Spreadsheet
-    nama: document.getElementById('arsipNama').value.toUpperCase(),
-    klaster: document.getElementById('selKlaster').value,
-    sub: document.getElementById('selSub').value,
-    jenisSurat: document.getElementById('selJenisSurat').value,
-    tgl: document.getElementById('arsipTgl').value,
-    asal: document.getElementById('inpAsal').value,
-    tujuan: document.getElementById('inpTujuan').value,
-    fileData: fileData ? fileData.base64 : null,
-    link: editIndex !== null ? database[editIndex].link : "" 
-};
-
-        try {
-            const resp = await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
-            const res = await resp.json();
-            if (res.status === "success") { alert("Sukses!"); resetForm(); syncFromGAS(); }
-        } catch (err) { alert("Error Koneksi!"); } 
-        finally { btn.disabled = false; btn.innerText = "Simpan Data"; }
+document.getElementById('formArsip').onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnSimpan');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES...';
+    const nomorFinal = editIndex !== null ? database[editIndex].no : generatePreview();
+    const payload = {
+        token: sessionStorage.getItem('arsip_session_pin'),
+        action: editIndex !== null ? "update" : "upload",
+        mode: currentMode,
+        no: nomorFinal,
+        nama: document.getElementById('arsipNama').value.toUpperCase(),
+        klaster: document.getElementById('selKlaster').value,
+        sub: document.getElementById('selSub').value,
+        jenisSurat: document.getElementById('selJenisSurat').value,
+        tgl: document.getElementById('arsipTgl').value,
+        asal: document.getElementById('inpAsal').value || "",
+        tujuan: document.getElementById('inpTujuan').value || "",
+        fileData: fileData ? fileData.base64 : null, // Mengirim null jika tidak ada file
+        link: editIndex !== null ? database[editIndex].link : "" 
     };
 
+    try {
+        await fetch(GAS_URL, {
+            method: "POST",
+            mode: "no-cors", 
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify(payload)
+        });
+        alert("Data Terkirim! Mohon tunggu sinkronisasi...");
+        resetForm();
+        setTimeout(syncFromGAS, 2000); 
+
+    } catch (err) {
+        console.error(err);
+        alert("Terjadi kesalahan koneksi!");
+    } finally {
+        btn.disabled = false;
+        btn.innerText = editIndex !== null ? "UPDATE DATA" : "SIMPAN DATA";
+    }
+};
+    
     async function syncFromGAS() {
         document.getElementById('syncIcon').classList.add('fa-spin');
         try {
