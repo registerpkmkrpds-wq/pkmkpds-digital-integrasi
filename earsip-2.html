@@ -311,7 +311,7 @@
 
     document.getElementById('arsipFile').onchange = (e) => {
     const file = e.target.files[0];
-    const label = document.getElementById('labelFile'); // Simpan ke variabel agar rapi
+    const label = document.getElementById('labelFile');
     
     if (!file) return;
 
@@ -322,26 +322,25 @@
         return;
     }
 
-    // Beri tahu user kalau browser sedang membaca file
-    label.innerText = "⏳ MEMPROSES FILE...";
+    label.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES FILE...';
     
     const reader = new FileReader();
-    
     reader.onload = (ev) => {
         const result = ev.target.result;
         if (result && result.includes(',')) {
+            // Pastikan ini mengisi variabel GLOBAL 'fileData' yang ada di baris atas script
             fileData = { 
                 base64: result.split(',')[1], 
                 name: file.name, 
                 type: file.type 
             };
-            // Ganti label jadi sukses
             label.innerText = "✅ " + file.name + " (SIAP)";
+            console.log("File di-encode: OK"); // Debugging
         }
     };
     
     reader.onerror = () => {
-        alert("File Salah");
+        alert("Gagal membaca file!");
         label.innerText = "UPLOAD PDF (MAX 2MB)";
         fileData = null;
     };
@@ -352,16 +351,15 @@
    document.getElementById('formArsip').onsubmit = async (e) => {
     e.preventDefault();
     
-    // 1. Ambil elemen UI terlebih dahulu (PENTING!)
     const btn = document.getElementById('btnSimpan');
     const progContainer = document.getElementById('progressContainer');
     const progBar = document.getElementById('progressBar');
     const progText = document.getElementById('progressText');
     const namaDokumen = document.getElementById('arsipNama').value.trim();
 
-    // 2. Validasi File (Jika upload baru, file harus ada)
-    if (!fileData && editIndex === null) {
-        alert("⚠️ File PDF belum terbaca sempurna atau belum dipilih. Silakan pilih ulang file!");
+    // VALIDASI: Jangan kirim jika file belum siap (untuk upload baru)
+    if (editIndex === null && !fileData) {
+        alert("⚠️ File PDF belum terbaca sempurna atau belum dipilih. Mohon tunggu label menjadi 'SIAP'!");
         return;
     }
 
@@ -370,16 +368,18 @@
         return;
     }
 
-    // 4. Set Loading State
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES...';
     progContainer.classList.remove('hidden');
     
+    // Ambil nomor surat yang dihasilkan saat ini
+    const nomorSurat = generatePreview();
+
     const payload = {
         token: sessionStorage.getItem('arsip_session_pin'),
         action: editIndex !== null ? "update" : "upload",
         mode: currentMode,
-        no: generatePreview(),
+        no: nomorSurat,
         nama: namaDokumen.toUpperCase(),
         klaster: document.getElementById('selKlaster').value,
         sub: document.getElementById('selSub').value,
@@ -387,36 +387,39 @@
         tgl: document.getElementById('arsipTgl').value,
         asal: document.getElementById('inpAsal').value,
         tujuan: document.getElementById('inpTujuan').value,
+        // Kirim data base64
         fileData: fileData ? fileData.base64 : null
     };
 
-	// DEBUG: Cek di Console Browser (F12) sebelum kirim
-    console.log("Payload siap dikirim:", payload);
+    console.log("Payload yang dikirim:", payload); // LIHAT DI F12 BROWSER
 
-    // 5. Jalankan Animasi Progress
+    // Animasi Progress
     let progress = 0;
     const interval = setInterval(() => {
         if (progress < 90) {
             progress += Math.random() * 15;
             if (progress > 90) progress = 90;
             progBar.style.width = progress + '%';
-            progText.innerText = `MEMPROSES... ${Math.round(progress)}%`;
+            progText.innerText = `MENGUNGGAH... ${Math.round(progress)}%`;
         }
     }, 150);
 
     try {
-        const resp = await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
+        const resp = await fetch(GAS_URL, { 
+            method: "POST", 
+            body: JSON.stringify(payload) 
+        });
         const res = await resp.json();
         
         if (res.status === "success") {
             clearInterval(interval);
             progBar.style.width = '100%';
             progBar.classList.replace('bg-blue-600', 'bg-emerald-500');
-            progText.innerText = "BERHASIL!";
+            progText.innerText = "BERHASIL DISIMPAN!";
             
             setTimeout(() => {
-                alert("✅ Data Berhasil Disimpan!");
-                resetForm(); // Ini akan menyembunyikan progressContainer secara otomatis
+                alert("✅ Data Berhasil Disimpan ke Spreadsheet & Drive!");
+                resetForm(); 
                 syncFromGAS();
             }, 800);
         } else {
@@ -427,14 +430,12 @@
         progBar.classList.replace('bg-blue-600', 'bg-rose-500');
         progText.innerText = "GAGAL!";
         alert("❌ Gagal: " + err.message);
-        // Jika gagal, sembunyikan progress setelah alert agar bisa coba lagi
-        setTimeout(() => progContainer.classList.add('hidden'), 2000);
+        setTimeout(() => progContainer.classList.add('hidden'), 3000);
     } finally {
         btn.disabled = false;
         btn.innerText = "SIMPAN & ARSIPKAN";
     }
 };
-
     // --- SYNC DATA ---
     async function syncFromGAS() {
         const syncIcon = document.getElementById('syncIcon');
