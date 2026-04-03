@@ -264,7 +264,6 @@
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('btn-' + mode).classList.add('active');
         document.getElementById('pageTitle').innerText = mode === 'arsip' ? 'Arsip Digital (SK/SOP)' : mode.toUpperCase();
-        
         document.getElementById('arsipOnly').classList.toggle('hidden', mode !== 'arsip');
         document.getElementById('regOnly').classList.toggle('hidden', mode === 'arsip' || mode === 'agenda');
         
