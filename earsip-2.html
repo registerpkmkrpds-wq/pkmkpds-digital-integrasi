@@ -173,8 +173,13 @@
                             <i class="fas fa-cloud-arrow-up text-xl text-emerald-500 mb-1"></i>
                             <span class="text-[10px] font-bold uppercase">Upload PDF (Max 2MB)</span>
                         </label>
-
-                        <button type="submit" id="btnSimpan" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl shadow-lg hover:bg-emerald-700 uppercase">Simpan Data</button>
+						
+						<div id="progressContainer" class="hidden w-full bg-blue-50 dark:bg-slate-800 rounded-full h-3 mb-4 overflow-hidden border border-blue-100 dark:border-blue-900">
+						<div id="progressBar" class="bg-blue-600 h-full rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(37,99,235,0.5)]" style="width: 0%"></div>
+						<p id="progressText" class="text-[10px] font-bold text-blue-700 dark:text-blue-400 mt-1.5 text-center tracking-widest">MEMPROSES... 0%</p>
+						</div>
+						
+                        <button type="submit" id="btnSimpan" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl shadow-lg hover:bg-emerald-700 uppercase">Simpan & Arsipkan</button>
                         <button type="button" id="btnBatal" onclick="resetForm()" class="hidden w-full text-[10px] font-black text-rose-500 uppercase">Batal Edit</button>
                     </form>
                 </div>
@@ -218,8 +223,8 @@
 </div>
 
 <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyg-xXV6glT1EnrVhCL2Fdtf6tiqw4GliSmtz2qO1YUxrnk8h3JTGdd8-vm4GGi4OAB/exec";
-    const PIN_HASH = "MjAyNg==";
+	const GAS_URL = "https://script.google.com/macros/s/AKfycbyg-xXV6glT1EnrVhCL2Fdtf6tiqw4GliSmtz2qO1YUxrnk8h3JTGdd8-vm4GGi4OAB/exec"; 
+    const PIN_HASH = "MjAyNg=="; 
     let database = JSON.parse(localStorage.getItem('db_arsip_kpds')) || [];
     let currentMode = 'arsip';
     let editIndex = null;
@@ -241,14 +246,18 @@
         "Lintas Klaster": { icon: "fa-layer-group", color: "text-indigo-600", bg: "bg-indigo-50" }
     };
 
+    // --- SISTEM LOGIN ---
     function verifikasiPin() {
-        const pin = document.getElementById('pinInput').value;
-        if (btoa(pin) === PIN_HASH) {
-            sessionStorage.setItem('arsip_session_pin', pin);
+        const pinInput = document.getElementById('pinInput').value;
+        if (btoa(pinInput) === PIN_HASH) {
+            sessionStorage.setItem('arsip_session_pin', pinInput);
             document.getElementById('modalLogin').classList.add('hidden');
             document.getElementById('mainContent').classList.remove('hidden');
             initApp();
-        } else { alert("PIN SALAH!"); }
+        } else {
+            alert("⚠️ PIN SALAH! Akses Ditolak.");
+            document.getElementById('pinInput').value = "";
+        }
     }
 
     function initApp() {
@@ -256,9 +265,12 @@
         kSel.innerHTML = Object.keys(KLASTER).map(k => `<option value="${k}">${k}</option>`).join('');
         updateSub();
         syncFromGAS();
-        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID'); }, 1000);
+        setInterval(() => { 
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID'); 
+        }, 1000);
     }
 
+    // --- NAVIGASI MODE ---
     function switchMode(mode) {
         currentMode = mode;
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -298,30 +310,70 @@
     }
 
     document.getElementById('arsipFile').onchange = (e) => {
-        const file = e.target.files[0];
-		if (file.size > 5 * 1024 * 1024) {
-        alert("File terlalu besar! Maksimal 5MB.");
-        e.target.value = ""; // Reset input
-        return;
-        document.getElementById('labelFile').innerText = "📂 " + file.name;
-        const reader = new FileReader();
-        reader.onload = (ev) => fileData = { base64: ev.target.result.split(',')[1], name: file.name, type: file.type };
-        reader.readAsDataURL(file);
-    };
+    const file = e.target.files[0];
+    const label = document.getElementById('labelFile'); // Simpan ke variabel agar rapi
+    
+    if (!file) return;
 
-    document.getElementById('formArsip').onsubmit = async (e) => {
+    if (file.size > 2 * 1024 * 1024) {
+        alert("File terlalu besar! Maksimal 2MB.");
+        e.target.value = "";
+        label.innerText = "UPLOAD PDF (MAX 2MB)";
+        return;
+    }
+
+    // Beri tahu user kalau browser sedang membaca file
+    label.innerText = "⏳ MEMPROSES FILE...";
+    
+    const reader = new FileReader();
+    
+    reader.onload = (ev) => {
+        const result = ev.target.result;
+        if (result && result.includes(',')) {
+            fileData = { 
+                base64: result.split(',')[1], 
+                name: file.name, 
+                type: file.type 
+            };
+            // Ganti label jadi sukses
+            label.innerText = "✅ " + file.name + " (SIAP)";
+        }
+    };
+    
+    reader.onerror = () => {
+        alert("File Salah");
+        label.innerText = "UPLOAD PDF (MAX 2MB)";
+        fileData = null;
+    };
+    
+    reader.readAsDataURL(file);
+};
+
+   document.getElementById('formArsip').onsubmit = async (e) => {
     e.preventDefault();
     
-    // Validasi tambahan: Pastikan perihal tidak kosong
+    // 1. Ambil elemen UI terlebih dahulu (PENTING!)
+    const btn = document.getElementById('btnSimpan');
+    const progContainer = document.getElementById('progressContainer');
+    const progBar = document.getElementById('progressBar');
+    const progText = document.getElementById('progressText');
     const namaDokumen = document.getElementById('arsipNama').value.trim();
-    if (namaDokumen.length < 5) {
+
+    // 2. Validasi File (Jika upload baru, file harus ada)
+    if (!fileData && editIndex === null) {
+        alert("⚠️ File PDF belum terbaca sempurna atau belum dipilih. Silakan pilih ulang file!");
+        return;
+    }
+
+    if (namaDokumen.length < 2) {
         alert("Perihal/Nama Dokumen terlalu pendek!");
         return;
     }
 
-    const btn = document.getElementById('btnSimpan');
+    // 4. Set Loading State
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES...';
+    progContainer.classList.remove('hidden');
     
     const payload = {
         token: sessionStorage.getItem('arsip_session_pin'),
@@ -338,120 +390,138 @@
         fileData: fileData ? fileData.base64 : null
     };
 
+	// DEBUG: Cek di Console Browser (F12) sebelum kirim
+    console.log("Payload siap dikirim:", payload);
+
+    // 5. Jalankan Animasi Progress
+    let progress = 0;
+    const interval = setInterval(() => {
+        if (progress < 90) {
+            progress += Math.random() * 15;
+            if (progress > 90) progress = 90;
+            progBar.style.width = progress + '%';
+            progText.innerText = `MEMPROSES... ${Math.round(progress)}%`;
+        }
+    }, 150);
+
     try {
-        const resp = await fetch(GAS_URL, { 
-            method: "POST", 
-            body: JSON.stringify(payload) 
-        });
-        
+        const resp = await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
         const res = await resp.json();
         
         if (res.status === "success") {
-            alert("✅ Data Berhasil Tersimpan!");
-            resetForm();
-            await syncFromGAS(); // Tunggu sinkronisasi selesai agar tabel terupdate
+            clearInterval(interval);
+            progBar.style.width = '100%';
+            progBar.classList.replace('bg-blue-600', 'bg-emerald-500');
+            progText.innerText = "BERHASIL!";
+            
+            setTimeout(() => {
+                alert("✅ Data Berhasil Disimpan!");
+                resetForm(); // Ini akan menyembunyikan progressContainer secara otomatis
+                syncFromGAS();
+            }, 800);
         } else {
-            alert("❌ Gagal: " + res.msg);
+            throw new Error(res.msg);
         }
     } catch (err) {
-        console.error(err);
-        alert("⚠️ Terjadi Kesalahan Koneksi! Pastikan internet stabil.");
+        clearInterval(interval);
+        progBar.classList.replace('bg-blue-600', 'bg-rose-500');
+        progText.innerText = "GAGAL!";
+        alert("❌ Gagal: " + err.message);
+        // Jika gagal, sembunyikan progress setelah alert agar bisa coba lagi
+        setTimeout(() => progContainer.classList.add('hidden'), 2000);
     } finally {
         btn.disabled = false;
-        btn.innerText = editIndex !== null ? "UPDATE DATA" : "SIMPAN DATA";
+        btn.innerText = "SIMPAN & ARSIPKAN";
     }
 };
 
+    // --- SYNC DATA ---
     async function syncFromGAS() {
-        document.getElementById('syncIcon').classList.add('fa-spin');
+        const syncIcon = document.getElementById('syncIcon');
+        syncIcon.classList.add('fa-spin');
         try {
             const res = await fetch(GAS_URL);
             const data = await res.json();
             database = data.database || [];
             localStorage.setItem('db_arsip_kpds', JSON.stringify(database));
             renderTable();
-        } catch(e) { console.error(e); }
-        finally { document.getElementById('syncIcon').classList.remove('fa-spin'); }
+        } catch(e) { 
+            console.error(e); 
+        } finally { 
+            syncIcon.classList.remove('fa-spin'); 
+        }
     }
 
+    // --- TABEL & STATISTIK ---
     function renderTable() {
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    
-    // 1. Filter Data
-    const filtered = database.filter(x => 
-        (x.mode || 'arsip') === currentMode && 
-        (x.no.toLowerCase().includes(q) || x.nama.toLowerCase().includes(q))
-    );
-    
-    // 2. Update Statistik
-    document.getElementById('statTotal').innerText = database.length;
-    document.getElementById('statSK').innerText = database.filter(x => x.jenis === 'SK').length;
-    document.getElementById('statSOP').innerText = database.filter(x => x.jenis === 'SOP').length;
-    const docLain = database.filter(x => x.jenis !== 'SK' && x.jenis !== 'SOP').length;
-    document.getElementById('statLain').innerText = docLain;
-    document.getElementById('statKlaster').innerText = [...new Set(database.map(x => x.klaster))].length;
-
-    // 3. Header Tabel
-    let head = `<th class="p-4">Dokumen</th><th class="p-4 text-center">Jenis</th><th class="p-4 text-center">Aksi</th>`;
-    document.getElementById('tableHead').innerHTML = head;
-
-    // 4. Body Tabel (Proses mapping data dimulai di sini)
-    document.getElementById('tableBody').innerHTML = filtered.map((x, i) => {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = database.filter(x => 
+            (x.mode || 'arsip') === currentMode && 
+            (x.no.toLowerCase().includes(q) || x.nama.toLowerCase().includes(q))
+        );
         
-        // --- LOGIKA MASA RETENSI ---
-        const thnArsip = new Date(x.tgl).getFullYear();
-        const thnSekarang = new Date().getFullYear();
-        const umur = thnSekarang - thnArsip;
+        // Statistik
+        document.getElementById('statTotal').innerText = database.length;
+        document.getElementById('statSK').innerText = database.filter(x => x.jenis === 'SK').length;
+        document.getElementById('statSOP').innerText = database.filter(x => x.jenis === 'SOP').length;
+        document.getElementById('statLain').innerText = database.filter(x => x.jenis !== 'SK' && x.jenis !== 'SOP').length;
+        document.getElementById('statKlaster').innerText = [...new Set(database.map(x => x.klaster))].length;
 
-        let retensiLabel = "";
-        let retensiColor = "";
+        // Render Baris
+        document.getElementById('tableBody').innerHTML = filtered.map((x) => {
+            // Logika Masa Retensi
+            const thnArsip = new Date(x.tgl).getFullYear();
+            const thnSekarang = new Date().getFullYear();
+            const umur = thnSekarang - thnArsip;
+            let retensiLabel = "", retensiColor = "";
 
-        if (x.jenis === "PERMANEN") {
-            retensiLabel = "PERMANEN";
-            retensiColor = "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30";
-        } else if (umur >= 10) {
-            retensiLabel = `INAKTIF (${umur} THN)`;
-            retensiColor = "bg-rose-100 text-rose-700 dark:bg-rose-900/40 animate-pulse";
-        } else if (umur >= 5) {
-            retensiLabel = `RETENSI (${umur} THN)`;
-            retensiColor = "bg-amber-100 text-amber-700 dark:bg-amber-900/30";
-        } else {
-            retensiLabel = `AKTIF (${umur} THN)`;
-            retensiColor = "bg-slate-100 text-slate-400 dark:bg-slate-700";
-        }
-        // ---------------------------
+            if (x.jenis === "PERMANEN") {
+                retensiLabel = "PERMANEN";
+                retensiColor = "bg-emerald-100 text-emerald-700";
+            } else if (umur >= 10) {
+                retensiLabel = `INAKTIF (${umur} THN)`;
+                retensiColor = "bg-rose-100 text-rose-700 animate-pulse";
+            } else if (umur >= 5) {
+                retensiLabel = `RETENSI (${umur} THN)`;
+                retensiColor = "bg-amber-100 text-amber-700";
+            } else {
+                retensiLabel = `AKTIF (${umur} THN)`;
+                retensiColor = "bg-slate-100 text-slate-400";
+            }
 
-        return `
-        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-            <td class="p-4">
-                <div class="flex items-center gap-2 mb-1">
-                    <span class="font-mono text-emerald-600 font-black text-[10px]">${x.no}</span>
-                    <span class="text-[7px] px-1.5 py-0.5 rounded font-bold ${retensiColor}">${retensiLabel}</span>
-                </div>
-                <div class="font-bold uppercase text-slate-700 dark:text-slate-200 leading-tight">${x.nama}</div>
-                <div class="text-[9px] text-slate-400 font-bold uppercase mt-1">
-                    <i class="far fa-calendar-alt mr-1"></i>${x.tgl} ${x.asal ? '| Dari: '+x.asal : ''} ${x.tujuan ? '| Ke: '+x.tujuan : ''}
-                </div>
-            </td>
-            <td class="p-4 text-center">
-                <span class="px-2 py-1 rounded-full text-[8px] font-black bg-slate-100 dark:bg-slate-800">${x.jenis || 'DOC'}</span>
-            </td>
-            <td class="p-4 flex justify-center gap-2">
-                <button onclick="cetakBarcode(${database.indexOf(x)})" class="btn-action bg-slate-100 hover:bg-emerald-500 hover:text-white"><i class="fas fa-qrcode"></i></button>
-                <button onclick="editData(${database.indexOf(x)})" class="btn-action bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white"><i class="fas fa-pen"></i></button>
-                <button onclick="openPreview('${x.link}')" class="btn-action bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white"><i class="fas fa-eye"></i></button>
-                <button onclick="hapus('${x.no}')" class="btn-action bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white"><i class="fas fa-trash"></i></button>
-            </td>
-        </tr>`;
-    }).join('');
-}
+            return `
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <td class="p-4">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="font-mono text-emerald-600 font-black text-[10px]">${x.no}</span>
+                        <span class="text-[7px] px-1.5 py-0.5 rounded font-bold ${retensiColor}">${retensiLabel}</span>
+                    </div>
+                    <div class="font-bold uppercase text-slate-700 dark:text-slate-200 leading-tight">${x.nama}</div>
+                    <div class="text-[9px] text-slate-400 font-bold uppercase mt-1">
+                        <i class="far fa-calendar-alt mr-1"></i>${x.tgl} ${x.asal ? '| Dari: '+x.asal : ''} ${x.tujuan ? '| Ke: '+x.tujuan : ''}
+                    </div>
+                </td>
+                <td class="p-4 text-center">
+                    <span class="px-2 py-1 rounded-full text-[8px] font-black bg-slate-100 dark:bg-slate-800">${x.jenis || 'DOC'}</span>
+                </td>
+                <td class="p-4 flex justify-center gap-2">
+                    <button onclick="cetakBarcode(${database.indexOf(x)})" class="btn-action bg-slate-100 hover:bg-emerald-500 hover:text-white"><i class="fas fa-qrcode"></i></button>
+                    <button onclick="editData(${database.indexOf(x)})" class="btn-action bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white"><i class="fas fa-pen"></i></button>
+                    <button onclick="openPreview('${x.link}')" class="btn-action bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white"><i class="fas fa-eye"></i></button>
+                    <button onclick="hapus('${x.no}')" class="btn-action bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+        }).join('');
+    }
 
+    // --- FITUR QR & PRINT ---
     function cetakBarcode(i) {
         const data = database[i];
         const win = window.open('', '_blank', 'width=400,height=500');
         win.document.write(`<html><head><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script><style>body{text-align:center;padding:20px;font-family:sans-serif}.box{border:3px solid #000;padding:20px;border-radius:15px;display:inline-block;width:250px}#qr{margin:20px auto;display:flex;justify-content:center}.no{font-weight:900;font-size:14px;border-bottom:2px solid #000;padding-bottom:10px}</style></head><body><div class="box"><div class="no">${data.no}</div><div id="qr"></div><div class="nama" style="font-size:10px;font-weight:bold;text-transform:uppercase">${data.nama}</div></div><script>new QRCode(document.getElementById("qr"),{text:"${data.link}",width:150,height:150});setTimeout(()=>window.print(),500)<\/script></body></html>`);
     }
 
+    // --- EDIT & HAPUS ---
     function editData(i) {
         editIndex = i;
         const d = database[i];
@@ -468,104 +538,94 @@
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
-    function resetForm() {
-        editIndex = null;
-        document.getElementById('formArsip').reset();
-        document.getElementById('btnSimpan').innerText = "SIMPAN DATA";
-        document.getElementById('btnBatal').classList.add('hidden');
-        document.getElementById('labelFile').innerText = "UPLOAD PDF (MAX 5MB)";
-        fileData = null;
-    }
-
     async function hapus(no) {
-        const pin = prompt(`Hapus data ${no}?\nMasukkan PIN:`);
+        const pin = prompt(`Hapus data ${no}?\nMasukkan PIN Konfirmasi:`);
         if (btoa(pin) === PIN_HASH) {
             await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "delete", no: no, token: pin }) });
             syncFromGAS();
-        } else if(pin) { alert("PIN SALAH!"); }
+        } else if(pin) { 
+            alert("PIN SALAH!"); 
+        }
     }
 
-    function togglePedoman() {
-    const m = document.getElementById('modalPedoman');
-    if(m.classList.contains('hidden')) {
-        let h = `
-        <div class="col-span-full mb-6 bg-emerald-50 dark:bg-slate-800 p-6 rounded-3xl border-2 border-dashed border-emerald-200 dark:border-emerald-800">
-            <h3 class="text-emerald-700 dark:text-emerald-400 font-black uppercase text-sm mb-4 flex items-center gap-2">
-                <i class="fas fa-info-circle"></i> Panduan Operasional Sistem
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-[11px] leading-relaxed">
-                <div>
-                    <p class="font-black text-slate-700 dark:text-slate-200 mb-1">A. AKSES & KEAMANAN</p>
-                    <ul class="list-disc ml-4 text-slate-500">
-                        <li>Gunakan PIN <b>2026</b> untuk masuk.</li>
-                        <li>Klik <b>Sync (orange)</b> setiap kali membuka aplikasi untuk data terbaru.</li>
-                    </ul>
-                    <p class="font-black text-slate-700 dark:text-slate-200 mt-3 mb-1">B. INPUT DOKUMEN</p>
-                    <ul class="list-disc ml-4 text-slate-500">
-                        <li>Pilih Klaster & Sub untuk kode otomatis.</li>
-                        <li>Perihal minimal 5 karakter & gunakan huruf KAPITAL.</li>
-                        <li>File PDF maksimal <b>5MB</b>.</li>
-                    </ul>
-                </div>
-                <div>
-                    <p class="font-black text-slate-700 dark:text-slate-200 mb-1">C. PENCARIAN & MANAJEMEN</p>
-                    <ul class="list-disc ml-4 text-slate-500">
-                        <li>Filter Klaster untuk menyaring data per bidang.</li>
-                        <li><b>Export Excel</b> akan mengunduh data sesuai hasil pencarian/filter Anda.</li>
-                        <li>Gunakan ikon <b>QR</b> untuk mencetak label fisik map.</li>
-                    </ul>
-                    <p class="font-black text-slate-700 dark:text-slate-200 mt-3 mb-1">D. KOREKSI DATA</p>
-                    <ul class="list-disc ml-4 text-slate-500">
-                        <li>Klik <b>Pensil</b> untuk edit, klik <b>Sampah</b> untuk hapus.</li>
-                        <li>Penghapusan memerlukan verifikasi PIN kembali.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="col-span-full mb-2">
-            <h3 class="text-slate-400 font-black uppercase text-[10px] tracking-[0.2em] mb-4">Daftar Kode Klasifikasi Arsip Sesuai Perbup No 135 Th 2023 dan Tata Naskah Dinas</h3>
-        </div>
-        `;
-        
-            Object.keys(KLASTER).forEach(k => {
-            const s = CLUSTER_STYLES[k];
-            h += `
-            <div class="p-4 ${s.bg} rounded-2xl border border-slate-100 dark:border-slate-800">
-                <div class="flex items-center gap-3 mb-2 font-black text-[10px] ${s.color}">
-                    <i class="fas ${s.icon}"></i> ${k}
-                </div>
-                <div class="flex flex-wrap gap-1">
-                    ${KLASTER[k].map(c => `<span class="kode-tag">${c}</span>`).join('')}
-                </div>
-            </div>`;
-        });
-        
-        document.getElementById('pedomanContent').innerHTML = h;
-        m.classList.remove('hidden');
-    } else { 
-        m.classList.add('hidden'); 
-    }
+    function resetForm() {
+    // 1. Reset Status Logika
+    editIndex = null;
+    fileData = null;
+
+    // 2. Reset Form Input
+    document.getElementById('formArsip').reset();
+    document.getElementById('arsipFile').value = ""; 
+
+    // 3. Reset UI Tombol
+    const btnSimpan = document.getElementById('btnSimpan');
+    btnSimpan.innerText = "SIMPAN & ARSIPKAN";
+    btnSimpan.disabled = false;
+    document.getElementById('btnBatal').classList.add('hidden');
+
+    // 4. Reset UI Progress Bar & Label
+    document.getElementById('labelFile').innerText = "UPLOAD PDF (MAX 2MB)";
+    
+    const progBar = document.getElementById('progressBar');
+    progBar.style.width = '0%';
+    progBar.className = "bg-blue-600 h-full rounded-full transition-all duration-300";
+    
+    // Sembunyikan container progress agar tidak mengganggu
+    document.getElementById('progressContainer').classList.add('hidden');
+    
+    // Kembalikan teks progress ke awal
+    document.getElementById('progressText').innerText = "MENGUNGGAH: 0%";
+    document.getElementById('progressText').className = "text-[10px] font-bold text-blue-700 mt-1.5 text-center";
 }
 
+    // --- PEDOMAN ---
+    function togglePedoman() {
+        const m = document.getElementById('modalPedoman');
+        if(m.classList.contains('hidden')) {
+            let h = `<div class="col-span-full mb-6 bg-emerald-50 p-6 rounded-3xl border-2 border-dashed border-emerald-200">
+                <h3 class="text-emerald-700 font-black uppercase text-sm mb-4 italic">Panduan Operasional</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-[11px]">
+                    <div><p class="font-bold mb-1 uppercase">A. Login & Sync</p><li>PIN Utama: 2026</li><li>Klik icon Orange untuk update data.</li></div>
+                    <div><p class="font-bold mb-1 uppercase">B. Retensi & File</p><li>PDF Max 5MB</li><li>Warna Merah berkedip = Dokumen > 10 Tahun.</li></div>
+                </div>
+            </div>`;
+            Object.keys(KLASTER).forEach(k => {
+                const s = CLUSTER_STYLES[k];
+                h += `<div class="p-4 ${s.bg} rounded-2xl border border-slate-100"><div class="flex items-center gap-3 mb-2 font-black text-[10px] ${s.color}"><i class="fas ${s.icon}"></i> ${k}</div><div class="flex flex-wrap gap-1">${KLASTER[k].map(c => `<span class="kode-tag">${c}</span>`).join('')}</div></div>`;
+            });
+            document.getElementById('pedomanContent').innerHTML = h;
+            m.classList.remove('hidden');
+        } else { m.classList.add('hidden'); }
+    }
+
+    // --- PREVIEW & EXPORT ---
     function openPreview(link) {
-        if(!link || link === 'undefined') return alert("File tidak ditemukan!");
+        if(!link || link === 'undefined' || link === '') return alert("File tidak ditemukan!");
         document.getElementById('previewFrame').src = link.replace('/view', '/preview');
         document.getElementById('modalPreview').classList.remove('hidden');
     }
 
-    function closePreview() { document.getElementById('modalPreview').classList.add('hidden'); document.getElementById('previewFrame').src = ""; }
+    function closePreview() { 
+        document.getElementById('modalPreview').classList.add('hidden'); 
+        document.getElementById('previewFrame').src = ""; 
+    }
+    
     function toggleTheme() { 
         document.documentElement.classList.toggle('dark');
         document.getElementById('themeIcon').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
     }
+
     function logout() { sessionStorage.clear(); location.reload(); }
+
     function exportToExcel() {
-        const ws = XLSX.utils.json_to_sheet(database.filter(x => (x.mode || 'arsip') === currentMode));
+        const dataToExport = database.filter(x => (x.mode || 'arsip') === currentMode);
+        const ws = XLSX.utils.json_to_sheet(dataToExport);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Data");
-        XLSX.writeFile(wb, `Export_${currentMode}.xlsx`);
+        XLSX.utils.book_append_sheet(wb, ws, "Database");
+        XLSX.writeFile(wb, `E-Arsip_${currentMode}_${new Date().toLocaleDateString()}.xlsx`);
     }
 
+    // --- AUTO LOGIN CHECK ---
     window.onload = () => {
         if(sessionStorage.getItem('arsip_session_pin')) {
             document.getElementById('modalLogin').classList.add('hidden');
