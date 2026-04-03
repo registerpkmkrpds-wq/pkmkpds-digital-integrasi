@@ -38,6 +38,17 @@
 </head>
 <body class="min-h-screen flex text-sm">
 
+<div id="modalLogin" class="fixed inset-0 bg-slate-900 z-[9999] flex items-center justify-center p-4">
+    <div class="bg-slate-800 p-8 rounded-[2.5rem] text-center max-w-xs w-full shadow-2xl border border-slate-700">
+        <div class="w-16 h-16 bg-emerald-500/20 text-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl animate-bounce">
+            <i class="fas fa-lock"></i>
+        </div>
+        <h2 class="font-black text-white uppercase mb-2">Verifikasi</h2>
+        <input type="password" id="pinInput" class="input-modern text-center text-2xl mb-4 text-white tracking-widest" placeholder="****">
+        <button onclick="verifikasiPin()" class="w-full bg-emerald-600 text-white py-4 rounded-xl font-black shadow-lg hover:bg-emerald-500">MASUK</button>
+    </div>
+</div>
+
 <aside id="sidebar" class="bg-slate-900 text-white flex flex-col shrink-0 overflow-hidden">
     <div class="p-6 border-b border-slate-800 flex items-center gap-4">
         <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-folder-open"></i></div>
@@ -160,7 +171,7 @@
                         <input type="file" id="arsipFile" class="hidden" accept=".pdf">
                         <label for="arsipFile" id="labelFile" class="w-full border-2 border-dashed p-4 rounded-xl flex flex-col items-center cursor-pointer hover:bg-emerald-50 dark:hover:bg-slate-800 transition">
                             <i class="fas fa-cloud-arrow-up text-xl text-emerald-500 mb-1"></i>
-                            <span class="text-[10px] font-bold uppercase">Upload PDF (Max 5MB)</span>
+                            <span class="text-[10px] font-bold uppercase">Upload PDF (Max 2MB)</span>
                         </label>
 
                         <button type="submit" id="btnSimpan" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl shadow-lg hover:bg-emerald-700 uppercase">Simpan Data</button>
@@ -230,6 +241,16 @@
         "Lintas Klaster": { icon: "fa-layer-group", color: "text-indigo-600", bg: "bg-indigo-50" }
     };
 
+    function verifikasiPin() {
+        const pin = document.getElementById('pinInput').value;
+        if (btoa(pin) === PIN_HASH) {
+            sessionStorage.setItem('arsip_session_pin', pin);
+            document.getElementById('modalLogin').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            initApp();
+        } else { alert("PIN SALAH!"); }
+    }
+
     function initApp() {
         const kSel = document.getElementById('selKlaster');
         kSel.innerHTML = Object.keys(KLASTER).map(k => `<option value="${k}">${k}</option>`).join('');
@@ -243,6 +264,7 @@
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('btn-' + mode).classList.add('active');
         document.getElementById('pageTitle').innerText = mode === 'arsip' ? 'Arsip Digital (SK/SOP)' : mode.toUpperCase();
+        
         document.getElementById('arsipOnly').classList.toggle('hidden', mode !== 'arsip');
         document.getElementById('regOnly').classList.toggle('hidden', mode === 'arsip' || mode === 'agenda');
         
@@ -277,55 +299,69 @@
 
     document.getElementById('arsipFile').onchange = (e) => {
         const file = e.target.files[0];
-        if (!file) return;
+		if (file.size > 5 * 1024 * 1024) {
+        alert("File terlalu besar! Maksimal 5MB.");
+        e.target.value = ""; // Reset input
+        return;
         document.getElementById('labelFile').innerText = "📂 " + file.name;
         const reader = new FileReader();
         reader.onload = (ev) => fileData = { base64: ev.target.result.split(',')[1], name: file.name, type: file.type };
         reader.readAsDataURL(file);
     };
 
-document.getElementById('formArsip').onsubmit = async (e) => {
+    document.getElementById('formArsip').onsubmit = async (e) => {
     e.preventDefault();
+    
+    // Validasi tambahan: Pastikan perihal tidak kosong
+    const namaDokumen = document.getElementById('arsipNama').value.trim();
+    if (namaDokumen.length < 5) {
+        alert("Perihal/Nama Dokumen terlalu pendek!");
+        return;
+    }
+
     const btn = document.getElementById('btnSimpan');
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES...';
-    const nomorFinal = editIndex !== null ? database[editIndex].no : generatePreview();
+    
     const payload = {
         token: sessionStorage.getItem('arsip_session_pin'),
         action: editIndex !== null ? "update" : "upload",
         mode: currentMode,
-        no: nomorFinal,
-        nama: document.getElementById('arsipNama').value.toUpperCase(),
+        no: generatePreview(),
+        nama: namaDokumen.toUpperCase(),
         klaster: document.getElementById('selKlaster').value,
         sub: document.getElementById('selSub').value,
         jenisSurat: document.getElementById('selJenisSurat').value,
         tgl: document.getElementById('arsipTgl').value,
-        asal: document.getElementById('inpAsal').value || "",
-        tujuan: document.getElementById('inpTujuan').value || "",
-        fileData: fileData ? fileData.base64 : null, // Mengirim null jika tidak ada file
-        link: editIndex !== null ? database[editIndex].link : "" 
+        asal: document.getElementById('inpAsal').value,
+        tujuan: document.getElementById('inpTujuan').value,
+        fileData: fileData ? fileData.base64 : null
     };
 
-   try {
-    await fetch(GAS_URL, {
-        method: "POST",
-        mode: "no-cors", // Tambahkan ini
-        headers: { "Content-Type": "text/plain" },
-        body: JSON.stringify(payload)
-    });
-
-    alert("Data Terkirim! Silakan tunggu 2 detik lalu klik Sinkronisasi.");
-    resetForm();
-} catch (err) {
-    alert("Gagal terhubung ke server");
-}
-    
+    try {
+        const resp = await fetch(GAS_URL, { 
+            method: "POST", 
+            body: JSON.stringify(payload) 
+        });
+        
+        const res = await resp.json();
+        
+        if (res.status === "success") {
+            alert("✅ Data Berhasil Tersimpan!");
+            resetForm();
+            await syncFromGAS(); // Tunggu sinkronisasi selesai agar tabel terupdate
+        } else {
+            alert("❌ Gagal: " + res.msg);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("⚠️ Terjadi Kesalahan Koneksi! Pastikan internet stabil.");
     } finally {
         btn.disabled = false;
         btn.innerText = editIndex !== null ? "UPDATE DATA" : "SIMPAN DATA";
     }
 };
-    
+
     async function syncFromGAS() {
         document.getElementById('syncIcon').classList.add('fa-spin');
         try {
@@ -339,50 +375,76 @@ document.getElementById('formArsip').onsubmit = async (e) => {
     }
 
     function renderTable() {
-        const q = document.getElementById('searchInput').value.toLowerCase();
-        const filtered = database.filter(x => (x.mode || 'arsip') === currentMode && (x.no.toLowerCase().includes(q) || x.nama.toLowerCase().includes(q)));
-        
-        document.getElementById('statTotal').innerText = database.length;
-        document.getElementById('statSK').innerText = database.filter(x => x.jenis === 'SK').length;
-        document.getElementById('statSOP').innerText = database.filter(x => x.jenis === 'SOP').length;
-        
-        const docLain = database.filter(x => x.jenis !== 'SK' && x.jenis !== 'SOP').length;
-        document.getElementById('statLain').innerText = docLain;
-        document.getElementById('statKlaster').innerText = [...new Set(database.map(x => x.klaster))].length;
-   
-        // Table Header
-        let head = `<th class="p-4">Dokumen</th><th class="p-4 text-center">Jenis</th><th class="p-4 text-center">Aksi</th>`;
-        document.getElementById('tableHead').innerHTML = head;
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    
+    // 1. Filter Data
+    const filtered = database.filter(x => 
+        (x.mode || 'arsip') === currentMode && 
+        (x.no.toLowerCase().includes(q) || x.nama.toLowerCase().includes(q))
+    );
+    
+    // 2. Update Statistik
+    document.getElementById('statTotal').innerText = database.length;
+    document.getElementById('statSK').innerText = database.filter(x => x.jenis === 'SK').length;
+    document.getElementById('statSOP').innerText = database.filter(x => x.jenis === 'SOP').length;
+    const docLain = database.filter(x => x.jenis !== 'SK' && x.jenis !== 'SOP').length;
+    document.getElementById('statLain').innerText = docLain;
+    document.getElementById('statKlaster').innerText = [...new Set(database.map(x => x.klaster))].length;
 
-        // Table Body
-        document.getElementById('tableBody').innerHTML = filtered.map((x, i) => {
-            const thnArsip = new Date(x.tgl).getFullYear();
-            const umur = new Date().getFullYear() - thnArsip;
-            const retensi = x.jenis === "PERMANEN" ? "PERMANEN" : `USIA: ${umur} THN`;
+    // 3. Header Tabel
+    let head = `<th class="p-4">Dokumen</th><th class="p-4 text-center">Jenis</th><th class="p-4 text-center">Aksi</th>`;
+    document.getElementById('tableHead').innerHTML = head;
 
-            return `
-            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                <td class="p-4">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="font-mono text-emerald-600 font-black text-[10px]">${x.no}</span>
-                        <span class="text-[7px] px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-slate-400 font-bold">${retensi}</span>
-                    </div>
-                    <div class="font-bold uppercase text-slate-700 dark:text-slate-200 leading-tight">${x.nama}</div>
-                    <div class="text-[9px] text-slate-400 font-bold uppercase mt-1">
-                        <i class="far fa-calendar-alt mr-1"></i>${x.tgl} ${x.asal ? '| Dari: '+x.asal : ''} ${x.tujuan ? '| Ke: '+x.tujuan : ''}
-                    </div>
-                </td>
-                <td class="p-4 text-center">
-                    <span class="px-2 py-1 rounded-full text-[8px] font-black bg-slate-100 dark:bg-slate-800">${x.jenis || 'DOC'}</span>
-                </td>
-                <td class="p-4 flex justify-center gap-2">
-                    <button onclick="cetakBarcode(${database.indexOf(x)})" class="btn-action bg-slate-100 hover:bg-emerald-500 hover:text-white"><i class="fas fa-qrcode"></i></button>
-                    <button onclick="editData(${database.indexOf(x)})" class="btn-action bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white"><i class="fas fa-pen"></i></button>
-                    <button onclick="openPreview('${x.link}')" class="btn-action bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white"><i class="fas fa-eye"></i></button>
-                    <button onclick="hapus('${x.no}')" class="btn-action bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>`}).join('');
-    }
+    // 4. Body Tabel (Proses mapping data dimulai di sini)
+    document.getElementById('tableBody').innerHTML = filtered.map((x, i) => {
+        
+        // --- LOGIKA MASA RETENSI ---
+        const thnArsip = new Date(x.tgl).getFullYear();
+        const thnSekarang = new Date().getFullYear();
+        const umur = thnSekarang - thnArsip;
+
+        let retensiLabel = "";
+        let retensiColor = "";
+
+        if (x.jenis === "PERMANEN") {
+            retensiLabel = "PERMANEN";
+            retensiColor = "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30";
+        } else if (umur >= 10) {
+            retensiLabel = `INAKTIF (${umur} THN)`;
+            retensiColor = "bg-rose-100 text-rose-700 dark:bg-rose-900/40 animate-pulse";
+        } else if (umur >= 5) {
+            retensiLabel = `RETENSI (${umur} THN)`;
+            retensiColor = "bg-amber-100 text-amber-700 dark:bg-amber-900/30";
+        } else {
+            retensiLabel = `AKTIF (${umur} THN)`;
+            retensiColor = "bg-slate-100 text-slate-400 dark:bg-slate-700";
+        }
+        // ---------------------------
+
+        return `
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+            <td class="p-4">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="font-mono text-emerald-600 font-black text-[10px]">${x.no}</span>
+                    <span class="text-[7px] px-1.5 py-0.5 rounded font-bold ${retensiColor}">${retensiLabel}</span>
+                </div>
+                <div class="font-bold uppercase text-slate-700 dark:text-slate-200 leading-tight">${x.nama}</div>
+                <div class="text-[9px] text-slate-400 font-bold uppercase mt-1">
+                    <i class="far fa-calendar-alt mr-1"></i>${x.tgl} ${x.asal ? '| Dari: '+x.asal : ''} ${x.tujuan ? '| Ke: '+x.tujuan : ''}
+                </div>
+            </td>
+            <td class="p-4 text-center">
+                <span class="px-2 py-1 rounded-full text-[8px] font-black bg-slate-100 dark:bg-slate-800">${x.jenis || 'DOC'}</span>
+            </td>
+            <td class="p-4 flex justify-center gap-2">
+                <button onclick="cetakBarcode(${database.indexOf(x)})" class="btn-action bg-slate-100 hover:bg-emerald-500 hover:text-white"><i class="fas fa-qrcode"></i></button>
+                <button onclick="editData(${database.indexOf(x)})" class="btn-action bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white"><i class="fas fa-pen"></i></button>
+                <button onclick="openPreview('${x.link}')" class="btn-action bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white"><i class="fas fa-eye"></i></button>
+                <button onclick="hapus('${x.no}')" class="btn-action bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>`;
+    }).join('');
+}
 
     function cetakBarcode(i) {
         const data = database[i];
