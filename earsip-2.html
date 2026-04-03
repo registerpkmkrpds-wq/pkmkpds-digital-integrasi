@@ -327,20 +327,20 @@ document.getElementById('formArsip').onsubmit = async (e) => {
         link: editIndex !== null ? database[editIndex].link : "" 
     };
 
-    try {
-        await fetch(GAS_URL, {
-            method: "POST",
-            mode: "no-cors", 
-            headers: { "Content-Type": "text/plain" },
-            body: JSON.stringify(payload)
-        });
-        alert("Data Terkirim! Mohon tunggu sinkronisasi...");
-        resetForm();
-        setTimeout(syncFromGAS, 2000); 
+   try {
+    await fetch(GAS_URL, {
+        method: "POST",
+        mode: "no-cors", // Tambahkan ini
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(payload)
+    });
 
-    } catch (err) {
-        console.error(err);
-        alert("Terjadi kesalahan koneksi!");
+    alert("Data Terkirim! Silakan tunggu 2 detik lalu klik Sinkronisasi.");
+    resetForm();
+} catch (err) {
+    alert("Gagal terhubung ke server");
+}
+    
     } finally {
         btn.disabled = false;
         btn.innerText = editIndex !== null ? "UPDATE DATA" : "SIMPAN DATA";
