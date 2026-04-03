@@ -325,19 +325,16 @@
     label.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES FILE...';
     
     const reader = new FileReader();
-    reader.onload = (ev) => {
-        const result = ev.target.result;
-        if (result && result.includes(',')) {
-            // Pastikan ini mengisi variabel GLOBAL 'fileData' yang ada di baris atas script
-            fileData = { 
-                base64: result.split(',')[1], 
-                name: file.name, 
-                type: file.type 
-            };
-            label.innerText = "✅ " + file.name + " (SIAP)";
-            console.log("File di-encode: OK"); // Debugging
-        }
+reader.onload = (ev) => {
+    const result = ev.target.result;
+    fileData = { 
+        base64: result, // simpan full string dulu
+        name: file.name, 
+        type: file.type 
     };
+    label.innerHTML = "✅ " + file.name + " (FILE SIAP)";
+    document.getElementById('btnSimpan').disabled = false; // Aktifkan tombol
+};
     
     reader.onerror = () => {
         alert("Gagal membaca file!");
@@ -357,7 +354,6 @@
     const progText = document.getElementById('progressText');
     const namaDokumen = document.getElementById('arsipNama').value.trim();
 
-    // VALIDASI: Jangan kirim jika file belum siap (untuk upload baru)
     if (editIndex === null && !fileData) {
         alert("⚠️ File PDF belum terbaca sempurna atau belum dipilih. Mohon tunggu label menjadi 'SIAP'!");
         return;
@@ -372,9 +368,7 @@
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES...';
     progContainer.classList.remove('hidden');
     
-    // Ambil nomor surat yang dihasilkan saat ini
     const nomorSurat = generatePreview();
-
     const payload = {
         token: sessionStorage.getItem('arsip_session_pin'),
         action: editIndex !== null ? "update" : "upload",
@@ -393,7 +387,6 @@
 
     console.log("Payload yang dikirim:", payload); // LIHAT DI F12 BROWSER
 
-    // Animasi Progress
     let progress = 0;
     const interval = setInterval(() => {
         if (progress < 90) {
