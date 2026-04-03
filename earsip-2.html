@@ -38,17 +38,6 @@
 </head>
 <body class="min-h-screen flex text-sm">
 
-<div id="modalLogin" class="fixed inset-0 bg-slate-900 z-[9999] flex items-center justify-center p-4">
-    <div class="bg-slate-800 p-8 rounded-[2.5rem] text-center max-w-xs w-full shadow-2xl border border-slate-700">
-        <div class="w-16 h-16 bg-emerald-500/20 text-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl animate-bounce">
-            <i class="fas fa-lock"></i>
-        </div>
-        <h2 class="font-black text-white uppercase mb-2">Verifikasi</h2>
-        <input type="password" id="pinInput" class="input-modern text-center text-2xl mb-4 text-white tracking-widest" placeholder="****">
-        <button onclick="verifikasiPin()" class="w-full bg-emerald-600 text-white py-4 rounded-xl font-black shadow-lg hover:bg-emerald-500">MASUK</button>
-    </div>
-</div>
-
 <aside id="sidebar" class="bg-slate-900 text-white flex flex-col shrink-0 overflow-hidden">
     <div class="p-6 border-b border-slate-800 flex items-center gap-4">
         <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-folder-open"></i></div>
@@ -240,16 +229,6 @@
         "Klaster 4: P2P & Kesling": { icon: "fa-virus-slash", color: "text-emerald-600", bg: "bg-emerald-50" },
         "Lintas Klaster": { icon: "fa-layer-group", color: "text-indigo-600", bg: "bg-indigo-50" }
     };
-
-    function verifikasiPin() {
-        const pin = document.getElementById('pinInput').value;
-        if (btoa(pin) === PIN_HASH) {
-            sessionStorage.setItem('arsip_session_pin', pin);
-            document.getElementById('modalLogin').classList.add('hidden');
-            document.getElementById('mainContent').classList.remove('hidden');
-            initApp();
-        } else { alert("PIN SALAH!"); }
-    }
 
     function initApp() {
         const kSel = document.getElementById('selKlaster');
